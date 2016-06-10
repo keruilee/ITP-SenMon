@@ -5,4 +5,9 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+
+    <!--for favourite fragment-->
+    <string name="hello_blank_fragment">My Favourite </string>
 </resources>

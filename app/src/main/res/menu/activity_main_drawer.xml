@@ -18,6 +18,13 @@
             android:id="@+id/nav_manage"
             android:icon="@drawable/ic_menu_manage"
             android:title="Tools" />
+
+        <!--favourite -->
+        <item
+            android:id="@+id/nav_favourite"
+            android:icon="@drawable/star"
+            android:title="Favourite" />
+
     </group>
 
     <item android:title="Communicate">
