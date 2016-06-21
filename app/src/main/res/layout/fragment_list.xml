@@ -1,0 +1,50 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="edu.singaporetech.senmon.ListFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <LinearLayout
+        android:id = "@+id/mylinear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <Button
+            android:id="@+id/buttonMachineID"
+            android:layout_weight="1"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_border"
+            android:text="Machine ID" />
+
+        <Button
+            android:id="@+id/buttonTemperature"
+            android:layout_weight="1"
+            android:layout_width="80dp"
+            android:background="@drawable/button_border"
+            android:layout_height="wrap_content"
+            android:text="Temperature" />
+
+        <Button
+            android:id="@+id/buttonVelocity"
+            android:layout_weight="1"
+            android:layout_width="80dp"
+            android:background="@drawable/button_border"
+            android:layout_height="wrap_content"
+            android:text="Velocity" />
+
+    </LinearLayout>
+    <ListView
+        android:id="@+id/ListView"
+        android:layout_below="@id/mylinear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>
+
+
+

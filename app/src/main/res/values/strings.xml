@@ -10,4 +10,5 @@
 
     <!--for favourite fragment-->
     <string name="hello_blank_fragment">My Favourite </string>
+    <string name="title_activity_detail">Detail</string>
 </resources>

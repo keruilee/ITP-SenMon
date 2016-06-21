@@ -14,10 +14,16 @@
             android:id="@+id/nav_slideshow"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="Slideshow" />
+
         <item
             android:id="@+id/nav_manage"
             android:icon="@drawable/ic_menu_manage"
             android:title="Tools" />
+
+        <item
+            android:id="@+id/nav_list"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="List All" />
 
         <!--favourite -->
         <item

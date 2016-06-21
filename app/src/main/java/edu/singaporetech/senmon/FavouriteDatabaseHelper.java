@@ -20,8 +20,7 @@ public class FavouriteDatabaseHelper extends SQLiteOpenHelper {
 
     final private static String DBNAME = "FavouriteDB";
     final private static Integer VERSION = 1;
-    final private static String CREATE_CMD = "CREATE TABLE IF NOT EXISTS "+TABLE_NAME+"("+_ID+" INTEGER PRIMARY KEY ,"
-            +MACHINEID+" STRING)";
+    final private static String  CREATE_CMD = "CREATE TABLE " + TABLE_NAME + " (" +_ID + " INTEGER PRIMARY KEY," + columns[1] + " STRING);" ;
 
     public FavouriteDatabaseHelper(Context context) {
         // logic to create database
@@ -29,6 +28,8 @@ public class FavouriteDatabaseHelper extends SQLiteOpenHelper {
         super(context,DBNAME,null,VERSION);
         mContext = context;
     }
+
+
     // onCreate database//
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -42,36 +43,18 @@ public class FavouriteDatabaseHelper extends SQLiteOpenHelper {
         // Create tables again
         onCreate(db);
     }
-    // Get machine id//
-    public void getMachineID(int id)
-    {   SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("SELECT * FROM " + TABLE_NAME + " WHERE _ID ='" + id + "'");
-    }
-
     // Delete database //
     public void deleteDatabase(){
         mContext.deleteDatabase(DBNAME);
     }
-    // Add dummy data into database //
-    void addmachineID(String addmachineID) {
+
+    // Add  data into database //
+    public void addmachineID(String addmachineID) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(MACHINEID, addmachineID);
         db.insert(TABLE_NAME, null, values);
         db.close(); // Closing database connection
-    }
-
-    // check if already added//
-    public int checkDatabase(String checkmachineID)
-    {   SQLiteDatabase db = this.getWritableDatabase();
-
-        String countQuery = "SELECT  * FROM " + TABLE_NAME+ " WHERE MACHINEID ='"+checkmachineID+"'" ;
-
-        Cursor cursor = db.rawQuery(countQuery, null);
-        int count = cursor.getCount();
-        cursor.close();
-
-        return count;
     }
     // Clear rows //
     public void clearRows(){
@@ -79,12 +62,14 @@ public class FavouriteDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         db.close();
     }
-    // Delete the row by using id //
-    public void deleteRow(int id)
+    // Delete the row by using machindid //
+    public void removeMachineID(String machineID)
     {    SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_NAME, " _ID= '" + id + "'", null);
+        db.delete(TABLE_NAME, " machine= '" + machineID + "'", null);
+        db.close();
 
     }
+
     // Get column
     public static String[] getColumns()
     {
@@ -99,6 +84,11 @@ public class FavouriteDatabaseHelper extends SQLiteOpenHelper {
     public static String getId()
     {
         return _ID;
+    }
+    //get table name
+    public  static String getTableName()
+    {
+        return TABLE_NAME;
     }
 
 }
