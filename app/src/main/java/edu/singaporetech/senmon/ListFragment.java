@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.util.Property;
 import android.view.LayoutInflater;
@@ -118,9 +119,18 @@ public class ListFragment extends Fragment {
                 TextView intentMachineID = (TextView) viewgrp.findViewById(R.id.textViewmachineid);
 
                // intent to the detail page
-                Intent intent = new Intent(getActivity(), detail.class);
-                intent.putExtra("MachineID", intentMachineID.getText().toString());
-                startActivity(intent);
+//                Intent intent = new Intent(getActivity(), DetailsFragment.class);
+//                intent.putExtra("MachineID", intentMachineID.getText().toString());
+//                startActivity(intent);
+
+                FragmentTransaction transaction=getFragmentManager().beginTransaction();
+                DetailsFragment details = new DetailsFragment();
+                //using Bundle to send data
+                Bundle bundle2=new Bundle();
+                bundle2.putString("name", intentMachineID.getText().toString());
+                details.setArguments(bundle2); //data being send to MachineListFragment
+                transaction.replace(R.id.relativelayoutfor_fragment, details);
+                transaction.commit();
             }
         });
 

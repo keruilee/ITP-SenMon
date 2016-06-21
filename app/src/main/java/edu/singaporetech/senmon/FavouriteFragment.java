@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,9 +71,17 @@ public class FavouriteFragment extends Fragment {
                 TextView intentMachineID = (TextView) viewgrp.findViewById(R.id.textViewmachineid);
 
                 // intent to the detail page
-                Intent intent = new Intent(getActivity(), detail.class);
-                intent.putExtra("MachineID", intentMachineID.getText().toString());
-                startActivity(intent);
+//                Intent intent = new Intent(getActivity(), detail.class);
+//                intent.putExtra("MachineID", intentMachineID.getText().toString());
+//                startActivity(intent);
+                FragmentTransaction transaction=getFragmentManager().beginTransaction();
+                DetailsFragment details = new DetailsFragment();
+                //using Bundle to send data
+                Bundle bundle3=new Bundle();
+                bundle3.putString("name", intentMachineID.getText().toString());
+                details.setArguments(bundle3); //data being send to MachineListFragment
+                transaction.replace(R.id.relativelayoutfor_fragment, details);
+                transaction.commit();
             }
         });
 
