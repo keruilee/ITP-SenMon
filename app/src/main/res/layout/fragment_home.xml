@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/normmessageLbl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="420dp"
+        android:layout_marginTop="25dp"
+        android:background="#0B610B"
+        android:gravity="center"
+        android:text="All machines are working perfectly!"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#FFFFFF"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/critmessageLbl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="420dp"
+        android:layout_marginTop="25dp"
+        android:background="#FE2E2E"
+        android:drawableRight="@drawable/ic_more"
+        android:gravity="center"
+        android:text="Machine 1111 requires immediate action!"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#FFFFFF"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/warnmessageLbl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="420dp"
+        android:layout_marginTop="25dp"
+        android:background="#8A4B08"
+        android:drawableRight="@drawable/ic_more"
+        android:gravity="center"
+        android:text="Machine 1112 is in warning state!"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#FFFFFF"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/criticalBtn"
+        android:layout_width="170dp"
+        android:layout_height="170dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="120dp"
+        android:background="@drawable/ic_criticalbutton"
+        android:drawableTop="@drawable/ic_menu_critical"
+        android:drawablePadding="-10dp"
+        android:text="Critical"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/critTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="34dp"
+        android:layout_marginTop="260dp"
+        android:text="2/50 Machines"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#FFFFFF" />
+
+    <TextView
+        android:id="@+id/warningBtn"
+        android:layout_width="170dp"
+        android:layout_height="170dp"
+        android:layout_marginStart="185dp"
+        android:layout_marginTop="120dp"
+        android:background="@drawable/ic_warningbutton"
+        android:drawableTop="@drawable/ic_menu_warning"
+        android:drawablePadding="-10dp"
+        android:text="Warning"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/warnTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="208dp"
+        android:layout_marginTop="260dp"
+        android:text="5/50 Machines"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#FFFFFF" />
+
+    <TextView
+        android:id="@+id/normalBtn"
+        android:layout_width="170dp"
+        android:layout_height="170dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="310dp"
+        android:background="@drawable/ic_normalbutton"
+        android:drawableTop="@drawable/ic_menu_normal"
+        android:drawablePadding="-10dp"
+        android:text="Normal"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/normTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="450dp"
+        android:text="45/50 Machines"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#FFFFFF" />
+
+    <TextView
+        android:id="@+id/allBtn"
+        android:layout_width="170dp"
+        android:layout_height="170dp"
+        android:layout_marginStart="185dp"
+        android:layout_marginTop="310dp"
+        android:background="@drawable/ic_allbutton"
+        android:drawableTop="@drawable/ic_menu_all"
+        android:drawablePadding="-10dp"
+        android:text="All"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/allTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="220dp"
+        android:layout_marginTop="450dp"
+        android:text="50 Machines"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#FFFFFF" />
+
+</RelativeLayout>

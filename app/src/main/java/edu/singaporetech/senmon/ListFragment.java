@@ -3,8 +3,10 @@ package edu.singaporetech.senmon;
 
 import android.content.Intent;
 import android.database.DataSetObserver;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.util.Property;
 import android.view.LayoutInflater;
@@ -82,13 +84,13 @@ public class ListFragment extends Fragment {
         };*/
         View rootView = inflater.inflate(R.layout.fragment_list, container, false);
         Button sortMachineButton = (Button)rootView.findViewById(R.id.buttonMachineID);
-        Button sortTempButton = (Button)rootView.findViewById(R.id.buttonTemperature);
+        final Button sortTempButton = (Button)rootView.findViewById(R.id.buttonTemperature);
         Button sortVeloButton = (Button)rootView.findViewById(R.id.buttonVelocity);
 
         // temperature button on click
        sortTempButton.setOnClickListener(new View.OnClickListener() {
            public void onClick(View v) {
-               Log.i("Sort", "Sorting letter");
+               Log.i("Sort", "Sorting temp");
                Collections.sort(myMachineList, new Comparator<Machine>() {
                    public int compare(Machine m1, Machine m2) {
                        return m2.getmachineTemp().compareTo(m1.getmachineTemp());
@@ -96,13 +98,14 @@ public class ListFragment extends Fragment {
                });
                CustomAdapter adapter = new CustomAdapter(getActivity(),R.layout.fragment_list , myMachineList);
                listViewListing.setAdapter(adapter);
+               //sortTempButton.setTextColor(Color.parseColor("#ff0000"));
            }
        });
 
         // Velo button click
         sortVeloButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Log.i("Sort", "Sorting letter");
+                Log.i("Sort", "Sorting velo");
                 Collections.sort(myMachineList, new Comparator<Machine>() {
                     public int compare(Machine m1, Machine m2) {
                         return m2.getmachineVelo().compareTo(m1.getmachineVelo());
@@ -142,9 +145,18 @@ public class ListFragment extends Fragment {
                 TextView intentMachineID = (TextView) viewgrp.findViewById(R.id.textViewmachineid);
 
                // intent to the detail page
-                Intent intent = new Intent(getActivity(), detail.class);
-                intent.putExtra("MachineID", intentMachineID.getText().toString());
-                startActivity(intent);
+//                Intent intent = new Intent(getActivity(), DetailsFragment.class);
+//                intent.putExtra("MachineID", intentMachineID.getText().toString());
+//                startActivity(intent);
+
+                FragmentTransaction transaction=getFragmentManager().beginTransaction();
+                DetailsFragment details = new DetailsFragment();
+                //using Bundle to send data
+                Bundle bundle2=new Bundle();
+                bundle2.putString("name", intentMachineID.getText().toString());
+                details.setArguments(bundle2); //data being send to MachineListFragment
+                transaction.replace(R.id.relativelayoutfor_fragment, details);
+                transaction.commit();
             }
         });
 

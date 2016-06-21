@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Machine 1111"
+        android:id="@+id/tvMachineName"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"
+        android:textSize="30dp"/>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="#848484"
+        android:layout_marginTop="65dp"
+        android:id="@+id/line" />
+
+    <TextView
+        android:id="@+id/btnfavourite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableTop="@drawable/ic_menu_favourite"
+        android:layout_marginStart="220dp"
+        android:layout_marginTop="10dp"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/btnnofavourite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableTop="@drawable/ic_menu_unfavourite"
+        android:layout_marginStart="220dp"
+        android:layout_marginTop="10dp"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/downloadBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableTop="@drawable/ic_download"
+        android:layout_marginStart="260dp"
+        android:layout_marginTop="12dp"/>
+
+    <TextView
+        android:id="@+id/emailBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableTop="@drawable/ic_email"
+        android:layout_marginStart="310dp"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Temperature:"
+        android:id="@+id/tvTemperature"
+        android:layout_marginTop="80dp"
+        android:layout_marginStart="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="90°C"
+        android:id="@+id/tvTemperatureField"
+        android:layout_marginTop="80dp"
+        android:layout_marginStart="190dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Velocity:"
+        android:id="@+id/tvVelocity"
+        android:layout_marginTop="120dp"
+        android:layout_marginStart="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="0.45mm/s"
+        android:id="@+id/tvVelocityField"
+        android:layout_marginTop="120dp"
+        android:layout_marginStart="190dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Operating Hours:"
+        android:id="@+id/tvHour"
+        android:layout_marginTop="160dp"
+        android:layout_marginStart="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="200h 10min"
+        android:id="@+id/tvHourField"
+        android:layout_marginTop="160dp"
+        android:layout_marginStart="190dp"/>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="#848484"
+        android:layout_marginTop="200dp"
+        android:id="@+id/line2" />
+
+
+</RelativeLayout>

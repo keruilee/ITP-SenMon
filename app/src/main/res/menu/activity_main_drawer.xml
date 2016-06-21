@@ -3,22 +3,31 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_menu_home"
+            android:title="Home" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:id="@+id/nav_critical"
+            android:icon="@drawable/ic_menu_critical"
+            android:title="Critical" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:id="@+id/nav_warning"
+            android:icon="@drawable/ic_menu_warning"
+            android:title="Warning" />
+        <item
+            android:id="@+id/nav_normal"
+            android:icon="@drawable/ic_menu_normal"
+            android:title="Normal" />
+        <item
+            android:id="@+id/nav_all"
+            android:icon="@drawable/ic_menu_all"
+            android:title="All" />
+
 
         <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_menu_settings"
+            android:title="Settings" />
 
         <item
             android:id="@+id/nav_list"
@@ -28,7 +37,7 @@
         <!--favourite -->
         <item
             android:id="@+id/nav_favourite"
-            android:icon="@drawable/star"
+            android:icon="@drawable/ic_menu_favourite"
             android:title="Favourite" />
 
     </group>
