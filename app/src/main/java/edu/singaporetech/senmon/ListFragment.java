@@ -81,20 +81,46 @@ public class ListFragment extends Fragment {
 
         };*/
         View rootView = inflater.inflate(R.layout.fragment_list, container, false);
-        Button SortMachineButton = (Button)rootView.findViewById(R.id.buttonMachineID);
+        Button sortMachineButton = (Button)rootView.findViewById(R.id.buttonMachineID);
+        Button sortTempButton = (Button)rootView.findViewById(R.id.buttonTemperature);
+        Button sortVeloButton = (Button)rootView.findViewById(R.id.buttonVelocity);
+
+        // temperature button on click
+       sortTempButton.setOnClickListener(new View.OnClickListener() {
+           public void onClick(View v) {
+               Log.i("Sort", "Sorting letter");
+               Collections.sort(myMachineList, new Comparator<Machine>() {
+                   public int compare(Machine m1, Machine m2) {
+                       return m2.getmachineTemp().compareTo(m1.getmachineTemp());
+                   }
+               });
+               CustomAdapter adapter = new CustomAdapter(getActivity(),R.layout.fragment_list , myMachineList);
+               listViewListing.setAdapter(adapter);
+           }
+       });
+
+        // Velo button click
+        sortVeloButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.i("Sort", "Sorting letter");
+                Collections.sort(myMachineList, new Comparator<Machine>() {
+                    public int compare(Machine m1, Machine m2) {
+                        return m2.getmachineVelo().compareTo(m1.getmachineVelo());
+                    }
+                });
+                CustomAdapter adapter = new CustomAdapter(getActivity(),R.layout.fragment_list , myMachineList);
+                listViewListing.setAdapter(adapter);
+            }
+        });
+
         // favourite button on click
-        SortMachineButton.setOnClickListener(new View.OnClickListener() {
+        sortMachineButton.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                Log.i("Sort", "Sorting");
+                Log.i("Sort", "Sorting letter");
                 Collections.sort(myMachineList, new Comparator<Machine>() {
-                    @Override
-                    public int compare(Machine lhs, Machine rhs) {
-                        Log.i("Sort","Sorting?");
-                        Log.i("Sort",lhs+"");
-                        Log.i("Sort",rhs+"");
-
-                        return 0;
+                    public int compare(Machine m1, Machine m2) {
+                        return m1.getMachineID().compareTo(m2.getMachineID());
                     }
                 });
                 CustomAdapter adapter = new CustomAdapter(getActivity(),R.layout.fragment_list , myMachineList);
@@ -107,8 +133,6 @@ public class ListFragment extends Fragment {
         listViewListing = (ListView)rootView.findViewById(R.id.ListView);
         CustomAdapter adapter = new CustomAdapter(getActivity(),R.layout.fragment_list , myMachineList);
         listViewListing.setAdapter(adapter);
-
-
 
         // when click on the item
         listViewListing.setOnItemClickListener(new AdapterView.OnItemClickListener() {
