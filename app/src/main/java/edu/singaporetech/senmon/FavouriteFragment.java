@@ -27,7 +27,6 @@ import javax.crypto.Mac;
 public class FavouriteFragment extends Fragment {
     ListView listViewListing ;
     private FavouriteDatabaseHelper databaseHelper;
-    final ArrayList<Machine> myMachineList = new ArrayList<Machine>();
     Machine machine_data[];
 
     public FavouriteFragment() {
@@ -39,10 +38,10 @@ public class FavouriteFragment extends Fragment {
 
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        ArrayList<Machine> myMachineList = new ArrayList<Machine>();
         View rootView = inflater.inflate(R.layout.fragment_favourite, container, false);
         listViewListing = (ListView)rootView.findViewById(R.id.ListView);
         databaseHelper = new FavouriteDatabaseHelper(getActivity());
@@ -90,10 +89,12 @@ public class FavouriteFragment extends Fragment {
     }
 
 
-
-   /* public void onResume() {
+    @Override
+   public void onResume() {
         Log.e("DEBUG", "onResume of LoginFragment");
+
         super.onResume();
+        ArrayList<Machine> myMachineList = new ArrayList<Machine>();
             Cursor c = FavouriteList();
             if (c.moveToFirst()) {
                 do {
@@ -107,7 +108,7 @@ public class FavouriteFragment extends Fragment {
             listViewListing.setAdapter(adapter);
 
 
-    }*/
+    }
 
 
 
