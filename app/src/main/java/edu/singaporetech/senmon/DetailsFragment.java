@@ -5,7 +5,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,6 +44,7 @@ public class DetailsFragment extends Fragment {
     String machineID = "";
     View v;
     private FavouriteDatabaseHelper databaseHelper;
+    private TabLayout tabLayout;
 
 
     public DetailsFragment() {
@@ -54,6 +57,16 @@ public class DetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v = inflater.inflate(R.layout.fragment_details, container, false);
+
+
+        // Get the ViewPager and set it's PagerAdapter so that it can display items
+        ViewPager viewPager = (ViewPager) v.findViewById(R.id.viewpager);
+        viewPager.setAdapter(new ViewPageAdapter(getActivity().getSupportFragmentManager(),
+                this.getActivity()));
+
+        // Give the TabLayout the ViewPage
+        tabLayout = (TabLayout) v.findViewById(R.id.graph_tabs);
+        tabLayout.setupWithViewPager(viewPager);
 
         //Hardcode array
         Machine machine = new Machine("SDK001-M001-01-0001a", "0.3", "36.11", "50");
@@ -264,6 +277,10 @@ public class DetailsFragment extends Fragment {
             Log.i("CHECK", "false, not found in the database");
             return false;
         }
+
+    }
+
+    public void tabSelected() {
 
     }
 
