@@ -25,10 +25,10 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //start nav drawer
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -38,6 +38,11 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //start home fragment
+        HomeFragment homeFragment = new HomeFragment();
+        FragmentManager manager = getSupportFragmentManager();
+        manager.beginTransaction().add(R.id.relativelayoutfor_fragment, homeFragment).commit();
     }
 
     @Override
@@ -53,7 +58,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        //getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -85,17 +90,8 @@ public class MainActivity extends AppCompatActivity
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.relativelayoutfor_fragment, homeFragment).commit();
         }
-
-        else if (id == R.id.nav_list) {
-            ListFragment myListFragment = new ListFragment();
-            FragmentManager myManager = getSupportFragmentManager();
-            Toast toast = Toast.makeText(getApplicationContext(), "testing list!", Toast.LENGTH_SHORT);
-            toast.show();
-            myManager.beginTransaction().replace(R.id.relativelayoutfor_fragment, myListFragment).commit();
-
-        }
-        // added favourite
-     else if (id == R.id.nav_favourite) {
+        //link to favourite machine
+        else if (id == R.id.nav_favourite) {
 
             Context context = getApplicationContext();
             CharSequence text = "testing favourite!";
@@ -107,10 +103,32 @@ public class MainActivity extends AppCompatActivity
             FavouriteFragment myFavouriteFragment = new FavouriteFragment();
             FragmentManager myManager = getSupportFragmentManager();
             myManager.beginTransaction().replace(R.id.relativelayoutfor_fragment, myFavouriteFragment).commit();
+        }
+        //link to critical machine
+        else if (id == R.id.nav_critical) {
 
 
+        }
+        //link to warning machine
+        else if (id == R.id.nav_warning) {
 
-    }
+        }
+        //link to normal machine
+        else if (id == R.id.nav_normal) {
+
+        }
+        //link to all machine
+        else if (id == R.id.nav_all) {
+            ListFragment myListFragment = new ListFragment();
+            FragmentManager myManager = getSupportFragmentManager();
+            Toast toast = Toast.makeText(getApplicationContext(), "testing list!", Toast.LENGTH_SHORT);
+            toast.show();
+            myManager.beginTransaction().replace(R.id.relativelayoutfor_fragment, myListFragment).commit();
+        }
+        //link to setting
+        else if (id == R.id.nav_settings) {
+
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

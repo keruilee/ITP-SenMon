@@ -8,7 +8,30 @@
 
     <!-- TODO: Remove or change this placeholder text -->
 
+    <!--Fix state range-->
+    <string name="min_normal_temp">0</string>
+    <string name="max_normal_temp">20</string>
+    <string name="min_warning_temp">21</string>
+    <string name="max_warning_temp">30</string>
+    <string name="min_critical_temp">31</string>
+
+    <string name="min_normal_velo">0.01</string>
+    <string name="max_normal_velo">0.20</string>
+    <string name="min_warning_velo">0.21</string>
+    <string name="max_warning_velo">0.30</string>
+    <string name="min_critical_velo">0.31</string>
+
+    <!--for home fragment-->
+    <string name="machine_name">Machines</string>
+    <string name="warning_lbl">is in warning state!</string>
+    <string name="critical_lbl">requires immediate action!</string>
+
+
     <!--for favourite fragment-->
-    <string name="hello_blank_fragment">My Favourite </string>
+    <string name="hello_blank_fragment">My Favourite</string>
     <string name="title_activity_detail">Detail</string>
+
+    <!--for details fragment-->
+    <string name="datetime_format">MM/dd/yyyy HH:mm:ss</string>
+
 </resources>

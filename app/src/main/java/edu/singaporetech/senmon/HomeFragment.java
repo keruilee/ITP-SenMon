@@ -19,77 +19,12 @@ import java.util.Arrays;
  */
 public class HomeFragment extends Fragment {
 
-    //hardcode array for testing computeMachine()
-    public ArrayList<String> arrayN = new ArrayList(Arrays.asList(
-            "Machine A",
-            "Machine B",
-            "Machine C",
-            "Machine D",
-            "Machine E",
-            "Machine F",
-            "Machine G",
-            "Machine H"));
-
-    public ArrayList<Double> arrayV = new ArrayList(Arrays.asList(
-            15.00,
-            13.122,
-            25.55,
-            37.21,
-            40.57,
-            59.00,
-            5.22,
-            21.2222));
-
-    public ArrayList<Double> arrayT = new ArrayList(Arrays.asList(
-            24.00,
-            14.00,
-            28.55,
-            33.212,
-            48.57,
-            52.00,
-            26.33,
-            5.223));
-
-    //hardcode array for testing checkpriority()
-    public ArrayList<String> arrayTestN = new ArrayList(Arrays.asList(
-            "Machine A",
-            "Machine H"));
-
-        public ArrayList<String> arrayTestW = new ArrayList(Arrays.asList(
-            "Machine C",
-            "Machine F",
-            "Machine G",
-            "Machine E"));
-//    ArrayList<String> arrayTestW = new ArrayList<String>();
-
-    public ArrayList<String> arrayTestC = new ArrayList(Arrays.asList(
-            "Machine B",
-            "Machine D",
-            "Machine E"));
-//ArrayList<String> arrayTestC = new ArrayList<String>();
-
-    public ArrayList<Double> arrayNH = new ArrayList(Arrays.asList(
-            25.56,
-            5.229));
-
-    public ArrayList<Double> arrayWH = new ArrayList(Arrays.asList(
-            21.00,
-            100.202,
-            59.00,
-            -5.2));
-
-    public ArrayList<Double> arrayCH = new ArrayList(Arrays.asList(
-            255.55,
-            32.212,
-            48.57));
-
-
     //Declare variables
     public ArrayList<String> normHArray = new ArrayList<String>();
     public ArrayList<String> warnHArray = new ArrayList<String>();
     public ArrayList<String> critHArray = new ArrayList<String>();
     public ArrayList<String> allHArray = new ArrayList<String>();
-    String hmachineName="";
+    String hmachineID = "";
 
     //Declare variables
     String TAG = "Home Fragment";
@@ -97,6 +32,8 @@ public class HomeFragment extends Fragment {
     private TextView tvCritLbl, tvWarnLbl, tvNormLbl, critBtn, warnBtn, normBtn, allBtn;
     View v;
 
+    //hardcode array
+    final ArrayList<Machine> myMachineList = new ArrayList<Machine>();
 
     public HomeFragment() {
         // Required empty public constructor
@@ -106,6 +43,21 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_home, container, false);
+
+        //Hardcode array
+        Machine machine = new Machine("SDK001-M001-01-0001a", "0.3", "36.11", "50");
+        Machine machine2 = new Machine("SDK221-M001-01-0001a", "0.2244", "10.11", "33");
+        Machine machine3 = new Machine("SDK331-M001-01-0001a", "0.293", "20.11", "53");
+        Machine machine4 = new Machine("ADK444-M001-01-0001a", "0.922", "30.11", "900");
+        Machine machine5 = new Machine("SDK555-M001-01-0001a", "0.312", "40.11", "6");
+        Machine machine6 = new Machine("SDK166-M001-01-0001a", "0.9222", "5.11", "3");
+
+        myMachineList.add(machine);
+        myMachineList.add(machine2);
+        myMachineList.add(machine3);
+        myMachineList.add(machine4);
+        myMachineList.add(machine5);
+        myMachineList.add(machine6);
 
         //Set variables
         tvCrit = (TextView) v.findViewById(R.id.critTxt);
@@ -124,18 +76,18 @@ public class HomeFragment extends Fragment {
         computeMachine();
 
         //call checkPriority method
-        hmachineName = checkPriority();
+        hmachineID = checkPriority();
 
         //Button onClick to redirect to info fragment
         tvCritLbl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                FragmentTransaction transaction=getFragmentManager().beginTransaction();
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 DetailsFragment details = new DetailsFragment();
                 //using Bundle to send data
-                Bundle bundle=new Bundle();
-                bundle.putString("name",hmachineName);
+                Bundle bundle = new Bundle();
+                bundle.putString("name", hmachineID);
                 details.setArguments(bundle); //data being send to DetailsFragment
                 transaction.replace(R.id.relativelayoutfor_fragment, details);
                 transaction.commit();
@@ -147,11 +99,11 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                FragmentTransaction transaction=getFragmentManager().beginTransaction();
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 DetailsFragment details = new DetailsFragment();
                 //using Bundle to send data
-                Bundle bundle=new Bundle();
-                bundle.putString("name",hmachineName);
+                Bundle bundle = new Bundle();
+                bundle.putString("name", hmachineID);
                 details.setArguments(bundle); //data being send to DetailsFragment
                 transaction.replace(R.id.relativelayoutfor_fragment, details);
                 transaction.commit();
@@ -164,18 +116,11 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-//                MachineListFragment list = new MachineListFragment();
-//                FragmentManager fragmentManager = getFragmentManager();
-//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                fragmentTransaction.replace(R.id.relativelayoutfor_fragment, list);
-//                fragmentTransaction.addToBackStack(null);
-//                fragmentTransaction.commit();
-
-                FragmentTransaction transaction=getFragmentManager().beginTransaction();
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 ListFragment list = new ListFragment();
                 //using Bundle to send data
-                Bundle bundle=new Bundle();
-                bundle.putStringArrayList("name",critHArray);
+                Bundle bundle = new Bundle();
+                bundle.putStringArrayList("name", critHArray);
                 list.setArguments(bundle); //data being send to MachineListFragment
                 transaction.replace(R.id.relativelayoutfor_fragment, list);
                 transaction.commit();
@@ -187,11 +132,11 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                FragmentTransaction transaction=getFragmentManager().beginTransaction();
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 ListFragment list = new ListFragment();
                 //using Bundle to send data
-                Bundle bundle=new Bundle();
-                bundle.putStringArrayList("name",warnHArray);
+                Bundle bundle = new Bundle();
+                bundle.putStringArrayList("name", warnHArray);
                 list.setArguments(bundle); //data being send to MachineListFragment
                 transaction.replace(R.id.relativelayoutfor_fragment, list);
                 transaction.commit();
@@ -203,11 +148,11 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                FragmentTransaction transaction=getFragmentManager().beginTransaction();
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 ListFragment list = new ListFragment();
                 //using Bundle to send data
-                Bundle bundle=new Bundle();
-                bundle.putStringArrayList("name",normHArray);
+                Bundle bundle = new Bundle();
+                bundle.putStringArrayList("name", normHArray);
                 list.setArguments(bundle); //data being send to MachineListFragment
                 transaction.replace(R.id.relativelayoutfor_fragment, list);
                 transaction.commit();
@@ -219,11 +164,11 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                FragmentTransaction transaction=getFragmentManager().beginTransaction();
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 ListFragment list = new ListFragment();
                 //using Bundle to send data
-                Bundle bundle=new Bundle();
-                bundle.putStringArrayList("name",allHArray);
+                Bundle bundle = new Bundle();
+                bundle.putStringArrayList("name", allHArray);
                 list.setArguments(bundle); //data being send to MachineListFragment
                 transaction.replace(R.id.relativelayoutfor_fragment, list);
                 transaction.commit();
@@ -245,52 +190,53 @@ public class HomeFragment extends Fragment {
         int noOfCrit = 0;
         int noOfWarn = 0;
         int noOfNorm = 0;
-        int i, m, n, o;
-        int y, j, k;
+        int m, n, o;
 
-        int totalMachine = arrayN.size();
-
+        int totalMachine = myMachineList.size();
         Log.i(TAG + " Total Machine ", String.valueOf(totalMachine));
 
-        for (i = 0; i < totalMachine; i++) {
-            if ((arrayT.get(i) >= 0 & arrayT.get(i) < 21) || (arrayV.get(i) >= 0 & arrayV.get(i) < 21)) {
-                normArray.add(arrayN.get(i));
+        for(Machine machine : myMachineList)
+        {
+            if ((Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(getString(R.string.min_normal_temp)) & Double.parseDouble(machine.getmachineTemp()) <= Double.parseDouble(getString(R.string.max_normal_temp))) | (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(getString(R.string.min_normal_velo)) & Double.parseDouble(machine.getmachineVelo()) <=Double.parseDouble(getString(R.string.max_normal_velo)))) {
+                normArray.add(machine.getMachineID());
                 noOfNorm++;
 
             }
-            if ((arrayT.get(i) >= 21 & arrayT.get(i) < 31) || (arrayV.get(i) >= 21 & arrayV.get(i) < 31)) {
+            if ((Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(getString(R.string.min_warning_temp)) & Double.parseDouble(machine.getmachineTemp()) <= Double.parseDouble(getString(R.string.max_warning_temp))) | (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(getString(R.string.min_warning_velo)) & Double.parseDouble(machine.getmachineVelo()) <= Double.parseDouble(getString(R.string.max_warning_velo)))) {
 
                 for (m = 0; m < normArray.size(); m++) {
-                    if (normArray.get(m).equals(arrayN.get(i))) {
+                    if (normArray.get(m).equals(machine.getMachineID())) {
                         normArray.remove(m);
                         noOfNorm--;
                     }
                 }
 
-                warnArray.add(arrayN.get(i));
+                warnArray.add(machine.getMachineID());
                 noOfWarn++;
             }
-            if (arrayT.get(i) >= 31 || arrayV.get(i) >= 31) {
+            if (Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(getString(R.string.min_critical_temp)) | Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(getString(R.string.min_critical_velo))) {
 
                 for (n = 0; n < normArray.size(); n++) {
-                    if (normArray.get(n).equals(arrayN.get(i))) {
+                    if (normArray.get(n).equals(machine.getMachineID())) {
                         normArray.remove(n);
                         noOfNorm--;
                     }
                 }
 
                 for (o = 0; o < warnArray.size(); o++) {
-                    if (warnArray.get(o).equals(arrayN.get(i))) {
+                    if (warnArray.get(o).equals(machine.getMachineID())) {
                         warnArray.remove(o);
-                        noOfCrit--;
+                        noOfWarn--;
                     }
                 }
 
-                critArray.add(arrayN.get(i));
+                critArray.add(machine.getMachineID());
                 noOfCrit++;
             }
         }
 
+
+        //store machine name in each array state
         normHArray = normArray;
         warnHArray = warnArray;
         critHArray = critArray;
@@ -299,96 +245,72 @@ public class HomeFragment extends Fragment {
         allHArray.addAll(warnArray);
         allHArray.addAll(critArray);
 
-
-        tvCrit.setText(noOfCrit + "/" + totalMachine + " Machines");
-        tvWarn.setText(noOfWarn + "/" + totalMachine + " Machines");
-        tvNorm.setText(noOfNorm + "/" + totalMachine + " Machines");
-        tvAll.setText(totalMachine + " Machines");
-
-//        for(y=0;y<normArray.size();y++)
-//        {
-//            Log.i(TAG + " Normal Machine ", String.valueOf(normArray.get(y)));
-//        }
-//
-//        for(j=0;j<warnArray.size();j++)
-//        {
-//            Log.i(TAG + " Warning Machine ", String.valueOf(warnArray.get(j)));
-//        }
-//
-//        for(k=0;k<critArray.size();k++)
-//        {
-//            Log.i(TAG + " Critical Machine ", String.valueOf(critArray.get(k)));
-//        }
+        //Set to display on button textview
+        tvCrit.setText(noOfCrit + "/" + totalMachine + " " + getString(R.string.machine_name));
+        tvWarn.setText(noOfWarn + "/" + totalMachine + " " + getString(R.string.machine_name));
+        tvNorm.setText(noOfNorm + "/" + totalMachine + " " + getString(R.string.machine_name));
+        tvAll.setText(totalMachine + " " + getString(R.string.machine_name));
 
     }
 
-
-    //    //Check highest priority machine in critical state
-//    private void checkPriority(){
-//        //declare variables
-//        Double machineName = 0.00;
-//
-//        //Display different alert depending on states
-//        if (critHArray.isEmpty()) {
-//            //show normal alert
-//            if (warnHArray.isEmpty()) {
-//                tvNormLbl.setVisibility(View.VISIBLE);
-//            }
-//            //show warning alert
-//            else {
-//                machineName = computeHour(arrayH);
-//                tvWarnLbl.setText(Double.toString(machineName) + " is in warning state!");
-//                tvWarnLbl.setVisibility(View.VISIBLE);
-//            }
-//
-//        }
-//        //show critical alert
-//        else {
-//            machineName = computeHour(arrayH);
-//            tvCritLbl.setText(Double.toString(machineName) + " requires immediate action!");
-//            tvCritLbl.setVisibility(View.VISIBLE);
-//        }
-//    }
-//Testing Check highest priority machine in critical state
+    //Check highest priority machine in critical state
     private String checkPriority() {
         //declare variables
-        String machineName = "";
+        String machineID = "";
         Double machineValue = 0.00;
+        ArrayList<Double> arrayWH = new ArrayList<Double>();
+        ArrayList<Double> arrayCH = new ArrayList<Double>();
+
 
         //Display different alert depending on states
-        if (arrayTestC.isEmpty()) {
+        if (critHArray.isEmpty()) {
             //show normal alert
-            if (arrayTestW.isEmpty()) {
+            if (warnHArray.isEmpty()) {
                 tvNormLbl.setVisibility(View.VISIBLE);
             }
             //show warning alert
             else {
+                for (Machine machine1 : myMachineList) {
+                    for (int i = 0; i < warnHArray.size(); i++) {
+                        if (machine1.getMachineID().equals(warnHArray.get(i))) {
+                            arrayWH.add(Double.parseDouble(machine1.getMachineHour()));
+                        }
+                    }
+                }
+
                 machineValue = computeHour(arrayWH);
 
                 for (int t = 0; t < arrayWH.size(); t++) {
                     if (machineValue.equals(arrayWH.get(t))) {
-                        machineName = arrayTestW.get(t);
+                        machineID = warnHArray.get(t);
                     }
                 }
-                tvWarnLbl.setText(machineName + " is in warning state!");
+                tvWarnLbl.setText(machineID + " " + getString(R.string.warning_lbl));
                 tvWarnLbl.setVisibility(View.VISIBLE);
             }
 
         }
         //show critical alert
         else {
+            for (Machine machine2 : myMachineList) {
+                for (int p = 0; p < critHArray.size(); p++) {
+                    if (machine2.getMachineID().equals(critHArray.get(p))) {
+                        arrayCH.add(Double.parseDouble(machine2.getMachineHour()));
+                    }
+                }
+            }
             machineValue = computeHour(arrayCH);
 
             for (int u = 0; u < arrayCH.size(); u++) {
                 if (machineValue.equals(arrayCH.get(u))) {
-                    machineName = arrayTestC.get(u);
+                    machineID = critHArray.get(u);
                 }
             }
-            tvCritLbl.setText(machineName + " requires immediate action!");
+            tvCritLbl.setText(machineID + " " + getString(R.string.critical_lbl));
             tvCritLbl.setVisibility(View.VISIBLE);
         }
-        Log.i(TAG + " Machine Name ", machineName);
-        return machineName;
+        Log.i(TAG + " Machine Name ", machineID);
+        return machineID;
     }
 
 

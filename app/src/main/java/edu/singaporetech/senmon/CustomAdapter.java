@@ -57,20 +57,20 @@ public class CustomAdapter extends ArrayAdapter<Machine> {
         velovalue = Double.parseDouble(myMachine.getmachineVelo());
 
         // changing colors for temp and velo
-        if (tempvalue >= 30)
+        if (tempvalue >= 31)
         {
             textViewTemp.setTextColor(Color.RED);
         }
-        if ((tempvalue >= 20 )&& (tempvalue <30))
+        if ((tempvalue >= 21 )&& (tempvalue <=30))
         {
             textViewTemp.setTextColor(Color.parseColor("#ffa500"));
         }
-        if (velovalue >= 0.6)
+        if (velovalue >= 0.01)
         {
 
             textViewVelo.setTextColor(Color.RED);
         }
-        if ((velovalue>=0.3 && (velovalue<0.6)))
+        if ((velovalue>=0.21 && (velovalue<=0.30)))
         {
             textViewVelo.setTextColor(Color.parseColor("#ffa500"));
         }

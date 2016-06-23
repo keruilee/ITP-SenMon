@@ -6,7 +6,7 @@
     <TextView
         android:id="@+id/normmessageLbl"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="50dp"
         android:layout_marginBottom="420dp"
         android:layout_marginTop="25dp"
         android:background="#0B610B"
@@ -14,12 +14,13 @@
         android:text="All machines are working perfectly!"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="#FFFFFF"
+        android:visibility="invisible"
          />
 
     <TextView
         android:id="@+id/critmessageLbl"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="50dp"
         android:layout_marginBottom="420dp"
         android:layout_marginTop="25dp"
         android:background="#FE2E2E"
@@ -34,7 +35,7 @@
     <TextView
         android:id="@+id/warnmessageLbl"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="50dp"
         android:layout_marginTop="25dp"
         android:background="#c37521"
         android:drawableRight="@drawable/ic_more"
@@ -59,7 +60,6 @@
         android:textStyle="bold"
         android:layout_alignBottom="@+id/critTxt"
         android:layout_alignStart="@+id/normalBtn"
-        android:visibility="invisible"
         />
 
     <TextView

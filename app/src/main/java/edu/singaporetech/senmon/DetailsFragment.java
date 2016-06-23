@@ -17,6 +17,7 @@ import org.w3c.dom.Text;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 
 
 /**
@@ -24,51 +25,13 @@ import java.util.Arrays;
  */
 public class DetailsFragment extends Fragment {
 
-    //hardcode variables for testing
-    public ArrayList<String> nameArray = new ArrayList(Arrays.asList(
-            "Machine A",
-            "Machine B",
-            "Machine C",
-            "Machine D",
-            "Machine E",
-            "Machine F",
-            "Machine G",
-            "Machine H"));
+    //hardcode array
+    final ArrayList<Machine> myMachineList = new ArrayList<Machine>();
 
-    public ArrayList<Double> veloArray = new ArrayList(Arrays.asList(
-            15.00,
-            21.122,
-            25.55,
-            37.21,
-            40.57,
-            59.00,
-            5.22,
-            21.2222));
-
-    public ArrayList<Double> tempArray = new ArrayList(Arrays.asList(
-            24.00,
-            32.00,
-            28.55,
-            33.212,
-            48.57,
-            52.00,
-            26.33,
-            5.223));
-
-    public ArrayList<String> hourArray = new ArrayList(Arrays.asList(
-            "200h 10min",
-            "2h 4min",
-            "5h 1min",
-            "33h 12min",
-            "24h 100min",
-            "4h 94min",
-            "23h 49min",
-            "66h 49min"));
-
+    //test computation of datetime
     String startDate = "04/18/2012 09:29:58";
     String endDate = "04/20/2012 15:42:41";
     String time = "";
-
 
 
     //Declare variables
@@ -90,6 +53,21 @@ public class DetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v = inflater.inflate(R.layout.fragment_details, container, false);
+
+        //Hardcode array
+        Machine machine = new Machine("SDK001-M001-01-0001a", "0.3", "36.11", "50");
+        Machine machine2 = new Machine("SDK221-M001-01-0001a", "0.2244", "10.11", "33");
+        Machine machine3 = new Machine("SDK331-M001-01-0001a", "0.293", "20.11", "53");
+        Machine machine4 = new Machine("ADK444-M001-01-0001a", "0.922", "30.11", "900");
+        Machine machine5 = new Machine("SDK555-M001-01-0001a", "0.312", "40.11", "6");
+        Machine machine6 = new Machine("SDK166-M001-01-0001a", "0.9222", "5.11", "3");
+
+        myMachineList.add(machine);
+        myMachineList.add(machine2);
+        myMachineList.add(machine3);
+        myMachineList.add(machine4);
+        myMachineList.add(machine5);
+        myMachineList.add(machine6);
 
         //Set variables
         tvDMachineName = (TextView) v.findViewById(R.id.tvMachineName);
@@ -119,13 +97,6 @@ public class DetailsFragment extends Fragment {
             machineID = bundle3.getString("name");
         }
 
-
-        // intent the machine id and display to on textview
-//        textViewMachineId.setText(machine);
-//        Bundle extras = getIntent().getExtras();
-//        machineID = extras.getString("MachineID");
-//        textViewMachineId.setText(machineID);
-
         //database helper
         databaseHelper = new FavouriteDatabaseHelper(getContext());
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
@@ -140,17 +111,17 @@ public class DetailsFragment extends Fragment {
         {
             //tvDFavourite.setText("Click to favourite");
             tvDNoFavourite.setVisibility(View.VISIBLE);
-
-
+            tvDFavourite.setVisibility(View.INVISIBLE);
         }
         else
         {
             //tvDFavourite.setText("Click to unfavourite");
             tvDFavourite.setVisibility(View.VISIBLE);
+            tvDNoFavourite.setVisibility(View.INVISIBLE);
         }
 
 
-        tvDFavourite.setOnClickListener(new View.OnClickListener() {
+        tvDNoFavourite.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
                 if (checkEvent(machineID) == false)
@@ -163,16 +134,23 @@ public class DetailsFragment extends Fragment {
                     checkEvent(machineID);
                     //tvDFavourite.setText("Click to unfavourite");
                     tvDFavourite.setVisibility(View.VISIBLE);
-
+                    tvDNoFavourite.setVisibility(View.INVISIBLE);
 
                 }
-                else if (checkEvent(machineID) == true)
+
+            }});
+
+        tvDFavourite.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+                if (checkEvent(machineID) == true)
 
                 {
                     databaseHelper.removeMachineID(machineID);
                     checkEvent(machineID);
                     //tvDFavourite.setText("Click to favourite");
                     tvDNoFavourite.setVisibility(View.VISIBLE);
+                    tvDFavourite.setVisibility(View.INVISIBLE);
                 }
             }});
 
@@ -183,44 +161,45 @@ public class DetailsFragment extends Fragment {
     //Retrieve machine details
     private void machineDetails(String machineName) {
 
-        for (int i=0; i<nameArray.size();i++)
-        {
-            if(machineName.equals(nameArray.get(i)))
-            {
-                //check temperature value range
-                if (tempArray.get(i) >= 0 & tempArray.get(i) < 21) {
-                    //Normal state text color
-                    tvDTemperature.setTextColor(Color.parseColor("#0B610B"));
-                }
-                else if (tempArray.get(i) >= 21 & tempArray.get(i) < 31) {
-                    //Warning state text color
-                    tvDTemperature.setTextColor(Color.parseColor("#8A4B08"));
-                }
-                else {
-                    //Critical state text color
-                    tvDTemperature.setTextColor(Color.parseColor("#FE2E2E"));
-                }
+        Iterator<Machine> i = myMachineList.iterator();
+        while (i.hasNext()) {
+            Machine s = i.next();
+                if (machineName.contains(s.getMachineID()))
+                {
+                    //check temperature value range
+                    if (Double.parseDouble(s.getmachineTemp()) >= Double.parseDouble(getString(R.string.min_normal_temp)) & Double.parseDouble(s.getmachineTemp()) <= Double.parseDouble(getString(R.string.max_normal_temp))) {
+                        //Normal state text color
+                        tvDTemperature.setTextColor(Color.parseColor("#0B610B"));
+                    }
+                    else if (Double.parseDouble(s.getmachineTemp()) >= Double.parseDouble(getString(R.string.min_warning_temp)) & Double.parseDouble(s.getmachineTemp()) <= Double.parseDouble(getString(R.string.max_warning_temp))) {
+                        //Warning state text color
+                        tvDTemperature.setTextColor(Color.parseColor("#8A4B08"));
+                    }
+                    else {
+                        //Critical state text color
+                        tvDTemperature.setTextColor(Color.parseColor("#FE2E2E"));
+                    }
 
-                //check velocity value range
-                if (veloArray.get(i) >= 0 & veloArray.get(i) < 21) {
-                    //Normal state text color
-                    tvDVelocity.setTextColor(Color.parseColor("#0B610B"));
-                }
-                else if (veloArray.get(i) >= 21 & veloArray.get(i) < 31) {
-                    //Warning state text color
-                    tvDVelocity.setTextColor(Color.parseColor("#8A4B08"));
-                }
-                else {
-                    //Critical state text color
-                    tvDVelocity.setTextColor(Color.parseColor("#FE2E2E"));
-                }
+                    //check velocity value range
+                    if (Double.parseDouble(s.getmachineVelo()) >= Double.parseDouble(getString(R.string.min_normal_velo)) & Double.parseDouble(s.getmachineVelo()) <= Double.parseDouble(getString(R.string.max_normal_velo))) {
+                        //Normal state text color
+                        tvDVelocity.setTextColor(Color.parseColor("#0B610B"));
+                    }
+                    else if (Double.parseDouble(s.getmachineVelo()) >= Double.parseDouble(getString(R.string.min_warning_velo)) & Double.parseDouble(s.getmachineVelo()) <= Double.parseDouble(getString(R.string.max_warning_velo))) {
+                        //Warning state text color
+                        tvDVelocity.setTextColor(Color.parseColor("#8A4B08"));
+                    }
+                    else {
+                        //Critical state text color
+                        tvDVelocity.setTextColor(Color.parseColor("#FE2E2E"));
+                    }
 
-                tvDTemperature.setText(String.valueOf(tempArray.get(i)));
-                tvDVelocity.setText(String.valueOf(veloArray.get(i)));
-                tvDHour.setText(String.valueOf(hourArray.get(i)));
-                //tvDHour.setText(time);
-            }
+                    tvDTemperature.setText(String.valueOf(Double.parseDouble(s.getmachineTemp())));
+                    tvDVelocity.setText(String.valueOf(Double.parseDouble(s.getmachineVelo())));
+                    tvDHour.setText(String.valueOf(Double.parseDouble(s.getMachineHour())));
+                }
         }
+
 
     }
 
@@ -279,7 +258,7 @@ public class DetailsFragment extends Fragment {
             return true;
         }
         else{
-            Log.i("CHECK", "false, not found in the databse");
+            Log.i("CHECK", "false, not found in the database");
             return false;
         }
 
