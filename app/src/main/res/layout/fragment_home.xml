@@ -3,17 +3,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!--android:background="#0B610B"-->
     <TextView
         android:id="@+id/normmessageLbl"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginBottom="420dp"
         android:layout_marginTop="25dp"
-        android:background="#0B610B"
+        android:background="@color/colorNormal"
         android:gravity="center"
         android:text="All machines are working perfectly!"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/colorWhite"
         android:visibility="invisible"
          />
 
@@ -23,26 +24,27 @@
         android:layout_height="50dp"
         android:layout_marginBottom="420dp"
         android:layout_marginTop="25dp"
-        android:background="#FE2E2E"
+        android:background="@color/colorCritical"
         android:drawableRight="@drawable/ic_more"
         android:gravity="center"
         android:text="Machine 1111 requires immediate action!"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/colorWhite"
         android:visibility="invisible"
       />
 
+    <!--android:background="#c37521"-->
     <TextView
         android:id="@+id/warnmessageLbl"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="25dp"
-        android:background="#c37521"
+        android:background="@color/colorWarning"
         android:drawableRight="@drawable/ic_more"
         android:gravity="center"
         android:text="Machine 1112 is in warning state!"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/colorWhite"
         android:visibility="invisible"
         android:layout_alignBottom="@+id/normmessageLbl" />
 
@@ -55,7 +57,7 @@
         android:drawablePadding="-10dp"
         android:text="Critical"
         android:textAlignment="center"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/colorWhite"
         android:textSize="30sp"
         android:textStyle="bold"
         android:layout_alignBottom="@+id/critTxt"
@@ -70,7 +72,7 @@
         android:layout_marginTop="260dp"
         android:text="2/50 Machines"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#FFFFFF" />
+        android:textColor="@color/colorWhite" />
 
     <TextView
         android:id="@+id/warningBtn"
@@ -81,7 +83,7 @@
         android:drawablePadding="-10dp"
         android:text="Warning"
         android:textAlignment="center"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/colorWhite"
         android:textSize="30sp"
         android:textStyle="bold"
         android:layout_alignBottom="@+id/warnTxt"
@@ -95,7 +97,7 @@
         android:layout_marginTop="260dp"
         android:text="5/50 Machines"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#FFFFFF" />
+        android:textColor="@color/colorWhite" />
 
     <TextView
         android:id="@+id/normalBtn"
@@ -108,7 +110,7 @@
         android:drawablePadding="-10dp"
         android:text="Normal"
         android:textAlignment="center"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/colorWhite"
         android:textSize="30sp"
         android:textStyle="bold" />
 
@@ -120,7 +122,7 @@
         android:layout_marginTop="450dp"
         android:text="45/50 Machines"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#FFFFFF" />
+        android:textColor="@color/colorWhite" />
 
     <TextView
         android:id="@+id/allBtn"
@@ -133,7 +135,7 @@
         android:drawablePadding="-10dp"
         android:text="All"
         android:textAlignment="center"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/colorWhite"
         android:textSize="30sp"
         android:textStyle="bold" />
 
@@ -145,6 +147,6 @@
         android:layout_marginTop="450dp"
         android:text="50 Machines"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#FFFFFF" />
+        android:textColor="@color/colorWhite" />
 
 </RelativeLayout>

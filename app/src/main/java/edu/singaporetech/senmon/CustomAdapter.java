@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,6 +37,7 @@ public class CustomAdapter extends ArrayAdapter<Machine> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        context = this.getContext();
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
 
@@ -59,20 +61,20 @@ public class CustomAdapter extends ArrayAdapter<Machine> {
         // changing colors for temp and velo
         if (tempvalue >= 31)
         {
-            textViewTemp.setTextColor(Color.RED);
+            textViewTemp.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
         }
         if ((tempvalue >= 21 )&& (tempvalue <=30))
         {
-            textViewTemp.setTextColor(Color.parseColor("#ffa500"));
+            textViewTemp.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
         }
         if (velovalue >= 0.01)
         {
 
-            textViewVelo.setTextColor(Color.RED);
+            textViewVelo.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
         }
         if ((velovalue>=0.21 && (velovalue<=0.30)))
         {
-            textViewVelo.setTextColor(Color.parseColor("#ffa500"));
+            textViewVelo.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
         }
         return rowView;
     }

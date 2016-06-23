@@ -1,8 +1,10 @@
 package edu.singaporetech.senmon;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +39,8 @@ import java.util.Date;
  */
 public class GraphFragment extends Fragment {
 
+    Context context;
+
     private LineChart lineChart ;
     public static final String NUM_OF_POINTS = "NUM_OF_POINTS";
     private int numberOfPoints;
@@ -55,6 +59,7 @@ public class GraphFragment extends Fragment {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = this.getContext();
 
     }
 
@@ -97,14 +102,14 @@ public class GraphFragment extends Fragment {
         ll1.setLineWidth(4f);
         ll1.enableDashedLine(10f, 10f, 0f);
         ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
-        ll1.setLineColor(Color.RED);
+        ll1.setLineColor(ContextCompat.getColor(context, R.color.colorCritical));
         ll1.setTextSize(10f);
 
         LimitLine ll2 = new LimitLine(40f, "Warning");
         ll2.setLineWidth(4f);
         ll2.enableDashedLine(10f, 10f, 0f);
         ll2.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
-        ll2.setLineColor(Color.YELLOW);
+        ll2.setLineColor(ContextCompat.getColor(context, R.color.colorWarning));
         ll2.setTextSize(10f);
 
         // axes

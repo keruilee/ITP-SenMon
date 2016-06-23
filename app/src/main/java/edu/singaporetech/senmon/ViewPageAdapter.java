@@ -25,12 +25,19 @@ public class ViewPageAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        if(position == 0)
-            return GraphFragment.newInstance(8);
-        else if(position == 1)
-            return GraphFragment.newInstance(10);
-        else
-            return GraphFragment.newInstance(12);
+        switch (position) {
+            case 0:
+                GraphFragment gf = GraphFragment.newInstance(8);
+                return gf;
+            case 1:
+                GraphFragment gf2 = GraphFragment.newInstance(10);
+                return gf2;
+            case 2:
+                GraphFragment gf3 = GraphFragment.newInstance(12);
+                return gf3;
+            default:
+                return null;
+        }
     }
 
     @Override

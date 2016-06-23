@@ -62,7 +62,7 @@ public class DetailsFragment extends Fragment {
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         ViewPager viewPager = (ViewPager) v.findViewById(R.id.viewpager);
         viewPager.setAdapter(new ViewPageAdapter(getActivity().getSupportFragmentManager(),
-                this.getActivity()));
+                this.getContext()));
 
         // Give the TabLayout the ViewPage
         tabLayout = (TabLayout) v.findViewById(R.id.graph_tabs);
@@ -277,10 +277,6 @@ public class DetailsFragment extends Fragment {
             Log.i("CHECK", "false, not found in the database");
             return false;
         }
-
-    }
-
-    public void tabSelected() {
 
     }
 
