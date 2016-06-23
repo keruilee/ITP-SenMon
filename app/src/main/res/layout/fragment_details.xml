@@ -9,111 +9,165 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Machine 1111"
         android:id="@+id/tvMachineName"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="10dp"
-        android:textSize="30dp"/>
+        android:textSize="30dp"
+        android:layout_alignEnd="@+id/tableLayout"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
 
     <View
         android:layout_width="fill_parent"
         android:layout_height="2dp"
         android:background="#848484"
-        android:layout_marginTop="65dp"
-        android:id="@+id/line" />
-
-    <TextView
-        android:id="@+id/btnfavourite"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawableTop="@drawable/ic_menu_favourite"
-        android:layout_marginStart="220dp"
-        android:layout_marginTop="10dp"
-        android:visibility="invisible"/>
+        android:id="@+id/line"
+        android:layout_alignBottom="@+id/btnnofavourite"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:id="@+id/btnnofavourite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawableTop="@drawable/ic_menu_unfavourite"
-        android:layout_marginStart="220dp"
-        android:layout_marginTop="10dp"
-        android:visibility="invisible"/>
+        android:visibility="invisible"
+        android:layout_below="@+id/tvMachineName"
+        android:layout_toStartOf="@+id/downloadBtn" />
+
+    <TextView
+        android:id="@+id/btnfavourite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableTop="@drawable/ic_menu_favourite"
+        android:visibility="invisible"
+        android:layout_below="@+id/tvMachineName"
+        android:layout_toStartOf="@+id/downloadBtn" />
 
     <TextView
         android:id="@+id/downloadBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawableTop="@drawable/ic_download"
-        android:layout_marginStart="260dp"
-        android:layout_marginTop="12dp"/>
+        android:layout_alignBottom="@+id/line"
+        android:layout_toStartOf="@+id/emailBtn" />
 
     <TextView
         android:id="@+id/emailBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawableTop="@drawable/ic_email"
-        android:layout_marginStart="310dp"
-        android:layout_marginTop="10dp"/>
+        android:layout_below="@+id/tvMachineName"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="5dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Temperature:"
-        android:id="@+id/tvTemperature"
-        android:layout_marginTop="80dp"
-        android:layout_marginStart="10dp"/>
+    <TableLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@+id/line"
+        android:id="@+id/tableLayout"
+        android:layout_alignParentStart="true">
+        <TableRow>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Temperature:"
+                android:id="@+id/tvTemperature"
+                android:layout_above="@+id/tvTemperatureField"
+                android:layout_alignStart="@+id/tvMachineName"
+                android:layout_column="0" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="90°C"
-        android:id="@+id/tvTemperatureField"
-        android:layout_marginTop="80dp"
-        android:layout_marginStart="190dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="90"
+                android:id="@+id/tvTemperatureField"
+                android:layout_alignBaseline="@+id/tvVelocity"
+                android:layout_alignBottom="@+id/tvVelocity"
+                android:layout_toEndOf="@+id/tvTemperature"
+                android:layout_column="2" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Velocity:"
-        android:id="@+id/tvVelocity"
-        android:layout_marginTop="120dp"
-        android:layout_marginStart="10dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="°C"
+                android:id="@+id/tvtempLabel"
+                android:layout_alignBaseline="@+id/tvVelocity"
+                android:layout_alignBottom="@+id/tvVelocity"
+                android:layout_toEndOf="@+id/tvTemperature"
+                android:layout_column="3" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="0.45mm/s"
-        android:id="@+id/tvVelocityField"
-        android:layout_marginTop="120dp"
-        android:layout_marginStart="190dp"/>
+        </TableRow>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Operating Hours:"
-        android:id="@+id/tvHour"
-        android:layout_marginTop="160dp"
-        android:layout_marginStart="10dp"/>
+        <TableRow>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="200h 10min"
-        android:id="@+id/tvHourField"
-        android:layout_marginTop="160dp"
-        android:layout_marginStart="190dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Velocity:"
+                android:id="@+id/tvVelocity"
+                android:layout_above="@+id/tvHour"
+                android:layout_alignStart="@+id/tvTemperature"
+                android:layout_column="0" />
 
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="2dp"
-        android:background="#848484"
-        android:layout_marginTop="200dp"
-        android:id="@+id/line2" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="0.45"
+                android:id="@+id/tvVelocityField"
+                android:layout_above="@+id/tvHourField"
+                android:layout_alignStart="@+id/tvHourField"
+                android:layout_column="2" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="mm/s"
+                android:id="@+id/tvveloLabel"
+                android:layout_above="@+id/tvHourField"
+                android:layout_alignStart="@+id/tvHourField"
+                android:layout_column="3"
+                android:layout_marginLeft="5dp" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Operating Hours:"
+                android:id="@+id/tvHour"
+                android:layout_above="@+id/line2"
+                android:layout_alignParentStart="true"
+                android:layout_marginRight="10dp"
+                android:layout_column="0" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="200"
+                android:id="@+id/tvHourField"
+                android:layout_alignBottom="@+id/line2"
+                android:layout_toEndOf="@+id/tvTemperatureField"
+                android:layout_gravity="center_horizontal"
+                android:layout_column="2" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="hr"
+                android:id="@+id/tvHourlabel"
+                android:layout_alignBottom="@+id/line2"
+                android:layout_toEndOf="@+id/tvTemperatureField"
+                android:layout_gravity="center_horizontal"
+                android:layout_column="3" />
+        </TableRow>
+    </TableLayout>
 
 
 </RelativeLayout>

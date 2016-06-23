@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
@@ -135,6 +136,7 @@ public class DetailsFragment extends Fragment {
                     //tvDFavourite.setText("Click to unfavourite");
                     tvDFavourite.setVisibility(View.VISIBLE);
                     tvDNoFavourite.setVisibility(View.INVISIBLE);
+                    Toast.makeText(getActivity(), "Added into Favourite List", Toast.LENGTH_SHORT).show();
 
                 }
 
@@ -151,6 +153,7 @@ public class DetailsFragment extends Fragment {
                     //tvDFavourite.setText("Click to favourite");
                     tvDNoFavourite.setVisibility(View.VISIBLE);
                     tvDFavourite.setVisibility(View.INVISIBLE);
+                    Toast.makeText(getActivity(), "Removed from Favourite List", Toast.LENGTH_SHORT).show();
                 }
             }});
 
