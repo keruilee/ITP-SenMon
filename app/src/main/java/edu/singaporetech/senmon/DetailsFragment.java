@@ -1,12 +1,13 @@
 package edu.singaporetech.senmon;
 
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,6 +29,7 @@ import java.util.Iterator;
  */
 public class DetailsFragment extends Fragment {
 
+    Context context;
     //hardcode array
     final ArrayList<Machine> myMachineList = new ArrayList<Machine>();
 
@@ -45,8 +47,8 @@ public class DetailsFragment extends Fragment {
     View v;
     private FavouriteDatabaseHelper databaseHelper;
     private TabLayout tabLayout;
-
-
+    ViewPager viewPager;
+    ViewPageAdapter viewPagerAdapter;
     public DetailsFragment() {
         // Required empty public constructor
     }
@@ -56,14 +58,14 @@ public class DetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        context = getContext();
         v = inflater.inflate(R.layout.fragment_details, container, false);
 
-
         // Get the ViewPager and set it's PagerAdapter so that it can display items
-        ViewPager viewPager = (ViewPager) v.findViewById(R.id.viewpager);
-        viewPager.setAdapter(new ViewPageAdapter(getActivity().getSupportFragmentManager(),
-                this.getContext()));
-
+        viewPager = (ViewPager) v.findViewById(R.id.viewpager);
+        viewPagerAdapter = new ViewPageAdapter(getActivity().getSupportFragmentManager(),
+                this.getContext());
+        viewPager.setAdapter(viewPagerAdapter);
         // Give the TabLayout the ViewPage
         tabLayout = (TabLayout) v.findViewById(R.id.graph_tabs);
         tabLayout.setupWithViewPager(viewPager);
@@ -185,29 +187,35 @@ public class DetailsFragment extends Fragment {
                     //check temperature value range
                     if (Double.parseDouble(s.getmachineTemp()) >= Double.parseDouble(getString(R.string.min_normal_temp)) & Double.parseDouble(s.getmachineTemp()) <= Double.parseDouble(getString(R.string.max_normal_temp))) {
                         //Normal state text color
-                        tvDTemperature.setTextColor(Color.parseColor("#0B610B"));
+                        //tvDTemperature.setTextColor(Color.parseColor("#0B610B"));
+                        tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
                     }
                     else if (Double.parseDouble(s.getmachineTemp()) >= Double.parseDouble(getString(R.string.min_warning_temp)) & Double.parseDouble(s.getmachineTemp()) <= Double.parseDouble(getString(R.string.max_warning_temp))) {
                         //Warning state text color
-                        tvDTemperature.setTextColor(Color.parseColor("#8A4B08"));
+                        //tvDTemperature.setTextColor(Color.parseColor("#8A4B08"));
+                        tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
                     }
                     else {
                         //Critical state text color
-                        tvDTemperature.setTextColor(Color.parseColor("#FE2E2E"));
+                        //tvDTemperature.setTextColor(Color.parseColor("#FE2E2E"));
+                        tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
                     }
 
                     //check velocity value range
                     if (Double.parseDouble(s.getmachineVelo()) >= Double.parseDouble(getString(R.string.min_normal_velo)) & Double.parseDouble(s.getmachineVelo()) <= Double.parseDouble(getString(R.string.max_normal_velo))) {
                         //Normal state text color
-                        tvDVelocity.setTextColor(Color.parseColor("#0B610B"));
+                        //tvDVelocity.setTextColor(Color.parseColor("#0B610B"));
+                        tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
                     }
                     else if (Double.parseDouble(s.getmachineVelo()) >= Double.parseDouble(getString(R.string.min_warning_velo)) & Double.parseDouble(s.getmachineVelo()) <= Double.parseDouble(getString(R.string.max_warning_velo))) {
                         //Warning state text color
-                        tvDVelocity.setTextColor(Color.parseColor("#8A4B08"));
+                        //tvDVelocity.setTextColor(Color.parseColor("#8A4B08"));
+                        tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
                     }
                     else {
                         //Critical state text color
-                        tvDVelocity.setTextColor(Color.parseColor("#FE2E2E"));
+                        //tvDVelocity.setTextColor(Color.parseColor("#FE2E2E"));
+                        tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
                     }
 
                     tvDTemperature.setText(String.valueOf(Double.parseDouble(s.getmachineTemp())));
@@ -278,6 +286,13 @@ public class DetailsFragment extends Fragment {
             return false;
         }
 
+    }
+
+    @Override
+    public void onDetach() {
+        Log.e(TAG, "onDetach");
+        viewPager.setAdapter(null);
+        super.onDetach();
     }
 
 }
