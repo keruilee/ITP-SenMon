@@ -6,6 +6,7 @@ package edu.singaporetech.senmon;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -69,7 +70,13 @@ public class FavouriteDatabaseHelper extends SQLiteOpenHelper {
         db.close();
 
     }
-
+    public long getRowsCount()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        long count = DatabaseUtils.queryNumEntries(db, TABLE_NAME);
+        db.close();
+        return count;
+    }
     // Get column
     public static String[] getColumns()
     {

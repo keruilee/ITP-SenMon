@@ -1,0 +1,62 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="edu.singaporetech.senmon.ListFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Settings"
+        android:textSize="30dp"
+        android:padding="10dp"/>
+
+    <View
+        android:id="@+id/line"
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="#848484"
+        android:layout_below="@id/title"
+        android:layout_alignParentStart="true"/>
+
+    <Switch
+        android:id="@+id/ntfnEnableSw"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enable Notifications"
+        android:padding="10dp"
+        android:checked="true"
+        android:layout_below="@id/line"/>
+    <Switch
+        android:id="@+id/ntfnWarningSw"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Alert when machine enters warning state"
+        android:padding="10dp"
+        android:checked="true"
+        android:layout_below="@id/ntfnEnableSw"/>
+    <Switch
+        android:id="@+id/ntfnCriticalSw"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Alert when machine enters critical state"
+        android:padding="10dp"
+        android:checked="true"
+        android:layout_below="@id/ntfnWarningSw"/>
+    <Switch
+        android:id="@+id/ntfnFavSw"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Alert machines in favourite list only"
+        android:padding="10dp"
+        android:checked="false"
+        android:layout_below="@id/ntfnCriticalSw"/>
+
+</RelativeLayout>
+
+
+
