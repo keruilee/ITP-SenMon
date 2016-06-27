@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.getMenu().getItem(0).setChecked(true);
         navigationView.setNavigationItemSelectedListener(this);
 
         //start home fragment
@@ -85,7 +86,6 @@ public class MainActivity extends AppCompatActivity
 
         //link to home
         if (id == R.id.nav_home) {
-
             HomeFragment homeFragment = new HomeFragment();
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.relativelayoutfor_fragment, homeFragment).commit();
@@ -127,10 +127,13 @@ public class MainActivity extends AppCompatActivity
         }
         //link to setting
         else if (id == R.id.nav_settings) {
-
+            SettingsFragment settingsFragment = new SettingsFragment();
+            FragmentManager manager = getSupportFragmentManager();
+            manager.beginTransaction().replace(R.id.relativelayoutfor_fragment, settingsFragment).commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        item.setChecked(true);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }

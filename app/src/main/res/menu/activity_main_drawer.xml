@@ -16,7 +16,7 @@
 
     <group
         android:id="@+id/menu_second"
-        android:checkableBehavior="none">
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_critical"
             android:icon="@drawable/ic_menu_critical"
@@ -35,9 +35,13 @@
             android:title="All" />
     </group>
 
+    <group
+        android:id="@+id/menu_third"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_menu_settings"
             android:title="Settings" />
+    </group>
 
 </menu>
