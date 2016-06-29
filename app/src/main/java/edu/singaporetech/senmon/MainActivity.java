@@ -1,12 +1,17 @@
 package edu.singaporetech.senmon;
 
+import android.app.AlarmManager;
 import android.app.Fragment;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -21,6 +26,7 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private Context context;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +50,21 @@ public class MainActivity extends AppCompatActivity
         HomeFragment homeFragment = new HomeFragment();
         FragmentManager manager = getSupportFragmentManager();
         manager.beginTransaction().add(R.id.relativelayoutfor_fragment, homeFragment).commit();
+
+        this.context = this;
+        Intent alarm = new Intent(this.context, AlarmReceiver.class);
+        //check if the alarmservice has already started
+        boolean isAlarmRunning = (PendingIntent.getBroadcast(this.context,0,alarm, PendingIntent.FLAG_NO_CREATE) != null);
+        //if alarmsservice has not start then start it
+        if(isAlarmRunning == false){
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this.context, 0 , alarm, 0);
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), 15000, pendingIntent);
+
+
+        }
+
+
     }
 
     @Override

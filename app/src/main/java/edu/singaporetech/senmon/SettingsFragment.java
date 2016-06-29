@@ -145,7 +145,7 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
                     PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(0,
                             PendingIntent.FLAG_UPDATE_CURRENT);
 
-                    //TODO fire off the notification for warning machines *temp holding place 
+                    //TODO fire off the notification for warning machines *temp holding place
                     WarnNotificBuilder.setContentIntent(pendingIntent);
 
                     notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
