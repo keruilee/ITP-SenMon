@@ -78,21 +78,25 @@ public class BackgroundService extends Service{
                             PendingIntent.FLAG_UPDATE_CURRENT);
 
                     //TODO fire off the notification for warning machines *temp holding place
-//                    WarnNotificBuilder.setContentIntent(pendingIntent);
+                    WarnNotificBuilder.setContentIntent(pendingIntent);
 //
-//                    notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-//                    notificationManager.notify(WarnNotificID, WarnNotificBuilder.build());
-//                    Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-//                    v.vibrate(1000);
-//
-//                    try {
-//                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-//                        Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
-//                        r.play();
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                    isWarnNotificActive = true;
+                notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.notify(WarnNotificID, WarnNotificBuilder.build());
+                Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+                v.vibrate(800);
+
+                try {
+                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
+                    r.play();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                isWarnNotificActive = true;
+
+                    //call the destroy method
+                    stopSelf();
+
                 }
             }
 ////            //TODO build notifications for critical machines

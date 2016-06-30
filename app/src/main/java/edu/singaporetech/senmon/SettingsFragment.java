@@ -130,6 +130,8 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
 
                 if(buttonView.isChecked()) {        // warning notifications enabled
                     editor.putBoolean(WarningEnabled, true);
+                }else{
+                    editor.putBoolean(WarningEnabled,false);
                 }
 
                 break;
