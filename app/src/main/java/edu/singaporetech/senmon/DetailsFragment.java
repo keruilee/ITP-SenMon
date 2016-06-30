@@ -57,8 +57,9 @@ public class DetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         context = getContext();
+
+        // Inflate the layout for this fragment
         v = inflater.inflate(R.layout.fragment_details, container, false);
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
@@ -66,6 +67,8 @@ public class DetailsFragment extends Fragment {
         viewPagerAdapter = new ViewPageAdapter(getActivity().getSupportFragmentManager(),
                 this.getContext());
         viewPager.setAdapter(viewPagerAdapter);
+        viewPager.setOffscreenPageLimit(2);
+
         // Give the TabLayout the ViewPage
         tabLayout = (TabLayout) v.findViewById(R.id.graph_tabs);
         tabLayout.setupWithViewPager(viewPager);
@@ -294,10 +297,11 @@ public class DetailsFragment extends Fragment {
     }
 
     @Override
-    public void onDetach() {
-        Log.e(TAG, "onDetach");
+    public void onPause() {
+        Log.e(TAG, "onPause");
+        viewPager.invalidate();
+        viewPagerAdapter.notifyDataSetChanged();
         viewPager.setAdapter(null);
-        super.onDetach();
+        super.onPause();
     }
-
 }

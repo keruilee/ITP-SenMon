@@ -42,12 +42,17 @@ public class GraphFragment extends Fragment {
     Context context;
 
     private LineChart lineChart ;
-    public static final String NUM_OF_POINTS = "NUM_OF_POINTS";
-    private int numberOfPoints;
+    public static final String TAB_POSITION = "TAB_POSITION";
+
+    private float criticalLine, warningLine;
+    private String dataSetName;
+
+    ArrayList<String> xVals = new ArrayList<String>();
+    ArrayList<Entry> yVals = new ArrayList<Entry>();
 
     public static GraphFragment newInstance(int n) {
         Bundle args = new Bundle();
-        args.putInt(NUM_OF_POINTS, n);
+        args.putInt(TAB_POSITION, n);
         GraphFragment fragment = new GraphFragment();
         fragment.setArguments(args);
         return fragment;
@@ -60,16 +65,15 @@ public class GraphFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = this.getContext();
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ArrayList<Machine> myMachineList = new ArrayList<Machine>();
         View v = inflater.inflate(R.layout.fragment_graphs, container, false);
 
-        numberOfPoints = getArguments().getInt(NUM_OF_POINTS);
+        initialSetup(getArguments().getInt(TAB_POSITION));
+
         lineChart = (LineChart) v.findViewById(R.id.chart1);
 
         setupLineChart();
@@ -78,6 +82,70 @@ public class GraphFragment extends Fragment {
 
     }
 
+    private void initialSetup(int tabNo) {
+        // clear previous values
+        xVals.clear();
+        yVals.clear();
+
+        int count;              // number of points, used for looping when creating data
+
+        switch(tabNo)
+        {
+            case 0:             // graph at 1st tab
+                // name of dataset
+                dataSetName = "GRAPH 1";
+
+                // where the 2 lines will be
+                criticalLine = 35f;
+                warningLine = 20f;
+
+                // plotting of data
+                count = 10;                 // number of points, used for looping when creating data
+                for(int i = 0; i < count; i++)
+                {
+                    xVals.add("a" +i);                      // x-axis values, can rename to anything
+                    yVals.add(new Entry(i*5, i));           // plotting of data on graph; new Entry(y value, x value).
+                    // x value in Entry() just go accordingly by 0, 1, 2, 3, ...
+                }
+                break;
+            case 1:             // graph at 2nd tab
+                // name of dataset
+                dataSetName = "GRAPH 2";
+
+                // where the 2 lines will be
+                criticalLine = 60f;
+                warningLine = 40f;
+
+                // plotting of data
+                count = 15;                 // number of points, used for looping when creating data
+                for(int i = 0; i < count; i++)
+                {
+                    xVals.add("b" +i);                      // x-axis values, can rename to anything
+                    yVals.add(new Entry(i*5, i));           // plotting of data on graph; new Entry(y value, x value).
+                    // x value in Entry() just go accordingly by 0, 1, 2, 3, ...
+                }
+                break;
+            case 2:             // graph at 3rd tab
+                // name of dataset
+                dataSetName = "GRAPH 3";
+
+                // where the 2 lines will be
+                criticalLine = 80f;
+                warningLine = 50f;
+
+                // plotting of data
+                count = 20;                 // number of points, used for looping when creating data
+                for(int i = 0; i < count; i++)
+                {
+                    xVals.add("c" +i);                      // x-axis values, can rename to anything
+                    yVals.add(new Entry(i*5, i));           // plotting of data on graph; new Entry(y value, x value).
+                    // x value in Entry() just go accordingly by 0, 1, 2, 3, ...
+                }
+                break;
+            default:
+                break;
+        }
+    }
     private void setupLineChart() {
         lineChart.setDrawGridBackground(false);
 
@@ -91,21 +159,19 @@ public class GraphFragment extends Fragment {
         // enable scaling and dragging
         lineChart.setDragEnabled(true);
         lineChart.setScaleEnabled(true);
-        // mChart.setScaleXEnabled(true);
-        // mChart.setScaleYEnabled(true);
 
         // if disabled, scaling can be done on x- and y-axis separately
         lineChart.setPinchZoom(true);
 
         // limit lines
-        LimitLine ll1 = new LimitLine(80f, "Critical");
+        LimitLine ll1 = new LimitLine(criticalLine, "Critical");
         ll1.setLineWidth(4f);
         ll1.enableDashedLine(10f, 10f, 0f);
         ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
         ll1.setLineColor(ContextCompat.getColor(context, R.color.colorCritical));
         ll1.setTextSize(10f);
 
-        LimitLine ll2 = new LimitLine(40f, "Warning");
+        LimitLine ll2 = new LimitLine(warningLine, "Warning");
         ll2.setLineWidth(4f);
         ll2.enableDashedLine(10f, 10f, 0f);
         ll2.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
@@ -115,11 +181,12 @@ public class GraphFragment extends Fragment {
         // axes
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+
         //xAxis.setLabelsToSkip(6);
         YAxis leftAxis = lineChart.getAxisLeft();
         leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
-        leftAxis.setAxisMaxValue(100f);
-        leftAxis.setAxisMinValue(0f);
+        //leftAxis.setAxisMaxValue(100f);
+        //leftAxis.setAxisMinValue(0f);
         leftAxis.enableGridDashedLine(10f, 10f, 0f);
         leftAxis.setDrawZeroLine(false);
         leftAxis.addLimitLine(ll1);
@@ -132,8 +199,7 @@ public class GraphFragment extends Fragment {
         // set the marker to the chart
         lineChart.setMarkerView(mv);
 
-        setLineData(numberOfPoints, 100);
-        //setPerfData(numberOfPoints, 100);
+        setLineData();
 
         //lineChart.animateX(2500, Easing.EasingOption.EaseInOutQuart);
 
@@ -141,35 +207,7 @@ public class GraphFragment extends Fragment {
         l.setForm(Legend.LegendForm.LINE);
     }
 
-    private void setLineData(int count, float range) {
-
-        ArrayList<String> xVals = new ArrayList<String>();
-//        for (int i = 0; i < count; i++) {
-//            xVals.add((i) + "");
-//        }
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM");
-        Calendar start = Calendar.getInstance();
-        start.setTime(new Date());
-        Calendar end = Calendar.getInstance();
-        end.setTime(new Date());
-        end.add(Calendar.DAY_OF_MONTH, count);
-        int j = 0;
-        while( !start.after(end)){
-            xVals.add(dateFormat.format(start.getTime()).toString());
-            start.add(Calendar.DATE, 1);
-        }
-
-        ArrayList<Entry> yVals = new ArrayList<Entry>();
-
-        for (int i = 0; i < count; i++) {
-
-            float mult = (range + 1);
-            float val = (float) (Math.random() * mult);// + (float)
-            // ((mult *
-            // 0.1) / 10);x
-            yVals.add(new Entry(val, i));
-        }
+    private void setLineData() {
 
         LineDataSet set1;
 
@@ -182,7 +220,7 @@ public class GraphFragment extends Fragment {
             lineChart.notifyDataSetChanged();
         } else {
             // create a dataset and give it a type
-            set1 = new LineDataSet(yVals, "DataSet 1");
+            set1 = new LineDataSet(yVals, dataSetName);
 
             // set1.setFillAlpha(110);
             // set1.setFillColor(Color.RED);
