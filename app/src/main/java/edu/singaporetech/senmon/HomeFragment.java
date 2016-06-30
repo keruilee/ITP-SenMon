@@ -45,19 +45,19 @@ public class HomeFragment extends Fragment {
         v = inflater.inflate(R.layout.fragment_home, container, false);
 
         //Hardcode array
-        Machine machine = new Machine("SDK001-M001-01-0001a", "0.3", "36.11", "50");
-        Machine machine2 = new Machine("SDK221-M001-01-0001a", "0.2244", "10.11", "33");
-        Machine machine3 = new Machine("SDK331-M001-01-0001a", "0.293", "20.11", "53");
-        Machine machine4 = new Machine("ADK444-M001-01-0001a", "0.922", "30.11", "900");
-        Machine machine5 = new Machine("SDK555-M001-01-0001a", "0.312", "40.11", "6");
-        Machine machine6 = new Machine("SDK166-M001-01-0001a", "0.9222", "5.11", "3");
-
-        myMachineList.add(machine);
-        myMachineList.add(machine2);
-        myMachineList.add(machine3);
-        myMachineList.add(machine4);
-        myMachineList.add(machine5);
-        myMachineList.add(machine6);
+//        Machine machine = new Machine("SDK001-M001-01-0001a", "0.3", "36.11", "50");
+//        Machine machine2 = new Machine("SDK221-M001-01-0001a", "0.2244", "10.11", "33");
+//        Machine machine3 = new Machine("SDK331-M001-01-0001a", "0.293", "20.11", "53");
+//        Machine machine4 = new Machine("ADK444-M001-01-0001a", "0.922", "30.11", "900");
+//        Machine machine5 = new Machine("SDK555-M001-01-0001a", "0.312", "40.11", "6");
+//        Machine machine6 = new Machine("SDK166-M001-01-0001a", "0.9222", "5.11", "3");
+//
+//        myMachineList.add(machine);
+//        myMachineList.add(machine2);
+//        myMachineList.add(machine3);
+//        myMachineList.add(machine4);
+//        myMachineList.add(machine5);
+//        myMachineList.add(machine6);
 
         //Set variables
         tvCrit = (TextView) v.findViewById(R.id.critTxt);

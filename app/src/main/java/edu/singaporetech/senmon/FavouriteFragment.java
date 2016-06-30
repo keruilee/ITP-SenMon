@@ -53,68 +53,68 @@ public class FavouriteFragment extends Fragment {
             Cursor c = FavouriteList();
             if (c.moveToFirst()) {
                 do {
-                    Machine machine =  new Machine(c.getString(1), "0", "0","");
-                    myMachineList.add(machine);
+//                    Machine machine =  new Machine(c.getString(1), "0", "0","");
+//                    myMachineList.add(machine);
 
                 } while (c.moveToNext());
 
             }c.close();
 
-        CustomAdapter adapter = new CustomAdapter(getActivity(),R.layout.fragment_favourite,myMachineList);
-        listViewListing.setAdapter(adapter);
+            CustomAdapter adapter = new CustomAdapter(getActivity(),R.layout.fragment_favourite,myMachineList);
+            listViewListing.setAdapter(adapter);
 
-                // when click on the item
-        listViewListing.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ViewGroup viewgrp = (ViewGroup) view;
-                TextView intentMachineID = (TextView) viewgrp.findViewById(R.id.textViewmachineid);
+            // when click on the item
+            listViewListing.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    ViewGroup viewgrp = (ViewGroup) view;
+                    TextView intentMachineID = (TextView) viewgrp.findViewById(R.id.textViewmachineid);
 
-                // intent to the detail page
+                    // intent to the detail page
 //                Intent intent = new Intent(getActivity(), detail.class);
 //                intent.putExtra("MachineID", intentMachineID.getText().toString());
 //                startActivity(intent);
-                FragmentTransaction transaction=getFragmentManager().beginTransaction();
-                DetailsFragment details = new DetailsFragment();
-                //using Bundle to send data
-                Bundle bundle3=new Bundle();
-                bundle3.putString("name", intentMachineID.getText().toString());
-                details.setArguments(bundle3); //data being send to MachineListFragment
-                transaction.replace(R.id.relativelayoutfor_fragment, details);
-                transaction.commit();
-            }
-        });
+                    FragmentTransaction transaction=getFragmentManager().beginTransaction();
+                    DetailsFragment details = new DetailsFragment();
+                    //using Bundle to send data
+                    Bundle bundle3=new Bundle();
+                    bundle3.putString("name", intentMachineID.getText().toString());
+                    details.setArguments(bundle3); //data being send to MachineListFragment
+                    transaction.replace(R.id.relativelayoutfor_fragment, details);
+                    transaction.commit();
+                }
+            });
 
-        return rootView;
-        // / return inflater.inflate(R.layout.fragment_list, container, false);
+            return rootView;
+            // / return inflater.inflate(R.layout.fragment_list, container, false);
         }
         else if (false == checkEvent())
         {
             Log.i("hii","nope");
         }
-         return inflater.inflate(R.layout.fragment_favourite, container, false);
+        return inflater.inflate(R.layout.fragment_favourite, container, false);
 
 
     }
 
 
     @Override
-   public void onResume() {
+    public void onResume() {
         Log.e("DEBUG", "onResume of LoginFragment");
 
         super.onResume();
         ArrayList<Machine> myMachineList = new ArrayList<Machine>();
-            Cursor c = FavouriteList();
-            if (c.moveToFirst()) {
-                do {
-                    Machine machine =  new Machine(c.getString(1), "0", "0","");
-                    myMachineList.add(machine);
+        Cursor c = FavouriteList();
+        if (c.moveToFirst()) {
+            do {
+//                    Machine machine =  new Machine(c.getString(1), "0", "0","");
+//                    myMachineList.add(machine);
 
-                } while (c.moveToNext());
-            }  c.close();
+            } while (c.moveToNext());
+        }  c.close();
 
-            CustomAdapter adapter = new CustomAdapter(getActivity(),R.layout.fragment_favourite,myMachineList);
-            listViewListing.setAdapter(adapter);
+        CustomAdapter adapter = new CustomAdapter(getActivity(),R.layout.fragment_favourite,myMachineList);
+        listViewListing.setAdapter(adapter);
 
 
     }

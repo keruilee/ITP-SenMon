@@ -71,19 +71,19 @@ public class DetailsFragment extends Fragment {
         tabLayout.setupWithViewPager(viewPager);
 
         //Hardcode array
-        Machine machine = new Machine("SDK001-M001-01-0001a", "0.3", "36.11", "50");
-        Machine machine2 = new Machine("SDK221-M001-01-0001a", "0.2244", "10.11", "33");
-        Machine machine3 = new Machine("SDK331-M001-01-0001a", "0.293", "20.11", "53");
-        Machine machine4 = new Machine("ADK444-M001-01-0001a", "0.922", "30.11", "900");
-        Machine machine5 = new Machine("SDK555-M001-01-0001a", "0.312", "40.11", "6");
-        Machine machine6 = new Machine("SDK166-M001-01-0001a", "0.9222", "5.11", "3");
-
-        myMachineList.add(machine);
-        myMachineList.add(machine2);
-        myMachineList.add(machine3);
-        myMachineList.add(machine4);
-        myMachineList.add(machine5);
-        myMachineList.add(machine6);
+//        Machine machine = new Machine("SDK001-M001-01-0001a", "0.3", "36.11", "50");
+//        Machine machine2 = new Machine("SDK221-M001-01-0001a", "0.2244", "10.11", "33");
+//        Machine machine3 = new Machine("SDK331-M001-01-0001a", "0.293", "20.11", "53");
+//        Machine machine4 = new Machine("ADK444-M001-01-0001a", "0.922", "30.11", "900");
+//        Machine machine5 = new Machine("SDK555-M001-01-0001a", "0.312", "40.11", "6");
+//        Machine machine6 = new Machine("SDK166-M001-01-0001a", "0.9222", "5.11", "3");
+//
+//        myMachineList.add(machine);
+//        myMachineList.add(machine2);
+//        myMachineList.add(machine3);
+//        myMachineList.add(machine4);
+//        myMachineList.add(machine5);
+//        myMachineList.add(machine6);
 
         //Set variables
         tvDMachineName = (TextView) v.findViewById(R.id.tvMachineName);
@@ -98,16 +98,21 @@ public class DetailsFragment extends Fragment {
         Bundle bundle2 = getArguments();
         Bundle bundle3 = getArguments();
 
+        //For home fragment
         if(bundle != null) {
             tvDMachineName.setText(String.valueOf(bundle.getString("name")));
             machineName = bundle.getString("name");
         }
 
+        //For list fragment
         if(bundle2 != null) {
-            tvDMachineName.setText(machineID);
+            tvDMachineName.setText(String.valueOf(bundle2.getString("name")));
             machineID = bundle2.getString("name");
+            tvDTemperature.setText(String.valueOf(bundle2.getString("temp")));
+            tvDVelocity.setText(String.valueOf(bundle2.getString("velo")));
         }
 
+        //For home fragment
         if(bundle3 != null) {
             tvDMachineName.setText(machineID);
             machineID = bundle3.getString("name");
@@ -182,46 +187,46 @@ public class DetailsFragment extends Fragment {
         Iterator<Machine> i = myMachineList.iterator();
         while (i.hasNext()) {
             Machine s = i.next();
-                if (machineName.contains(s.getMachineID()))
-                {
-                    //check temperature value range
-                    if (Double.parseDouble(s.getmachineTemp()) >= Double.parseDouble(getString(R.string.min_normal_temp)) & Double.parseDouble(s.getmachineTemp()) <= Double.parseDouble(getString(R.string.max_normal_temp))) {
-                        //Normal state text color
-                        //tvDTemperature.setTextColor(Color.parseColor("#0B610B"));
-                        tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
-                    }
-                    else if (Double.parseDouble(s.getmachineTemp()) >= Double.parseDouble(getString(R.string.min_warning_temp)) & Double.parseDouble(s.getmachineTemp()) <= Double.parseDouble(getString(R.string.max_warning_temp))) {
-                        //Warning state text color
-                        //tvDTemperature.setTextColor(Color.parseColor("#8A4B08"));
-                        tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
-                    }
-                    else {
-                        //Critical state text color
-                        //tvDTemperature.setTextColor(Color.parseColor("#FE2E2E"));
-                        tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
-                    }
-
-                    //check velocity value range
-                    if (Double.parseDouble(s.getmachineVelo()) >= Double.parseDouble(getString(R.string.min_normal_velo)) & Double.parseDouble(s.getmachineVelo()) <= Double.parseDouble(getString(R.string.max_normal_velo))) {
-                        //Normal state text color
-                        //tvDVelocity.setTextColor(Color.parseColor("#0B610B"));
-                        tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
-                    }
-                    else if (Double.parseDouble(s.getmachineVelo()) >= Double.parseDouble(getString(R.string.min_warning_velo)) & Double.parseDouble(s.getmachineVelo()) <= Double.parseDouble(getString(R.string.max_warning_velo))) {
-                        //Warning state text color
-                        //tvDVelocity.setTextColor(Color.parseColor("#8A4B08"));
-                        tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
-                    }
-                    else {
-                        //Critical state text color
-                        //tvDVelocity.setTextColor(Color.parseColor("#FE2E2E"));
-                        tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
-                    }
-
-                    tvDTemperature.setText(String.valueOf(Double.parseDouble(s.getmachineTemp())));
-                    tvDVelocity.setText(String.valueOf(Double.parseDouble(s.getmachineVelo())));
-                    tvDHour.setText(String.valueOf(Double.parseDouble(s.getMachineHour())));
+            if (machineName.contains(s.getMachineID()))
+            {
+                //check temperature value range
+                if (Double.parseDouble(s.getmachineTemp()) >= Double.parseDouble(getString(R.string.min_normal_temp)) & Double.parseDouble(s.getmachineTemp()) <= Double.parseDouble(getString(R.string.max_normal_temp))) {
+                    //Normal state text color
+                    //tvDTemperature.setTextColor(Color.parseColor("#0B610B"));
+                    tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
                 }
+                else if (Double.parseDouble(s.getmachineTemp()) >= Double.parseDouble(getString(R.string.min_warning_temp)) & Double.parseDouble(s.getmachineTemp()) <= Double.parseDouble(getString(R.string.max_warning_temp))) {
+                    //Warning state text color
+                    //tvDTemperature.setTextColor(Color.parseColor("#8A4B08"));
+                    tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
+                }
+                else {
+                    //Critical state text color
+                    //tvDTemperature.setTextColor(Color.parseColor("#FE2E2E"));
+                    tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
+                }
+
+                //check velocity value range
+                if (Double.parseDouble(s.getmachineVelo()) >= Double.parseDouble(getString(R.string.min_normal_velo)) & Double.parseDouble(s.getmachineVelo()) <= Double.parseDouble(getString(R.string.max_normal_velo))) {
+                    //Normal state text color
+                    //tvDVelocity.setTextColor(Color.parseColor("#0B610B"));
+                    tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
+                }
+                else if (Double.parseDouble(s.getmachineVelo()) >= Double.parseDouble(getString(R.string.min_warning_velo)) & Double.parseDouble(s.getmachineVelo()) <= Double.parseDouble(getString(R.string.max_warning_velo))) {
+                    //Warning state text color
+                    //tvDVelocity.setTextColor(Color.parseColor("#8A4B08"));
+                    tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
+                }
+                else {
+                    //Critical state text color
+                    //tvDVelocity.setTextColor(Color.parseColor("#FE2E2E"));
+                    tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
+                }
+
+                tvDTemperature.setText(String.valueOf(Double.parseDouble(s.getmachineTemp())));
+                tvDVelocity.setText(String.valueOf(Double.parseDouble(s.getmachineVelo())));
+                tvDHour.setText(String.valueOf(Double.parseDouble(s.getMachineHour())));
+            }
         }
 
 
