@@ -130,45 +130,6 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
 
                 if(buttonView.isChecked()) {        // warning notifications enabled
                     editor.putBoolean(WarningEnabled, true);
-                    //TODO build notifications for warning machines
-                    NotificationCompat.Builder WarnNotificBuilder = (NotificationCompat.Builder) new
-                            NotificationCompat.Builder(context).setContentTitle("Attention!")
-                            .setContentText("Machine is in Warning State!")
-                            .setTicker("Machine needs attention!")
-                            .setSmallIcon(R.drawable.ic_warning_white_48dp)
-                            .setAutoCancel(true);
-                    Intent openIntent = new Intent(context, MainActivity.class);
-
-                    TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(context);
-                    taskStackBuilder.addParentStack(MainActivity.class);
-                    taskStackBuilder.addNextIntent(openIntent);
-
-                    PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(0,
-                            PendingIntent.FLAG_UPDATE_CURRENT);
-
-                    //TODO fire off the notification for warning machines *temp holding place
-                    WarnNotificBuilder.setContentIntent(pendingIntent);
-
-                    notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                    notificationManager.notify(WarnNotificID, WarnNotificBuilder.build());
-                    Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-                    v.vibrate(1000);
-
-                    try {
-                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                        Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
-                        r.play();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    isWarnNotificActive = true;
-                }
-                else {
-                    //TODO if the switch is off then cancel notifications
-                    editor.putBoolean(WarningEnabled, false);
-                    if(isWarnNotificActive){
-                        notificationManager.cancel(WarnNotificID);
-                    }
                 }
 
                 break;
@@ -176,38 +137,7 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
 
                 if(buttonView.isChecked()) {        // critical notifications enabled
                     editor.putBoolean(CriticalEnabled, true);
-                    //TODO build notifications for critical machines
-                    NotificationCompat.Builder CritNotificBuilder = (NotificationCompat.Builder) new
-                            NotificationCompat.Builder(context).setContentTitle("Attention!")
-                            .setContentText("Machine is in Critical State!")
-                            .setTicker("Machine needs attention!")
-                            .setSmallIcon(R.drawable.ic_cancel_white_48dp)
-                            .setAutoCancel(true);
-                    Intent openIntent = new Intent(context, MainActivity.class);
 
-                    TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(context);
-                    taskStackBuilder.addParentStack(MainActivity.class);
-                    taskStackBuilder.addNextIntent(openIntent);
-
-                    PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(0,
-                            PendingIntent.FLAG_UPDATE_CURRENT);
-
-                    //TODO fire off the critical notification
-                    CritNotificBuilder.setContentIntent(pendingIntent);
-
-                    notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                    notificationManager.notify(CritNotificID, CritNotificBuilder.build());
-                    Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-                    v.vibrate(1000);
-
-                    try {
-                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                        Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
-                        r.play();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    isCritNotificActive = true;
                 }
                 else {
                     editor.putBoolean(CriticalEnabled, false);
