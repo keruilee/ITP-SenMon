@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
@@ -12,6 +13,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -26,12 +28,33 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    public static final String MyPREFERENCES = "MyPrefs" ;
+    public static final String NotificationsEnabled = "ntfnEnabledKey";
+    public static final String WarningEnabled = "warningEnabledKey";
+    public static final String CriticalEnabled = "criticalEnabledKey";
+    public static final String FavNtfnOnly = "favNtfnOnlyKey";
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
     private Context context;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        this.context = this;
 
+        sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+
+        if(sharedPreferences == null) {
+            editor = sharedPreferences.edit();
+            editor.putBoolean(NotificationsEnabled, true);
+            editor.putBoolean(WarningEnabled, true);
+            editor.putBoolean(CriticalEnabled, true);
+            editor.putBoolean(FavNtfnOnly, false);
+            editor.commit();
+        }
+        if(sharedPreferences.getBoolean(NotificationsEnabled, true)){
+            Log.d("msg", "notification is true");
+        };
         //start nav drawer
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -51,7 +74,7 @@ public class MainActivity extends AppCompatActivity
         FragmentManager manager = getSupportFragmentManager();
         manager.beginTransaction().add(R.id.relativelayoutfor_fragment, homeFragment).commit();
 
-        this.context = this;
+
         Intent alarm = new Intent(this.context, AlarmReceiver.class);
         //check if the alarmservice has already started
         boolean isAlarmRunning = (PendingIntent.getBroadcast(this.context,0,alarm, PendingIntent.FLAG_NO_CREATE) != null);

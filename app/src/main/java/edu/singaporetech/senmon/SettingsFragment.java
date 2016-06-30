@@ -87,10 +87,11 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        editor = sharedPreferences.edit();
         switch(buttonView.getId())
         {
             case R.id.ntfnEnableSw:                 // enable notifications switch
-                editor = sharedPreferences.edit();
+
                 if(buttonView.isChecked()) {        // notifications enabled
                     // show all other switches with default settings
                     ntfnWarningSw.setVisibility(View.VISIBLE);
@@ -123,10 +124,10 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
                     // update shared preferences
                     editor.putBoolean(NotificationsEnabled, false);
                 }
-                editor.commit();
+
                 break;
             case R.id.ntfnWarningSw:                // warning notifications switch
-                editor = sharedPreferences.edit();
+
                 if(buttonView.isChecked()) {        // warning notifications enabled
                     editor.putBoolean(WarningEnabled, true);
                     //TODO build notifications for warning machines
@@ -169,10 +170,10 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
                         notificationManager.cancel(WarnNotificID);
                     }
                 }
-                editor.commit();
+
                 break;
             case R.id.ntfnCriticalSw:               // critical notifications switch
-                editor = sharedPreferences.edit();
+
                 if(buttonView.isChecked()) {        // critical notifications enabled
                     editor.putBoolean(CriticalEnabled, true);
                     //TODO build notifications for critical machines
@@ -215,19 +216,20 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
                         notificationManager.cancel(CritNotificID);
                     }
                 }
-                editor.commit();
+
                 break;
             case R.id.ntfnFavSw:                    // fav only notification switch
-                editor = sharedPreferences.edit();
+
                 if(buttonView.isChecked()) {        // notifications for fav only
                     editor.putBoolean(FavNtfnOnly, true);
                 }
                 else {                              // notifications for all machines
                     editor.putBoolean(FavNtfnOnly, false);
                 }
-                editor.commit();
+
                 break;
         }
+        editor.commit();
     }
 
     public boolean favouriteExists() {
