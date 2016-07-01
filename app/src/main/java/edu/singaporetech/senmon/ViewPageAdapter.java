@@ -12,18 +12,19 @@ import android.view.ViewGroup;
  * Created by Meixi on 24/6/2016.
  */
 public class ViewPageAdapter extends FragmentPagerAdapter {
-    private final String TAG = "View Page Adapter";
 
     final int PAGE_COUNT = 3;
-    private String tabTitles[] = new String[] { "GRAPH 1", "GRAPH 2", "GRAPH 3" };
+    public static final String tabTitles[] = new String[] { "TEMP", "VELOCITY", "GRAPH 3" };
 
     private final FragmentManager mFragmentManager;
     private FragmentTransaction mCurTransaction;
     private Fragment mCurrentPrimaryItem = null;
+    String machineId;
 
-    public ViewPageAdapter(FragmentManager fm, Context context) {
+    public ViewPageAdapter(FragmentManager fm, Context context, String id) {
         super(fm);
         mFragmentManager = fm;
+        machineId = id;
     }
 
     @Override
@@ -33,7 +34,7 @@ public class ViewPageAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return GraphFragment.newInstance(position);
+        return GraphFragment.newInstance(position, machineId);
     }
 
     @Override
