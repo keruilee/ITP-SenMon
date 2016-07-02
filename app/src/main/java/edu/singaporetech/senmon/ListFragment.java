@@ -108,4 +108,11 @@ public class ListFragment extends Fragment {
         viewPager.setAdapter(null);
         super.onPause();
     }
+
+    @Override
+    public void onResume() {
+        Log.e(TAG, "onResume");
+        viewPager.setAdapter(viewTabPagerAdapter);
+        super.onResume();
+    }
 }

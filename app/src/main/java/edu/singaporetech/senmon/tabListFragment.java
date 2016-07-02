@@ -43,6 +43,8 @@ import java.util.Comparator;
  */
 
 public class tabListFragment extends Fragment {
+    View rootView;
+
     ListView listViewListing;
     CustomAdapter adapter;
     Context context;
@@ -86,7 +88,7 @@ public class tabListFragment extends Fragment {
                              Bundle savedInstanceState) {
         Log.i("TAG", "Pass 3");
 
-        View rootView = inflater.inflate(R.layout.fragment_tablist, container, false);
+        rootView = inflater.inflate(R.layout.fragment_tablist, container, false);
 /*
 
         //retrieving data using bundle
@@ -97,50 +99,10 @@ public class tabListFragment extends Fragment {
         }
 */
 
-
-        ///////////// for the tab in the list fragment /////////////
-        switch (getArguments().getInt(TAB_POSITION)) {
-            case 0:
-                Log.i("SWITCH", "0 , Sort machine id");
-                Collections.sort(myMachineList, new Comparator<Machine>() {
-                    public int compare(Machine m1, Machine m2) {
-                        return m1.getMachineID().compareTo(m2.getMachineID());
-                    }
-                });
-                listViewListing = (ListView) rootView.findViewById(R.id.ListView);
-                adapter = new CustomAdapter(getActivity(), R.layout.fragment_tablist, myMachineList);
-                listViewListing.setAdapter(adapter);
-                break;
-
-            case 1:
-                Log.i("SWITCH", "1 , Sort temp");
-                Collections.sort(myMachineList, new Comparator<Machine>() {
-                    public int compare(Machine m1, Machine m2) {
-                        return Double.compare(Double.parseDouble(m2.getmachineTemp()), Double.parseDouble(m1.getmachineTemp()));
-                    }
-                });
-                listViewListing = (ListView) rootView.findViewById(R.id.ListView);
-                adapter = new CustomAdapter(getActivity(), R.layout.fragment_tablist, myMachineList);
-                listViewListing.setAdapter(adapter);
-                Log.i("Sort", "Sorting temp done");
-                break;
-
-            case 2:
-                Log.i("SWITCH", "2 , Sort velo");
-                Collections.sort(myMachineList, new Comparator<Machine>() {
-                    public int compare(Machine m1, Machine m2) {
-                        return Double.compare(Double.parseDouble(m2.getmachineVelo()), Double.parseDouble(m1.getmachineVelo()));
-                    }
-                });
-
-                listViewListing = (ListView) rootView.findViewById(R.id.ListView);
-                adapter = new CustomAdapter(getActivity(), R.layout.fragment_tablist, myMachineList);
-                listViewListing.setAdapter(adapter);
-                break;
-
-            default:
-                break;
-        }
+        // set up list with listadapter
+        listViewListing = (ListView) rootView.findViewById(R.id.ListView);
+        adapter = new CustomAdapter(getActivity(), R.layout.fragment_tablist, myMachineList);
+        listViewListing.setAdapter(adapter);
 
         ////// when click on the item   //////////////////////
         listViewListing.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -227,6 +189,7 @@ public class tabListFragment extends Fragment {
             protected void onPostExecute(JSONObject result){
                 super.onPostExecute(result);
                 getCSVRecords(result);
+                setupList();                    // display list with sorted values
                 progressDialog.dismiss();
             }
         }
@@ -265,6 +228,44 @@ public class tabListFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void setupList()
+    {
+        ///////////// for the tab in the list fragment /////////////
+        switch (getArguments().getInt(TAB_POSITION)) {
+            case 0:
+                Log.i("SWITCH", "0 , Sort machine id");
+                Collections.sort(myMachineList, new Comparator<Machine>() {
+                    public int compare(Machine m1, Machine m2) {
+                        return m1.getMachineID().compareTo(m2.getMachineID());
+                    }
+                });
+                break;
+
+            case 1:
+                Log.i("SWITCH", "1 , Sort temp");
+                Collections.sort(myMachineList, new Comparator<Machine>() {
+                    public int compare(Machine m1, Machine m2) {
+                        return Double.compare(Double.parseDouble(m2.getmachineTemp()), Double.parseDouble(m1.getmachineTemp()));
+                    }
+                });
+                Log.i("Sort", "Sorting temp done");
+                break;
+
+            case 2:
+                Log.i("SWITCH", "2 , Sort velo");
+                Collections.sort(myMachineList, new Comparator<Machine>() {
+                    public int compare(Machine m1, Machine m2) {
+                        return Double.compare(Double.parseDouble(m2.getmachineVelo()), Double.parseDouble(m1.getmachineVelo()));
+                    }
+                });
+                break;
+
+            default:
+                break;
+        }
+        adapter.notifyDataSetChanged();
     }
 
 }
