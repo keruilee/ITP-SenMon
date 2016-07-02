@@ -62,17 +62,6 @@ public class DetailsFragment extends Fragment {
         // Inflate the layout for this fragment
         v = inflater.inflate(R.layout.fragment_details, container, false);
 
-        // Get the ViewPager and set it's PagerAdapter so that it can display items
-        viewPager = (ViewPager) v.findViewById(R.id.viewpager);
-        viewPagerAdapter = new ViewPageAdapter(getActivity().getSupportFragmentManager(),
-                this.getContext());
-        viewPager.setAdapter(viewPagerAdapter);
-        viewPager.setOffscreenPageLimit(2);
-
-        // Give the TabLayout the ViewPage
-        tabLayout = (TabLayout) v.findViewById(R.id.graph_tabs);
-        tabLayout.setupWithViewPager(viewPager);
-
         //Hardcode array
 //        Machine machine = new Machine("SDK001-M001-01-0001a", "0.3", "36.11", "50");
 //        Machine machine2 = new Machine("SDK221-M001-01-0001a", "0.2244", "10.11", "33");
@@ -232,6 +221,16 @@ public class DetailsFragment extends Fragment {
             }
         }
 
+        // Get the ViewPager and set it's PagerAdapter so that it can display items
+        viewPager = (ViewPager) v.findViewById(R.id.viewpager);
+        viewPagerAdapter = new ViewPageAdapter(getActivity().getSupportFragmentManager(),
+                this.getContext(), machineID);
+        viewPager.setAdapter(viewPagerAdapter);
+        viewPager.setOffscreenPageLimit(2);
+
+        // Give the TabLayout the ViewPage
+        tabLayout = (TabLayout) v.findViewById(R.id.graph_tabs);
+        tabLayout.setupWithViewPager(viewPager);
 
     }
 
@@ -303,5 +302,12 @@ public class DetailsFragment extends Fragment {
         viewPagerAdapter.notifyDataSetChanged();
         viewPager.setAdapter(null);
         super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        Log.e(TAG, "onResume");
+        viewPager.setAdapter(viewPagerAdapter);
+        super.onResume();
     }
 }
