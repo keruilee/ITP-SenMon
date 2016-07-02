@@ -1,5 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="edu.singaporetech.senmon.ListFragment">
@@ -13,36 +14,54 @@
         android:orientation="horizontal"
         >
 
-        <Button
-            android:id="@+id/buttonMachineID"
-            android:layout_weight="1"
-            android:layout_width="80dp"
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/button_border"
-            android:text="Machine ID" />
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Listing"
+            android:textSize="30dp"
+            android:padding="10dp"/>
 
-        <Button
-            android:id="@+id/buttonTemperature"
-            android:layout_weight="1"
-            android:layout_width="80dp"
-            android:background="@drawable/button_border"
-            android:layout_height="wrap_content"
-            android:text="Temperature" />
-
-        <Button
-            android:id="@+id/buttonVelocity"
-            android:layout_weight="1"
-            android:layout_width="80dp"
-            android:background="@drawable/button_border"
-            android:layout_height="wrap_content"
-            android:text="Velocity" />
 
     </LinearLayout>
-    <ListView
-        android:id="@+id/ListView"
-        android:layout_below="@id/mylinear"
+
+    <View
+        android:id="@+id/line"
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="#848484"
+        android:layout_below="@+id/mylinear"
+        android:layout_alignParentEnd="true" />
+
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/list_tabs"
+        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_below="@id/line"
+        app:tabMode="fixed">
+
+        <android.support.design.widget.TabItem
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+
+        <android.support.design.widget.TabItem
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+
+        <android.support.design.widget.TabItem
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+
+    </android.support.design.widget.TabLayout>
+
+    <android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/list_tabs" />
 
 </RelativeLayout>
 
