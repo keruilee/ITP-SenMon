@@ -256,6 +256,7 @@ public class tabListFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        dateTime();
     }
 
     private void setupList()

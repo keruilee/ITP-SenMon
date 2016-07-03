@@ -10,67 +10,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1ae6f7df-9532-4114-952c-a333fc5931a4" name="Default" comment="">
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\accessibility_test_framework_1_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\android_android_23.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\ant_1_8_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\ant_launcher_1_8_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\asm_5_0_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\asm_analysis_5_0_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\asm_commons_5_0_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\asm_tree_5_0_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\asm_util_5_0_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\bcprov_jdk16_1_46.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\hamcrest_core_1_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\hamcrest_core_1_3.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\icu4j_53_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\junit_4_12.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\junit_4_8_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\maven_ant_tasks_2_1_3.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\mockito_core_1_9_5.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\objenesis_1_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\robolectric_3_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\robolectric_annotations_3_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\robolectric_resources_3_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\robolectric_utils_3_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\shadows_core_3_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\sqlite4java_0_282.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jinyu\AndroidStudioProjects\ITP project\Pro v2\ITP-SenMon\.idea\libraries\vtd_xml_2_11.xml" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.10/taskArtifacts/cache.properties.lock" afterPath="$PROJECT_DIR$/.gradle/2.10/taskArtifacts/cache.properties.lock" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.10/taskArtifacts/fileHashes.bin" afterPath="$PROJECT_DIR$/.gradle/2.10/taskArtifacts/fileHashes.bin" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.10/taskArtifacts/fileSnapshots.bin" afterPath="$PROJECT_DIR$/.gradle/2.10/taskArtifacts/fileSnapshots.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.10/tasks/_app_compileDebugJavaWithJavac/localClassSetAnalysis/localClassSetAnalysis.bin" afterPath="$PROJECT_DIR$/.gradle/2.10/tasks/_app_compileDebugJavaWithJavac/localClassSetAnalysis/localClassSetAnalysis.bin" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.10/tasks/_app_compileDebugJavaWithJavac/localClassSetAnalysis/localClassSetAnalysis.lock" afterPath="$PROJECT_DIR$/.gradle/2.10/tasks/_app_compileDebugJavaWithJavac/localClassSetAnalysis/localClassSetAnalysis.lock" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.10/tasks/_rangeseekbar_compileDebugJavaWithJavac/localClassSetAnalysis/localClassSetAnalysis.lock" afterPath="$PROJECT_DIR$/.gradle/2.10/tasks/_rangeseekbar_compileDebugJavaWithJavac/localClassSetAnalysis/localClassSetAnalysis.lock" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.10/tasks/_rangeseekbar_compileReleaseJavaWithJavac/localClassSetAnalysis/localClassSetAnalysis.lock" afterPath="$PROJECT_DIR$/.gradle/2.10/tasks/_rangeseekbar_compileReleaseJavaWithJavac/localClassSetAnalysis/localClassSetAnalysis.lock" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.10/tasks/_app_compileDebugJavaWithJavac/localJarClasspathSnapshot/localJarClasspathSnapshot.bin" afterPath="$PROJECT_DIR$/.gradle/2.10/tasks/_app_compileDebugJavaWithJavac/localJarClasspathSnapshot/localJarClasspathSnapshot.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.10/tasks/_rangeseekbar_compileDebugJavaWithJavac/localJarClasspathSnapshot/localJarClasspathSnapshot.bin" afterPath="$PROJECT_DIR$/.gradle/2.10/tasks/_rangeseekbar_compileDebugJavaWithJavac/localJarClasspathSnapshot/localJarClasspathSnapshot.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.10/tasks/_rangeseekbar_compileReleaseJavaWithJavac/localJarClasspathSnapshot/localJarClasspathSnapshot.bin" afterPath="$PROJECT_DIR$/.gradle/2.10/tasks/_rangeseekbar_compileReleaseJavaWithJavac/localJarClasspathSnapshot/localJarClasspathSnapshot.bin" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.10/tasks/_app_compileDebugJavaWithJavac/localJarClasspathSnapshot/localJarClasspathSnapshot.lock" afterPath="$PROJECT_DIR$/.gradle/2.10/tasks/_app_compileDebugJavaWithJavac/localJarClasspathSnapshot/localJarClasspathSnapshot.lock" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.10/tasks/_rangeseekbar_compileDebugJavaWithJavac/localJarClasspathSnapshot/localJarClasspathSnapshot.lock" afterPath="$PROJECT_DIR$/.gradle/2.10/tasks/_rangeseekbar_compileDebugJavaWithJavac/localJarClasspathSnapshot/localJarClasspathSnapshot.lock" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.10/tasks/_rangeseekbar_compileReleaseJavaWithJavac/localJarClasspathSnapshot/localJarClasspathSnapshot.lock" afterPath="$PROJECT_DIR$/.gradle/2.10/tasks/_rangeseekbar_compileReleaseJavaWithJavac/localJarClasspathSnapshot/localJarClasspathSnapshot.lock" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.10/taskArtifacts/outputFileStates.bin" afterPath="$PROJECT_DIR$/.gradle/2.10/taskArtifacts/outputFileStates.bin" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.10/taskArtifacts/taskArtifacts.bin" afterPath="$PROJECT_DIR$/.gradle/2.10/taskArtifacts/taskArtifacts.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/edu/singaporetech/senmon/BackgroundService.java" afterPath="$PROJECT_DIR$/app/src/main/java/edu/singaporetech/senmon/BackgroundService.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/edu/singaporetech/senmon/ListFragment.java" afterPath="$PROJECT_DIR$/app/src/main/java/edu/singaporetech/senmon/ListFragment.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/edu/singaporetech/senmon/MainActivity.java" afterPath="$PROJECT_DIR$/app/src/main/java/edu/singaporetech/senmon/MainActivity.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/animated_vector_drawable_23_2_0.xml" afterPath="$PROJECT_DIR$/.idea/libraries/animated_vector_drawable_23_2_0.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/app.iml" afterPath="$PROJECT_DIR$/app/app.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/appcompat_v7_23_0_0.xml" afterPath="$PROJECT_DIR$/.idea/libraries/appcompat_v7_23_0_0.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/layout/custom_row.xml" afterPath="$PROJECT_DIR$/app/src/main/res/layout/custom_row.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_list.xml" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_list.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_tablist.xml" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_tablist.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/gradle.xml" afterPath="$PROJECT_DIR$/.idea/gradle.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/local.properties" afterPath="$PROJECT_DIR$/local.properties" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rangeseekbar/rangeseekbar.iml" afterPath="$PROJECT_DIR$/rangeseekbar/rangeseekbar.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/recyclerview_v7_23_2_0.xml" afterPath="$PROJECT_DIR$/.idea/libraries/recyclerview_v7_23_2_0.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/support_v4_23_0_0.xml" afterPath="$PROJECT_DIR$/.idea/libraries/support_v4_23_0_0.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/support_v4_23_2_0.xml" afterPath="$PROJECT_DIR$/.idea/libraries/support_v4_23_2_0.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/support_vector_drawable_23_2_0.xml" afterPath="$PROJECT_DIR$/.idea/libraries/support_vector_drawable_23_2_0.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/edu/singaporetech/senmon/tabListFragment.java" afterPath="$PROJECT_DIR$/app/src/main/java/edu/singaporetech/senmon/tabListFragment.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ITP-SenMon.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -139,8 +85,8 @@
       <file leaf-file-name="tabListFragment.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/singaporetech/senmon/tabListFragment.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.34615386">
-              <caret line="290" column="22" selection-start-line="290" selection-start-column="22" selection-end-line="290" selection-end-column="22" />
+            <state vertical-scroll-proportion="0.8125">
+              <caret line="258" column="19" selection-start-line="258" selection-start-column="19" selection-end-line="258" selection-end-column="19" />
               <folding>
                 <element signature="e#1509#1518#0" expanded="true" />
                 <element signature="e#1579#1587#0" expanded="true" />
@@ -148,12 +94,12 @@
                 <element signature="e#3844#3845#0" expanded="true" />
                 <element signature="e#3958#5313#0" expanded="true" />
                 <element signature="e#5312#5313#0" expanded="true" />
-                <element signature="e#9801#10012#0" expanded="true" />
-                <element signature="e#10011#10012#0" expanded="true" />
-                <element signature="e#10157#10418#0" expanded="true" />
-                <element signature="e#10417#10418#0" expanded="true" />
-                <element signature="e#10615#10876#0" expanded="true" />
-                <element signature="e#10875#10876#0" expanded="true" />
+                <element signature="e#9821#10032#0" expanded="true" />
+                <element signature="e#10031#10032#0" expanded="true" />
+                <element signature="e#10177#10438#0" expanded="true" />
+                <element signature="e#10437#10438#0" expanded="true" />
+                <element signature="e#10635#10896#0" expanded="true" />
+                <element signature="e#10895#10896#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -3080,7 +3026,7 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Android Monitor" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.39093137" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Android Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.39093137" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
@@ -3195,8 +3141,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/singaporetech/senmon/tabListFragment.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.34615386">
-          <caret line="290" column="22" selection-start-line="290" selection-start-column="22" selection-end-line="290" selection-end-column="22" />
+        <state vertical-scroll-proportion="0.8125">
+          <caret line="258" column="19" selection-start-line="258" selection-start-column="19" selection-end-line="258" selection-end-column="19" />
           <folding>
             <element signature="e#1509#1518#0" expanded="true" />
             <element signature="e#1579#1587#0" expanded="true" />
@@ -3204,12 +3150,12 @@
             <element signature="e#3844#3845#0" expanded="true" />
             <element signature="e#3958#5313#0" expanded="true" />
             <element signature="e#5312#5313#0" expanded="true" />
-            <element signature="e#9801#10012#0" expanded="true" />
-            <element signature="e#10011#10012#0" expanded="true" />
-            <element signature="e#10157#10418#0" expanded="true" />
-            <element signature="e#10417#10418#0" expanded="true" />
-            <element signature="e#10615#10876#0" expanded="true" />
-            <element signature="e#10875#10876#0" expanded="true" />
+            <element signature="e#9821#10032#0" expanded="true" />
+            <element signature="e#10031#10032#0" expanded="true" />
+            <element signature="e#10177#10438#0" expanded="true" />
+            <element signature="e#10437#10438#0" expanded="true" />
+            <element signature="e#10635#10896#0" expanded="true" />
+            <element signature="e#10895#10896#0" expanded="true" />
           </folding>
         </state>
       </provider>
