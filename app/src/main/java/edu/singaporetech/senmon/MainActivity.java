@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity
         else if (id == R.id.nav_favourite) {
 
             Context context = getApplicationContext();
-            CharSequence text = "testing favourite!";
+            CharSequence text = "Favourite List";
             int duration = Toast.LENGTH_SHORT;
 
             Toast toast = Toast.makeText(context, text, duration);
@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity
         else if (id == R.id.nav_all) {
             ListFragment myListFragment = new ListFragment();
             FragmentManager myManager = getSupportFragmentManager();
-            Toast toast = Toast.makeText(getApplicationContext(), "testing list!", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getApplicationContext(), "List!", Toast.LENGTH_SHORT);
             toast.show();
             myManager.beginTransaction().replace(R.id.relativelayoutfor_fragment, myListFragment).addToBackStack(null).commit();
         }

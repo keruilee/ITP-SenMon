@@ -3,11 +3,13 @@ package edu.singaporetech.senmon;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,9 +30,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 
 
 /**
@@ -62,6 +66,13 @@ public class tabListFragment extends Fragment {
     public String[] allCSVRecords;
 
 
+    // for swipe
+    public SwipeRefreshLayout mSwipeRefreshLayout = null;
+
+    // for date time
+    TextView updateDateTime;
+
+
     public static tabListFragment newInstance(int n) {
         Bundle args = new Bundle();
         args.putInt(TAB_POSITION, n);
@@ -89,7 +100,11 @@ public class tabListFragment extends Fragment {
         Log.i("TAG", "Pass 3");
 
         rootView = inflater.inflate(R.layout.fragment_tablist, container, false);
-/*
+
+        // Retrieve the SwipeRefreshLayout and ListView instances
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefresh);
+        updateDateTime= (TextView) rootView.findViewById(R.id.textViewUpdateDateTime);
+
 
         //retrieving data using bundle
         Bundle bundle = getArguments();
@@ -97,13 +112,20 @@ public class tabListFragment extends Fragment {
             //Log.i(TAG + " Machine Name ", String.valueOf(bundle.getStringArrayList("name")));
             machineArray.add(String.valueOf(bundle.getStringArrayList("name")));
         }
-*/
+
 
         // set up list with listadapter
         listViewListing = (ListView) rootView.findViewById(R.id.ListView);
         adapter = new CustomAdapter(getActivity(), R.layout.fragment_tablist, myMachineList);
         listViewListing.setAdapter(adapter);
-
+        //////////////////swipe///////////////
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
+                getCSVData();
+            }
+        });
         ////// when click on the item   //////////////////////
         listViewListing.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -126,7 +148,8 @@ public class tabListFragment extends Fragment {
                 transaction.replace(R.id.relativelayoutfor_fragment, details);
                 transaction.addToBackStack(null);
                 transaction.commit();
-            }});
+            }
+        });
 
         return rootView;
         // / return inflater.inflate(R.layout.fragment_list, container, false);
@@ -191,6 +214,11 @@ public class tabListFragment extends Fragment {
                 getCSVRecords(result);
                 setupList();                    // display list with sorted values
                 progressDialog.dismiss();
+
+                // for swipe refresh to dismiss the loading icon
+                mSwipeRefreshLayout.setRefreshing(false);
+                // display the date time
+                dateTime();
             }
         }
         GetCSVDataJSON g = new GetCSVDataJSON();
@@ -268,4 +296,12 @@ public class tabListFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
+    public void dateTime()
+    {
+        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        Log.i("DATETIME", ""+currentDateTimeString.toString());
+
+
+        updateDateTime.setText("Updated on:" +currentDateTimeString);
+    }
 }

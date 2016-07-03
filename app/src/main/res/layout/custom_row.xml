@@ -5,7 +5,7 @@
 
     <TextView
         android:layout_width="150dp"
-        android:layout_height="75dp"
+        android:layout_height="65dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Machine ID"
         android:id="@+id/textViewmachineid"
@@ -23,46 +23,61 @@
         android:layout_marginRight="5dp"
         android:layout_alignTop="@+id/textViewmachineid"
         android:layout_toEndOf="@+id/textViewmachineid"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp">
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:weightSum="1">
 
+        <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/tableLayout1"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
 
-
-        <TextView
+            <TableRow
+            android:id="@+id/tableRow1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="velo"
-            android:id="@+id/textViewVelocity"
-            android:layout_marginLeft="5dp"
-            android:textColor="#000000"/>
+            android:padding="5dip" >
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="mm/s"
-            android:id="@+id/textViewVelocitySign"
-            android:textColor="#000000"
-            android:layout_marginLeft="25dp"/>
+                <TextView
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:text="temp"
+                    android:id="@+id/textViewTemp"
+                    android:textColor="#000000"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="temp"
-            android:id="@+id/textViewTemp"
-            android:layout_marginTop="15dp"
-            android:layout_marginLeft="-85dp"
-            android:layout_below="@+id/textViewTemp"
-            android:textColor="#000000"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="°C"
+                    android:id="@+id/textViewTempSign"
+                    android:textColor="#000000"
+                    android:layout_marginLeft="24dp"
+                    android:layout_below="@+id/textViewTempSign"
+                    />
+            </TableRow>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="°C"
-            android:id="@+id/textViewTempSign"
-            android:textColor="#000000"
-            android:layout_marginTop="15dp"
-            android:layout_marginLeft="24dp"
-            android:layout_below="@+id/textViewTempSign"/>
+            <TableRow
+                android:id="@+id/tableRow2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dip" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="velo"
+                    android:id="@+id/textViewVelocity"
+                    android:layout_below="@+id/textViewTemp"
+                    android:textColor="#000000"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="mm/s"
+                    android:id="@+id/textViewVelocitySign"
+                    android:textColor="#000000"
+                    android:layout_marginLeft="25dp"/>
+            </TableRow>
+        </TableLayout>
     </LinearLayout>
 
     <View

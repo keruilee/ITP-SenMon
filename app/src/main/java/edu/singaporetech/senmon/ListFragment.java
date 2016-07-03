@@ -83,7 +83,6 @@ public class ListFragment extends Fragment {
         context = getContext();
         View rootView = inflater.inflate(R.layout.fragment_list, container, false);
 
-
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) rootView.findViewById(R.id.viewpager);
         viewTabPagerAdapter = new ViewTabPageAdapter(getActivity().getSupportFragmentManager(),

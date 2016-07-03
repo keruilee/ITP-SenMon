@@ -76,7 +76,7 @@ public class BackgroundService extends Service{
 
                     PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(0,
                             PendingIntent.FLAG_UPDATE_CURRENT);
-
+/*
                     //TODO fire off the notification for warning machines *temp holding place
                     WarnNotificBuilder.setContentIntent(pendingIntent);
 //
@@ -93,12 +93,13 @@ public class BackgroundService extends Service{
                     e.printStackTrace();
                 }
                 isWarnNotificActive = true;
-
+*/
                     //call the destroy method
                     stopSelf();
 
                 }
             }
+
 ////            //TODO build notifications for critical machines
 //            NotificationCompat.Builder CritNotificBuilder = (NotificationCompat.Builder) new
 //                    NotificationCompat.Builder(context).setContentTitle("Attention!")
