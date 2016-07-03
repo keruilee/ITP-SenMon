@@ -186,6 +186,17 @@ public class DetailsFragment extends Fragment {
                 }
             }});
 
+        // Get the ViewPager and set it's PagerAdapter so that it can display items
+        viewPager = (ViewPager) v.findViewById(R.id.viewpager);
+        viewPagerAdapter = new ViewPageAdapter(getActivity().getSupportFragmentManager(),
+                this.getContext(), machineID);
+        viewPager.setAdapter(viewPagerAdapter);
+        viewPager.setOffscreenPageLimit(2);
+
+        // Give the TabLayout the ViewPage
+        tabLayout = (TabLayout) v.findViewById(R.id.graph_tabs);
+        tabLayout.setupWithViewPager(viewPager);
+
         return v;
     }
 
@@ -233,19 +244,6 @@ public class DetailsFragment extends Fragment {
                 tvDHour.setText(String.valueOf(Double.parseDouble(s.getMachineHour())));
             }
         }
-
-
-        // Get the ViewPager and set it's PagerAdapter so that it can display items
-        viewPager = (ViewPager) v.findViewById(R.id.viewpager);
-        viewPagerAdapter = new ViewPageAdapter(getActivity().getSupportFragmentManager(),
-                this.getContext(), machineID);
-        viewPager.setAdapter(viewPagerAdapter);
-        viewPager.setOffscreenPageLimit(2);
-
-        // Give the TabLayout the ViewPage
-        tabLayout = (TabLayout) v.findViewById(R.id.graph_tabs);
-        tabLayout.setupWithViewPager(viewPager);
-
     }
 
     //Calculate time differences once detect machine is in "off" state

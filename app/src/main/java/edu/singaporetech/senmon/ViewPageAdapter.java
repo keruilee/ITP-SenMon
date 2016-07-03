@@ -14,12 +14,12 @@ import android.view.ViewGroup;
 public class ViewPageAdapter extends FragmentPagerAdapter {
 
     final int PAGE_COUNT = 3;
-    public static final String tabTitles[] = new String[] { "TEMP", "VELOCITY", "GRAPH 3" };
+    public static final String tabTitles[] = new String[] { "TEMPERATURE", "VELOCITY", "DAILY\nANALYSIS" };
 
     private final FragmentManager mFragmentManager;
     private FragmentTransaction mCurTransaction;
     private Fragment mCurrentPrimaryItem = null;
-    String machineId;
+    public static String machineId;
 
     public ViewPageAdapter(FragmentManager fm, Context context, String id) {
         super(fm);
@@ -34,7 +34,7 @@ public class ViewPageAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return GraphFragment.newInstance(position, machineId);
+            return GraphFragment.newInstance(position);
     }
 
     @Override
@@ -122,4 +122,5 @@ public class ViewPageAdapter extends FragmentPagerAdapter {
             throw new IllegalArgumentException("viewId " + viewId);
         return "tabpageradptr:" + getPageTitle(position) + ":" + viewId + ":" + position;
     }
+
 }

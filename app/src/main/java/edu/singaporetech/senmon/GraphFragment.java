@@ -10,15 +10,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,24 +52,23 @@ public class GraphFragment extends Fragment {
     private String graphNames[] = new String[] { "TEMPERATURE", "VELOCITY", "GRAPH 3" };
 
     private LineChart lineChart ;
+    private BarChart stackedChart;
     public static final String TAB_POSITION = "TAB_POSITION";
-    public static final String MACHINE_NAME = "MACHINE_NAME";
     private int tabNo;
 
     private float criticalLine, warningLine;
     private String dataSetName;
 
-    ArrayList<String> xVals = new ArrayList<String>();
-    ArrayList<Entry> yVals = new ArrayList<Entry>();
+    private ArrayList<String> xVals = new ArrayList<String>();
+    private ArrayList<Entry> yVals = new ArrayList<Entry>();
 
     private static final String TAG_RESULTS="result";
     public String[][] allCSVRecords;
     private String machineName;
 
-    public static GraphFragment newInstance(int n, String id) {
+    public static GraphFragment newInstance(int n) {
         Bundle args = new Bundle();
         args.putInt(TAB_POSITION, n);
-        args.putString(MACHINE_NAME, id);
         GraphFragment fragment = new GraphFragment();
         fragment.setArguments(args);
         return fragment;
@@ -81,16 +86,19 @@ public class GraphFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         View v = inflater.inflate(R.layout.fragment_graphs, container, false);
 
         tabNo = getArguments().getInt(TAB_POSITION);
-        machineName = getArguments().getString(MACHINE_NAME);
-        lineChart = (LineChart) v.findViewById(R.id.chart1);
-
+        machineName = ViewPageAdapter.machineId;
+        lineChart = (LineChart) v.findViewById(R.id.lineChart);
+        stackedChart = (BarChart) v.findViewById(R.id.barChart);
         if(tabNo != 2)
-            getCSVData();
+            stackedChart.setVisibility(View.INVISIBLE);
         else
-            initialSetup();
+            lineChart.setVisibility(View.INVISIBLE);
+
+        getCSVData();
 
         return v;
 
@@ -117,6 +125,7 @@ public class GraphFragment extends Fragment {
                     yVals.add(new Entry(new Float(allCSVRecords[i][6]), i));           // plotting of data on graph; new Entry(y value, x value).
                     // x value in Entry() just go accordingly by 0, 1, 2, 3, ...
                 }
+                setupLineChart();
                 break;
             case 1:             // graph at 2nd tab
                 // where the 2 lines will be
@@ -130,25 +139,14 @@ public class GraphFragment extends Fragment {
                     yVals.add(new Entry(new Float(allCSVRecords[i][5]), i));           // plotting of data on graph; new Entry(y value, x value).
                     // x value in Entry() just go accordingly by 0, 1, 2, 3, ...
                 }
+                setupLineChart();
                 break;
-            case 2:             // graph at 3rd tab
-                // where the 2 lines will be
-                criticalLine = 80f;
-                warningLine = 50f;
-
-                // plotting of data
-                int count = 20;                 // number of points, used for looping when creating data
-                for(int i = 0; i < count; i++)
-                {
-                    xVals.add("c" +i);                      // x-axis values, can rename to anything
-                    yVals.add(new Entry(i*5, i));           // plotting of data on graph; new Entry(y value, x value).
-                    // x value in Entry() just go accordingly by 0, 1, 2, 3, ...
-                }
+            case 2:
+                setupStackedChart();
                 break;
             default:
                 break;
         }
-        setupLineChart();
     }
 
     private void setupLineChart() {
@@ -255,9 +253,118 @@ public class GraphFragment extends Fragment {
 
             // set data
             lineChart.setData(data);
-            lineChart.notifyDataSetChanged();
         }
-        lineChart.invalidate();
+        lineChart.invalidate();         // refresh the graph
+    }
+
+    private void setupStackedChart() {
+        setStackedData();
+        //stackedChart.setOnChartValueSelectedListener(this);
+
+        stackedChart.setDescription("");
+
+        // if more than 60 entries are displayed in the chart, no values will be
+        // drawn
+        stackedChart.setMaxVisibleValueCount(60);
+
+        // scaling can now only be done on x- and y-axis separately
+        stackedChart.setScaleXEnabled(true);
+        stackedChart.setScaleYEnabled(false);
+        stackedChart.setDrawGridBackground(false);
+        stackedChart.setDrawBarShadow(false);
+        stackedChart.setVisibleXRangeMaximum(7);
+        if(xVals.size() > 7)
+            stackedChart.moveViewToX(xVals.size() - 7);
+
+        stackedChart.setDrawValueAboveBar(false);
+
+        // change the position of the y-labels
+        YAxis leftAxis = stackedChart.getAxisLeft();
+        //leftAxis.setValueFormatter(new MyYAxisValueFormatter());
+        leftAxis.setAxisMinValue(0f); // this replaces setStartAtZero(true)
+        stackedChart.getAxisRight().setEnabled(false);
+
+        XAxis xLabels = stackedChart.getXAxis();
+        xLabels.setPosition(XAxis.XAxisPosition.BOTTOM);
+        // mChart.setDrawXLabels(false);
+        // mChart.setDrawYLabels(false);
+
+        Legend l = stackedChart.getLegend();
+        l.setPosition(Legend.LegendPosition.BELOW_CHART_RIGHT);
+        l.setFormSize(8f);
+        l.setFormToTextSpace(4f);
+        l.setXEntrySpace(6f);
+    }
+
+    private void setStackedData() {
+        int numOfNormal = 0, numOfWarning = 0, numOfCritical = 0;
+
+        ArrayList<BarEntry> yVals1 = new ArrayList<BarEntry>();
+
+        int i = 0;
+        xVals.add(allCSVRecords[i][0]);
+        while (i < allCSVRecords.length)
+        {
+            if(!allCSVRecords[i][0].equals(xVals.get(xVals.size()-1)))
+            {
+                yVals1.add(new BarEntry(new float[] { numOfNormal, numOfWarning, numOfCritical }, xVals.size()-1));
+                numOfNormal = 0;
+                numOfWarning = 0;
+                numOfCritical = 0;
+                xVals.add(allCSVRecords[i][0]);
+            }
+            float velValue = Float.parseFloat(allCSVRecords[i][5]);
+            if(velValue == 0)
+            {}
+            else if(velValue <= 1)
+                numOfNormal++;
+            else if(velValue <= 2)
+                numOfWarning++;
+            else
+                numOfCritical++;
+            i++;
+        }
+
+        yVals1.add(new BarEntry(new float[] { numOfNormal, numOfWarning, numOfCritical }, xVals.size()-1));
+
+        BarDataSet set1;
+
+        if (stackedChart.getData() != null &&
+                stackedChart.getData().getDataSetCount() > 0) {
+            set1 = (BarDataSet)stackedChart.getData().getDataSetByIndex(0);
+            set1.setYVals(yVals1);
+            stackedChart.getData().setXVals(xVals);
+            stackedChart.getData().notifyDataChanged();
+            stackedChart.notifyDataSetChanged();
+        } else {
+            set1 = new BarDataSet(yVals1, "");
+            set1.setColors(getColors());
+            set1.setStackLabels(new String[]{"Safe", "Warning", "Critical"});
+
+            ArrayList<IBarDataSet> dataSets = new ArrayList<IBarDataSet>();
+            dataSets.add(set1);
+
+            BarData data = new BarData(xVals, dataSets);
+            //data.setValueFormatter(new MyValueFormatter());
+
+            stackedChart.setData(data);
+        }
+
+        stackedChart.invalidate();  // refresh the graph
+    }
+
+    private int[] getColors() {
+
+        int stacksize = 3;
+
+        // have as many colors as stack-values per entry
+        int[] colors = new int[stacksize];
+
+        colors[0] = getResources().getColor(R.color.colorNormal);
+        colors[1] = getResources().getColor(R.color.colorWarning);
+        colors[2] = getResources().getColor(R.color.colorCritical);
+
+        return colors;
     }
 
     //Added by Kerui
@@ -283,6 +390,7 @@ public class GraphFragment extends Fragment {
                 {
                 }
                 lineChart.setNoDataTextDescription("Loading graph...");
+                stackedChart.setNoDataTextDescription("Loading graph...");
             }
 
             @Override
