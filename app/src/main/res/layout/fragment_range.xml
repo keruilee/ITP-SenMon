@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:rsb="http://schemas.android.com/tools">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Edit Range Values"
+        android:textSize="30dp"
+        android:padding="10dp"/>
+
+    <View
+        android:id="@+id/titleLine"
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="#848484"
+        android:layout_below="@id/title"
+        android:layout_alignParentStart="true"/>
+
+    <TextView
+        android:id="@+id/tempTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Temperature"
+        android:textSize="30dp"
+        android:layout_below="@id/titleLine"
+        android:layout_marginLeft="5dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#000000"
+        android:text="Starting Warning Temperature:"
+        android:textSize="15dp"
+        android:id="@+id/warnTempTitle"
+        android:layout_below="@+id/tempTitle"
+        android:layout_marginLeft="8dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#000000"
+        android:text="Starting Critical Temperature:"
+        android:textSize="15dp"
+        android:id="@+id/critTempTitle"
+        android:layout_below="@+id/warnTempTitle"
+        android:layout_marginLeft="8dp"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/warnTempEditText"
+        android:inputType= "numberDecimal"
+        android:textSize="15dp"
+        android:layout_marginLeft="220dp"
+        android:layout_marginTop="88dp"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/critTempEditText"
+        android:inputType= "numberDecimal"
+        android:textSize="15dp"
+        android:layout_marginLeft="220dp"
+        android:layout_marginTop="110dp"/>
+
+    <org.florescu.android.rangeseekbar.TempRangeSeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekbarTemp"
+        rsb:absoluteMaxValue="30"
+        rsb:absoluteMinValue="0"
+        rsb:thumbDisabled="@drawable/custom_slider_thumb"
+        rsb:thumbNormal="@drawable/custom_slider_thumb"
+        rsb:thumbPressed="@drawable/custom_slider_thumb"
+        rsb:thumbShadow="true"
+        rsb:thumbShadowBlur="3dp"
+        rsb:thumbShadowColor="@color/primary_material_light"
+        rsb:thumbShadowXOffset="1dp"
+        rsb:thumbShadowYOffset="2dp"
+        android:layout_below="@+id/critTempEditText"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/veloTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Velocity"
+        android:textSize="30dp"
+        android:layout_below="@id/seekbarTemp"
+        android:layout_marginLeft="5dp"
+        android:paddingBottom="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#000000"
+        android:text="Starting Warning Velocity:"
+        android:textSize="15dp"
+        android:id="@+id/warnVeloTitle"
+        android:layout_below="@+id/veloTitle"
+        android:layout_marginLeft="8dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#000000"
+        android:text="Starting Critical Velocity:"
+        android:textSize="15dp"
+        android:id="@+id/critVeloTitle"
+        android:layout_below="@+id/warnVeloTitle"
+        android:layout_marginLeft="8dp"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/warnVeloEditText"
+        android:inputType= "numberDecimal"
+        android:textSize="15dp"
+        android:layout_marginLeft="220dp"
+        android:layout_marginTop="245dp"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/critVeloEditText"
+        android:inputType= "numberDecimal"
+        android:textSize="15dp"
+        android:layout_marginLeft="220dp"
+        android:layout_marginTop="268dp"/>
+
+    <org.florescu.android.rangeseekbar.VeloRangeSeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekbarVelo"
+        rsb:absoluteMaxValue="30"
+        rsb:absoluteMinValue="0"
+        rsb:thumbDisabled="@drawable/custom_slider_thumb"
+        rsb:thumbNormal="@drawable/custom_slider_thumb"
+        rsb:thumbPressed="@drawable/custom_slider_thumb"
+        rsb:thumbShadow="true"
+        rsb:thumbShadowBlur="3dp"
+        rsb:thumbShadowColor="@color/primary_material_light"
+        rsb:thumbShadowXOffset="1dp"
+        rsb:thumbShadowYOffset="2dp"
+        android:layout_below="@+id/critVeloEditText"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save_button"
+        android:id="@+id/saveButton"
+        android:layout_marginTop="44dp"
+        android:layout_below="@+id/seekbarVelo"
+        android:layout_alignEnd="@+id/critVeloEditText" />
+
+</RelativeLayout>

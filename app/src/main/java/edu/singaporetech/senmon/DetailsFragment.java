@@ -2,6 +2,7 @@ package edu.singaporetech.senmon;
 
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -45,6 +46,13 @@ public class DetailsFragment extends Fragment {
     String machineName ="";
     String machineID = "";
     View v;
+    String tempWarningValue, tempCriticalValue, veloWarningValue, veloCriticalValue;
+    SharedPreferences RangeSharedPreferences;
+    public static final String MyRangePREFERENCES = "MyRangePrefs" ;
+    public static final String WarningTemperature = "warnTempKey";
+    public static final String CriticalTemperature = "critTempKey";
+    public static final String WarningVelocity = "warnVeloKey";
+    public static final String CriticalVelocity = "critVeloKey";
     private FavouriteDatabaseHelper databaseHelper;
     private TabLayout tabLayout;
     ViewPager viewPager;
@@ -104,7 +112,7 @@ public class DetailsFragment extends Fragment {
             tvDVelocity.setText(String.valueOf(bundle2.getString("velo")));
         }
 
-        //For home fragment
+        //For favorite fragment
         if(bundle3 != null) {
             tvDMachineName.setText(machineID);
             machineID = bundle3.getString("name");
@@ -113,6 +121,15 @@ public class DetailsFragment extends Fragment {
         //database helper
         databaseHelper = new FavouriteDatabaseHelper(getContext());
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        //retrieve range values
+        RangeSharedPreferences = getContext().getSharedPreferences(MyRangePREFERENCES, Context.MODE_PRIVATE);
+
+        //reload the value from the shared preferences and display it
+        tempWarningValue = RangeSharedPreferences.getString(WarningTemperature, String.valueOf(Double.parseDouble(getString(R.string.temp_warning_value))));
+        tempCriticalValue = RangeSharedPreferences.getString(CriticalTemperature, String.valueOf(Double.parseDouble(getString(R.string.temp_critical_value))));
+        veloWarningValue = RangeSharedPreferences.getString(WarningVelocity, String.valueOf(Double.parseDouble(getString(R.string.velo_warning_value))));
+        veloCriticalValue = RangeSharedPreferences.getString(CriticalVelocity, String.valueOf(Double.parseDouble(getString(R.string.velo_critical_value))));
 
         //call compute time
         //time = computeTime(startDate,endDate);
@@ -182,36 +199,32 @@ public class DetailsFragment extends Fragment {
             if (machineName.contains(s.getMachineID()))
             {
                 //check temperature value range
-                if (Double.parseDouble(s.getmachineTemp()) >= Double.parseDouble(getString(R.string.min_normal_temp)) & Double.parseDouble(s.getmachineTemp()) <= Double.parseDouble(getString(R.string.max_normal_temp))) {
+                if (Double.parseDouble(s.getmachineTemp()) < Double.parseDouble(tempWarningValue)) {
                     //Normal state text color
-                    //tvDTemperature.setTextColor(Color.parseColor("#0B610B"));
                     tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
                 }
-                else if (Double.parseDouble(s.getmachineTemp()) >= Double.parseDouble(getString(R.string.min_warning_temp)) & Double.parseDouble(s.getmachineTemp()) <= Double.parseDouble(getString(R.string.max_warning_temp))) {
+                else if ((Double.parseDouble(s.getmachineTemp()) >= Double.parseDouble(tempWarningValue)
+                        & Double.parseDouble(s.getmachineTemp()) < Double.parseDouble(tempCriticalValue))) {
                     //Warning state text color
-                    //tvDTemperature.setTextColor(Color.parseColor("#8A4B08"));
                     tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
                 }
                 else {
                     //Critical state text color
-                    //tvDTemperature.setTextColor(Color.parseColor("#FE2E2E"));
                     tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
                 }
 
                 //check velocity value range
-                if (Double.parseDouble(s.getmachineVelo()) >= Double.parseDouble(getString(R.string.min_normal_velo)) & Double.parseDouble(s.getmachineVelo()) <= Double.parseDouble(getString(R.string.max_normal_velo))) {
+                if (Double.parseDouble(s.getmachineVelo()) < Double.parseDouble(veloWarningValue)) {
                     //Normal state text color
-                    //tvDVelocity.setTextColor(Color.parseColor("#0B610B"));
                     tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
                 }
-                else if (Double.parseDouble(s.getmachineVelo()) >= Double.parseDouble(getString(R.string.min_warning_velo)) & Double.parseDouble(s.getmachineVelo()) <= Double.parseDouble(getString(R.string.max_warning_velo))) {
+                else if (Double.parseDouble(s.getmachineVelo()) >= Double.parseDouble(veloWarningValue)
+                        & Double.parseDouble(s.getmachineVelo()) <= Double.parseDouble(veloCriticalValue)) {
                     //Warning state text color
-                    //tvDVelocity.setTextColor(Color.parseColor("#8A4B08"));
                     tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
                 }
                 else {
                     //Critical state text color
-                    //tvDVelocity.setTextColor(Color.parseColor("#FE2E2E"));
                     tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
                 }
 
@@ -220,6 +233,7 @@ public class DetailsFragment extends Fragment {
                 tvDHour.setText(String.valueOf(Double.parseDouble(s.getMachineHour())));
             }
         }
+
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) v.findViewById(R.id.viewpager);

@@ -70,9 +70,9 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         //start home fragment
-        HomeFragment homeFragment = new HomeFragment();
-        FragmentManager manager = getSupportFragmentManager();
-        manager.beginTransaction().add(R.id.relativelayoutfor_fragment, homeFragment).commit();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().add(R.id.relativelayoutfor_fragment, new HomeFragment()).commit();
+        }
 
 
         Intent alarm = new Intent(this.context, AlarmReceiver.class);
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_home) {
             HomeFragment homeFragment = new HomeFragment();
             FragmentManager manager = getSupportFragmentManager();
-            manager.beginTransaction().replace(R.id.relativelayoutfor_fragment, homeFragment).commit();
+            manager.beginTransaction().replace(R.id.relativelayoutfor_fragment, homeFragment).addToBackStack(null).commit();
         }
         //link to favourite machine
         else if (id == R.id.nav_favourite) {
@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity
 
             FavouriteFragment myFavouriteFragment = new FavouriteFragment();
             FragmentManager myManager = getSupportFragmentManager();
-            myManager.beginTransaction().replace(R.id.relativelayoutfor_fragment, myFavouriteFragment).commit();
+            myManager.beginTransaction().replace(R.id.relativelayoutfor_fragment, myFavouriteFragment).addToBackStack(null).commit();
         }
         //link to critical machine
         else if (id == R.id.nav_critical) {
@@ -166,13 +166,13 @@ public class MainActivity extends AppCompatActivity
             FragmentManager myManager = getSupportFragmentManager();
             Toast toast = Toast.makeText(getApplicationContext(), "testing list!", Toast.LENGTH_SHORT);
             toast.show();
-            myManager.beginTransaction().replace(R.id.relativelayoutfor_fragment, myListFragment).commit();
+            myManager.beginTransaction().replace(R.id.relativelayoutfor_fragment, myListFragment).addToBackStack(null).commit();
         }
         //link to setting
         else if (id == R.id.nav_settings) {
             SettingsFragment settingsFragment = new SettingsFragment();
             FragmentManager manager = getSupportFragmentManager();
-            manager.beginTransaction().replace(R.id.relativelayoutfor_fragment, settingsFragment).commit();
+            manager.beginTransaction().replace(R.id.relativelayoutfor_fragment, settingsFragment).addToBackStack(null).commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

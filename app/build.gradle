@@ -31,4 +31,5 @@ dependencies {
     compile 'com.android.support:design:23.2.0'
     compile 'com.android.support:support-v4:23.2.0'
     compile 'com.github.PhilJay:MPAndroidChart:v2.2.5'          // MPAndroidChart
+    compile project(':rangeseekbar')                            // RangeSeekBar
 }

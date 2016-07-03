@@ -10,5 +10,11 @@
     <color name="colorCritical">#FE2E2E</color>
     <color name="colorWarning">#FFA500</color>
     <color name="colorNormal">#31B404</color>
+    <color name="colorAll">#848484</color>
+
+    <color name="colorLighterCritical">#FFB3B3</color>
+    <color name="colorLighterWarning">#FFE5B3</color>
+    <color name="colorLighterNormal">#99B691</color>
+    <color name="colorLighterAll">#CDCDCD</color>
 
 </resources>

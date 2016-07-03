@@ -12,10 +12,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.NotificationCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
@@ -37,6 +39,7 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
 
     Switch ntfnEnableSw, ntfnWarningSw, ntfnCriticalSw, ntfnFavSw;
     boolean favExists;
+    Button editRangeBtn;
 
     NotificationManager notificationManager;
     int WarnNotificID = 111;
@@ -67,6 +70,7 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
         ntfnWarningSw= (Switch)settingsView.findViewById(R.id.ntfnWarningSw);
         ntfnCriticalSw= (Switch)settingsView.findViewById(R.id.ntfnCriticalSw);
         ntfnFavSw= (Switch)settingsView.findViewById(R.id.ntfnFavSw);
+        editRangeBtn = (Button) settingsView.findViewById(R.id.goRangeButton);
 
         ntfnEnableSw.setOnCheckedChangeListener(SettingsFragment.this);
         ntfnWarningSw.setOnCheckedChangeListener(SettingsFragment.this);
@@ -80,6 +84,18 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
             ntfnFavSw.setEnabled(false);
 
         loadSavedPrefs();
+
+        //edit range button
+        editRangeBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                RangeFragment range = new RangeFragment();
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.relativelayoutfor_fragment, range);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+        });
 
         return settingsView;
 

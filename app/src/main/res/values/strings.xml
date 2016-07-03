@@ -9,17 +9,15 @@
     <!-- TODO: Remove or change this placeholder text -->
 
     <!--Fix state range-->
-    <string name="min_normal_temp">0</string>
-    <string name="max_normal_temp">20</string>
-    <string name="min_warning_temp">21</string>
-    <string name="max_warning_temp">30</string>
-    <string name="min_critical_temp">31</string>
+    <string name="temp_warning_value">21.0</string>
+    <string name="temp_critical_value">31.0</string>
+    <string name="velo_warning_value">0.9</string>
+    <string name="velo_critical_value">5.0</string>
 
-    <string name="min_normal_velo">0.01</string>
-    <string name="max_normal_velo">0.20</string>
-    <string name="min_warning_velo">0.21</string>
-    <string name="max_warning_velo">0.30</string>
-    <string name="min_critical_velo">0.31</string>
+    <string name="default_temp_min_range">0.0</string>
+    <string name="default_temp_max_range">50.0</string>
+    <string name="default_velo_min_range">0.0</string>
+    <string name="default_velo_max_range">10.0</string>
 
     <!--for home fragment-->
     <string name="machine_name">Machines</string>
@@ -33,5 +31,8 @@
 
     <!--for details fragment-->
     <string name="datetime_format">MM/dd/yyyy HH:mm:ss</string>
+
+    <!--for settings fragment-->
+    <string name="save_button">Save Changes</string>
 
 </resources>

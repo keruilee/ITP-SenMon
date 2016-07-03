@@ -56,6 +56,15 @@
         android:checked="false"
         android:layout_below="@id/ntfnCriticalSw"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="edit range value"
+        android:id="@+id/goRangeButton"
+        android:layout_marginTop="91dp"
+        android:layout_below="@+id/ntfnFavSw"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>
 
 
