@@ -1,31 +1,33 @@
-<android.support.v4.widget.SwipeRefreshLayout
-
-    android:id="@+id/swipeRefresh"
+<FrameLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    >
 
-<RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Updated on:"
+        android:text="Updated on: "
+        android:textSize="30px"
+        android:textStyle="bold"
+        android:layout_height="fill_parent"
+        android:layout_width="fill_parent"
         android:id="@+id/textViewUpdateDateTime"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="5dp" />
+        />
 
-
-    <ListView
-        android:id="@+id/ListView"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textViewUpdateDateTime" />
+        android:layout_marginTop="15dp">
 
-</RelativeLayout>
+
+        <ListView
+            android:id="@+id/ListView"
+            android:layout_width="match_parent"
+            android:layout_height="223dp"
+            android:layout_below="@+id/textViewUpdateDateTime"
+            android:layout_gravity="left|top" />
 
     </android.support.v4.widget.SwipeRefreshLayout>
+
+
+</FrameLayout>
