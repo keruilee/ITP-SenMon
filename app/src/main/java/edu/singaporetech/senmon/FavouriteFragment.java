@@ -74,7 +74,7 @@ public class FavouriteFragment extends Fragment {
             Cursor c = FavouriteList();
             if (c.moveToFirst()) {
                 do {
-                     Machine machineFavourite = new Machine (c.getString(1),"","","","","","","","","","");
+                     Machine machineFavourite = new Machine (c.getString(1),"0.1","0.1","0.1","0.1","0.1","0.1","0.1","0.1","0.1","0.1c");
                     myFavouriteMachineList.add(machineFavourite);
                 } while (c.moveToNext());
 
@@ -151,7 +151,7 @@ public class FavouriteFragment extends Fragment {
         Cursor c = FavouriteList();
         if (c.moveToFirst()) {
             do {
-                Machine machineFavourite = new Machine (c.getString(1),"","","","","","","","","","");
+                Machine machineFavourite = new Machine (c.getString(1),"0.1","0.1","0.1","0.1","0.1","0.1","0.1","0.1","0.1","0.1");
                 myFavouriteMachineList.add(machineFavourite);
             } while (c.moveToNext());
 
