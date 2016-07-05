@@ -2,10 +2,15 @@ package edu.singaporetech.senmon;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -19,6 +24,8 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +49,7 @@ public class DetailsFragment extends Fragment {
 
     //Declare variables
     String TAG = "Details Fragment";
-    private TextView tvDMachineName, tvDTemperature, tvDVelocity, tvDHour, tvDFavourite, tvDNoFavourite;
+    private TextView tvDMachineName, tvDTemperature, tvDVelocity, tvDHour, tvDFavourite, tvDNoFavourite, tvDShare;
     String machineName ="";
     String machineID = "";
     View v;
@@ -57,6 +64,7 @@ public class DetailsFragment extends Fragment {
     private TabLayout tabLayout;
     ViewPager viewPager;
     ViewPageAdapter viewPagerAdapter;
+    View content;
     public DetailsFragment() {
         // Required empty public constructor
     }
@@ -66,6 +74,7 @@ public class DetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         context = getContext();
+        setHasOptionsMenu(true);
 
         // Inflate the layout for this fragment
         v = inflater.inflate(R.layout.fragment_details, container, false);
@@ -92,6 +101,7 @@ public class DetailsFragment extends Fragment {
         tvDHour = (TextView) v.findViewById(R.id.tvHourField);
         tvDFavourite = (TextView) v.findViewById(R.id.btnfavourite);
         tvDNoFavourite = (TextView) v.findViewById(R.id.btnnofavourite);
+        tvDShare = (TextView) v.findViewById(R.id.shareBtn);
 
         //retrieving data using bundle
         Bundle bundle = getArguments();
@@ -184,7 +194,26 @@ public class DetailsFragment extends Fragment {
                     tvDFavourite.setVisibility(View.INVISIBLE);
                     Toast.makeText(getActivity(), "Removed from Favourite List", Toast.LENGTH_SHORT).show();
                 }
-            }});
+            }
+        });
+
+        //share a screenshot of the machine details
+        tvDShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bitmap bm = screenShot(getView().getRootView());
+                File file = saveBitmap(bm, machineID+"_details.png");
+                Log.i("chase", "filepath: "+file.getAbsolutePath());
+                Uri uri = Uri.fromFile(new File(file.getAbsolutePath()));
+                Intent shareIntent = new Intent();
+                shareIntent.setAction(Intent.ACTION_SEND);
+                shareIntent.putExtra(Intent.EXTRA_TEXT, machineID);
+                shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                shareIntent.setType("image/*");
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivity(Intent.createChooser(shareIntent, "Share Via"));
+            }
+        });
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) v.findViewById(R.id.viewpager);
@@ -200,6 +229,47 @@ public class DetailsFragment extends Fragment {
         return v;
     }
 
+    //function to take a screenshot of the current page
+    private Bitmap screenShot(View view) {
+        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(),view.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        view.draw(canvas);
+        return bitmap;
+
+//        view.setDrawingCacheEnabled(true);
+//        view.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
+//        view.buildDrawingCache();
+//
+//        if(view.getDrawingCache() == null) return null;
+//
+//        Bitmap snapshot = Bitmap.createBitmap(view.getDrawingCache());
+//        view.setDrawingCacheEnabled(false);
+//        view.destroyDrawingCache();
+//
+//        return snapshot;
+//
+//        View rootView = getView();
+//        rootView.setDrawingCacheEnabled(true);
+//        return rootView.getDrawingCache();
+    }
+
+    //save the image
+    private static File saveBitmap(Bitmap bm, String fileName){
+        final String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Screenshots";
+        File dir = new File(path);
+        if(!dir.exists())
+            dir.mkdirs();
+        File file = new File(dir, fileName);
+        try {
+            FileOutputStream fOut = new FileOutputStream(file);
+            bm.compress(Bitmap.CompressFormat.PNG, 90, fOut);
+            fOut.flush();
+            fOut.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return file;
+    }
 
     //Retrieve machine details
     private void machineDetails(String machineName) {
