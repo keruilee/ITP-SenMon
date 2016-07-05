@@ -123,7 +123,9 @@ public class tabListFragment extends Fragment {
             @Override
             public void onRefresh() {
                 Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
+                myMachineList.clear();
                 getCSVData();
+
             }
         });
         ////// when click on the item   //////////////////////
