@@ -183,6 +183,16 @@ public class ListFragment extends Fragment {
         return rootView;
     }
 
+    //
+    @Override
+    public void onResume() {
+        Log.e("DEBUG", "onResume of LoginFragment");
+
+        super.onResume();
+        myMachineList.clear();
+        getCSVData();
+
+    }
     //Added by Kerui
     public void getCSVData(){
         class GetCSVDataJSON extends AsyncTask<Void, Void, JSONObject> {
@@ -288,12 +298,11 @@ public class ListFragment extends Fragment {
         dateTime();
     }
 
+
     public void dateTime()
     {
         String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
         Log.i("DATETIME", ""+currentDateTimeString.toString());
-
-
         updateDateTime.setText("Updated on:" +currentDateTimeString);
     }
 
@@ -313,6 +322,9 @@ public class ListFragment extends Fragment {
                 Log.i("SWITCH", "1 , Sort temp");
                 Collections.sort(myMachineList, new Comparator<Machine>() {
                     public int compare(Machine m1, Machine m2) {
+
+                        Log.i("SWITCH", "1 , Sort temp m1" + m1.getmachineTemp());
+                        Log.i("SWITCH", "1 , Sort temp m2" + m2.getmachineTemp());
                         return Double.compare(Double.parseDouble(m2.getmachineTemp()), Double.parseDouble(m1.getmachineTemp()));
                     }
                 });

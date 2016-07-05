@@ -1,4 +1,4 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -6,9 +6,29 @@
 
     <!-- TODO: Update blank fragment layout -->
 
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="319dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Favourite List"
+            android:textSize="30dp"
+            android:padding="10dp" />
+        <View
+            android:id="@+id/line"
+            android:layout_width="389dp"
+            android:layout_height="2dp"
+            android:background="#848484"
+            android:layout_below="@+id/title"
+            android:layout_alignParentEnd="true"
+            />
+
+
     <ListView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="458dp"
         android:id="@+id/ListView"
-        android:layout_gravity="center_horizontal|top" />
-</FrameLayout>
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_below="@+id/line"/>
+
+</RelativeLayout>
