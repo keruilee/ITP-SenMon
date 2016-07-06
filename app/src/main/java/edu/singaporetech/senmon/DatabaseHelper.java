@@ -44,7 +44,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     final static String[] columns = {_ID,MACHINEID,MACHINEDATE,MACHINETIME,MACHINEVX,MACHINEVY,MACHINEVZ,MACHINEVELO,
                                       MACHINETEMP,MACHINETS,MACHINEHUD,MACHINEHOUR,MACHINESTATUS,MACHINEFAVOURITESTATUS};
 
-    final private static String DBNAME = "FavouriteDB";
+    final private static String DBNAME = "DBNAME";
     final private static Integer VERSION = 1;
     final private static String CREATE_CMD = "CREATE TABLE " + TABLE_NAME + " (" + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                                         columns[1] + " STRING, " +
@@ -59,7 +59,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                         columns[10] + " STRING, " +
                                         columns[11] + " STRING, " +
                                         columns[12] + " STRING, " +
-                                        columns[13] + " STRING );";
+                                        columns[13] + " STRING )";
 
     public DatabaseHelper(Context context) {
         // logic to create database

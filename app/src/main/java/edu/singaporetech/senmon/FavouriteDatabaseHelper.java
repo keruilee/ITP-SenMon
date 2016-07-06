@@ -21,7 +21,7 @@ public class FavouriteDatabaseHelper extends SQLiteOpenHelper {
 
     final private static String DBNAME = "FavouriteDB";
     final private static Integer VERSION = 1;
-    final private static String  CREATE_CMD = "CREATE TABLE " + TABLE_NAME + " (" +_ID + " INTEGER PRIMARY KEY," + columns[1] + " STRING);" ;
+    final private static String  CREATE_CMD = "CREATE TABLE " + TABLE_NAME + " (" +_ID + " INTEGER PRIMARY KEY," + columns[1] + " STRING)" ;
 
     public FavouriteDatabaseHelper(Context context) {
         // logic to create database
