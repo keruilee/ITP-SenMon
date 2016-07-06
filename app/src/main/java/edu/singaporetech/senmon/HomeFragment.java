@@ -1,9 +1,14 @@
 package edu.singaporetech.senmon;
 
 
+import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PorterDuff;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -11,10 +16,26 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -42,7 +63,12 @@ public class HomeFragment extends Fragment {
     public static final String WarningVelocity = "warnVeloKey";
     public static final String CriticalVelocity = "critVeloKey";
 
-    //hardcode array
+    ProgressDialog progressDialog;
+    JSONArray serverCSVrecords = null;
+    private static final String TAG_RESULTS="result";
+    public String[] latestRecords;
+    public String[] allCSVRecords;
+
     final ArrayList<Machine> myMachineList = new ArrayList<Machine>();
 
     public HomeFragment() {
@@ -107,11 +133,10 @@ public class HomeFragment extends Fragment {
             Log.e("default: ", "21.0 31.0" + tempWarningValue + " " + tempCriticalValue);
         }
 
-        //call computeMachine method
-        computeMachine();
+        progressDialog = new ProgressDialog(getActivity());
+        //retrieve data
+        getCSVData();
 
-        //call checkPriority method
-        hmachineID = checkPriority();
 
         //Button onClick to redirect to info fragment
         tvCritLbl.setOnClickListener(new View.OnClickListener() {
@@ -157,7 +182,7 @@ public class HomeFragment extends Fragment {
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 //using Bundle to send data
                 Bundle bundle = new Bundle();
-                bundle.putString("option", "critical");
+                bundle.putString("name", "critical");
                 list.setArguments(bundle); //data being send to MachineListFragment
                 transaction.replace(R.id.relativelayoutfor_fragment, list);
                 transaction.addToBackStack(null);
@@ -174,7 +199,7 @@ public class HomeFragment extends Fragment {
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 //using Bundle to send data
                 Bundle bundle = new Bundle();
-                bundle.putString("option", "warning");
+                bundle.putString("name", "warning");
                 list.setArguments(bundle); //data being send to MachineListFragment
                 transaction.replace(R.id.relativelayoutfor_fragment, list);
                 transaction.addToBackStack(null);
@@ -191,7 +216,7 @@ public class HomeFragment extends Fragment {
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 //using Bundle to send data
                 Bundle bundle = new Bundle();
-                bundle.putString("option", "normal");
+                bundle.putString("name", "normal");
                 list.setArguments(bundle); //data being send to MachineListFragment
                 transaction.replace(R.id.relativelayoutfor_fragment, list);
                 transaction.addToBackStack(null);
@@ -208,7 +233,7 @@ public class HomeFragment extends Fragment {
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 //using Bundle to send data
                 Bundle bundle = new Bundle();
-                bundle.putStringArrayList("name", allHArray);
+                bundle.putString("name", "all");
                 list.setArguments(bundle); //data being send to MachineListFragment
                 transaction.replace(R.id.relativelayoutfor_fragment, list);
                 transaction.addToBackStack(null);
@@ -218,6 +243,123 @@ public class HomeFragment extends Fragment {
         });
 
         return v;
+    }
+
+    public void getCSVData(){
+        class GetCSVDataJSON extends AsyncTask<Void, Void, JSONObject> {
+
+            URL encodedUrl;
+            HttpURLConnection urlConnection = null;
+
+            String url = "http://itpsenmon.net23.net/readFromCSV.php";
+
+            JSONObject responseObj;
+
+            @Override
+            protected void onPreExecute() {
+                progressDialog.setMessage("Loading Records...");
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setIndeterminate(false);
+                progressDialog.show();
+            }
+
+            @Override
+            protected JSONObject doInBackground(Void... params) {
+                try {
+                    encodedUrl = new URL(url);
+                    urlConnection = (HttpURLConnection) encodedUrl.openConnection();
+                    urlConnection.setDoInput(true);
+                    urlConnection.setDoOutput(true);
+                    urlConnection.setUseCaches(false);
+                    urlConnection.setRequestProperty("Content-Type", "application/json");
+                    urlConnection.connect();
+
+                    InputStream input = urlConnection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
+                    Log.d("doInBackground(Resp)", result.toString());
+                    responseObj = new JSONObject(result.toString());
+
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }finally {
+                    urlConnection.disconnect();
+                }
+
+                return responseObj;
+            }
+
+            @Override
+            protected void onPostExecute(JSONObject result){
+                super.onPostExecute(result);
+                getCSVRecords(result);
+
+                //call see value method
+                seeValue();
+
+                //call compute machine method
+                computeMachine();
+
+                //check priority method
+                hmachineID = checkPriority();
+
+                progressDialog.dismiss();
+            }
+        }
+        GetCSVDataJSON g = new GetCSVDataJSON();
+        g.execute();
+    }
+
+    //Get the server CSV records
+    public void getCSVRecords(JSONObject jsonObj)
+    {
+        try {
+            serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);
+
+            String cleanupLatestRecords;
+
+            //remove all unwanted symbols and text
+            cleanupLatestRecords = serverCSVrecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"","").replace("]","");
+            //split different csv records, the ending of each csv record list is machineID.csv
+            allCSVRecords = cleanupLatestRecords.split(".csv,");
+            //loop through each csv and get the latest records and split each field
+            for(String record : allCSVRecords)
+            {
+                latestRecords = record.split(",");
+
+                Machine machine = new Machine(latestRecords[9].replace(".csv",""),latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],
+                        latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],"22");
+
+                myMachineList.add(machine);
+            }
+
+            Log.d("cleanupLatestRecords: ", cleanupLatestRecords);
+            Log.d("CSVRecords2: ", allCSVRecords[1]);
+            Log.d("LatestRecords: ", latestRecords[0]);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void seeValue() {
+        int i = 1;
+        for(Machine seeMachine : myMachineList){
+
+            Log.i(TAG + "Array", String.valueOf(i) + " " + seeMachine.getMachineID() + " " + seeMachine.getmachineTemp() + " " + seeMachine.getmachineVelo() + " " + seeMachine.getMachineHour());
+            i++;
+
+        }
+
     }
 
 

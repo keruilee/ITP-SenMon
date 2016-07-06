@@ -2,6 +2,7 @@ package edu.singaporetech.senmon;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -21,13 +22,17 @@ import java.util.List;
 public class CustomAdapter extends ArrayAdapter<Machine> {
 
 
+    String tempWarningValue, tempCriticalValue, veloWarningValue, veloCriticalValue;
+    SharedPreferences RangeSharedPreferences;
+    Context context;
+    public static final String MyRangePREFERENCES = "MyRangePrefs" ;
+    public static final String WarningTemperature = "warnTempKey";
+    public static final String CriticalTemperature = "critTempKey";
+    public static final String WarningVelocity = "warnVeloKey";
+    public static final String CriticalVelocity = "critVeloKey";
+
     public double tempvalue;
     public double velovalue;
-
-    Context context;
-   // int layoutResourceId;
-    //Machine data[] =null;
-
 
     public CustomAdapter(Activity context, int textViewResourceId, ArrayList <Machine> myMachineList) {
         super(context,textViewResourceId, myMachineList );
@@ -58,24 +63,48 @@ public class CustomAdapter extends ArrayAdapter<Machine> {
         tempvalue = Double.parseDouble(myMachine.getmachineTemp());
         velovalue = Double.parseDouble(myMachine.getmachineVelo());
 
-        // changing colors for temp and velo
-        if (tempvalue >= 31)
+        //retrieve range values
+        RangeSharedPreferences = getContext().getSharedPreferences(MyRangePREFERENCES, Context.MODE_PRIVATE);
+
+        //reload the value from the shared preferences and display it
+        tempWarningValue = RangeSharedPreferences.getString(WarningTemperature, context.getString(R.string.temp_warning_value));
+        tempCriticalValue = RangeSharedPreferences.getString(CriticalTemperature, context.getString(R.string.temp_critical_value));
+        veloWarningValue = RangeSharedPreferences.getString(WarningVelocity, context.getString(R.string.velo_warning_value));
+        veloCriticalValue = RangeSharedPreferences.getString(CriticalVelocity, context.getString(R.string.velo_critical_value));
+
+        //temp normal state
+        if (tempvalue < Double.parseDouble(tempWarningValue))
         {
-            textViewTemp.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
+            textViewTemp.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
         }
-        if ((tempvalue >= 21 )&& (tempvalue <=30))
+        //temp warning state
+        else if ((tempvalue >= Double.parseDouble(tempWarningValue)) & (tempvalue < Double.parseDouble(tempCriticalValue)))
         {
             textViewTemp.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
         }
-        if (velovalue >= 0.01)
+        //temp critical state
+        else if (tempvalue >= Double.parseDouble(tempCriticalValue))
         {
-
-            textViewVelo.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
+            textViewTemp.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
         }
-        if ((velovalue>=0.21 && (velovalue<=0.30)))
+
+
+        //velo normal state
+        if (velovalue < Double.parseDouble(veloWarningValue))
+        {
+            textViewVelo.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
+        }
+        //velo warning state
+        else if ((velovalue >= Double.parseDouble(veloWarningValue)) & (velovalue <= Double.parseDouble(veloCriticalValue)))
         {
             textViewVelo.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
         }
+        //velo critical state
+        else if (velovalue >= Double.parseDouble(veloCriticalValue))
+        {
+            textViewVelo.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
+        }
+
         return rowView;
     }
 
