@@ -324,6 +324,7 @@ public class HomeFragment extends Fragment {
     {
         try {
             serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);
+            myMachineList.clear();
 
             String cleanupLatestRecords;
 

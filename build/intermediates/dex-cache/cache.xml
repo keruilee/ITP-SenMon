@@ -5,7 +5,7 @@
         jar="D:\huixuan\AndroidProject\ITP-SenMon\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
         jumboMode="true"
         revision="23.0.2"
-        sha1="33bbccc5338728839dc4779c14d7213604aed658">
+        sha1="1133ed819ab52f953c0dfbca8f7ee24874e07354">
         <dex dex="D:\huixuan\AndroidProject\ITP-SenMon\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run-bootstrap_8c201133aae35c932abdd1acf62b8f9cc8bfdfd2\classes.dex" />
     </item>
     <item
@@ -75,7 +75,7 @@
         jar="D:\huixuan\AndroidProject\ITP-SenMon\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
         jumboMode="true"
         revision="23.0.2"
-        sha1="47b56ea2852dc159dea38e839a413778c526128a">
+        sha1="f6eb75b4dbccf57bbe1a96955398160d4865e294">
         <dex dex="D:\huixuan\AndroidProject\ITP-SenMon\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run_edb3f7b9263a19b769d226f5869694abd3f207c4\classes.dex" />
     </item>
 

@@ -1,6 +1,7 @@
 package edu.singaporetech.senmon;
 
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.TabLayout;
@@ -22,10 +24,20 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,8 +50,6 @@ import java.util.Iterator;
 public class DetailsFragment extends Fragment {
 
     Context context;
-    //hardcode array
-    final ArrayList<Machine> myMachineList = new ArrayList<Machine>();
 
     //test computation of datetime
     String startDate = "04/18/2012 09:29:58";
@@ -49,13 +59,13 @@ public class DetailsFragment extends Fragment {
 
     //Declare variables
     String TAG = "Details Fragment";
-    private TextView tvDMachineName, tvDTemperature, tvDVelocity, tvDHour, tvDFavourite, tvDNoFavourite, tvDShare;
-    String machineName ="";
+    private TextView tvDMachineID, tvDTemperature, tvDVelocity, tvDHour, tvDFavourite, tvDNoFavourite, tvDShare;
     String machineID = "";
+    String tempValue, veloValue;
     View v;
     String tempWarningValue, tempCriticalValue, veloWarningValue, veloCriticalValue;
     SharedPreferences RangeSharedPreferences;
-    public static final String MyRangePREFERENCES = "MyRangePrefs" ;
+    public static final String MyRangePREFERENCES = "MyRangePrefs";
     public static final String WarningTemperature = "warnTempKey";
     public static final String CriticalTemperature = "critTempKey";
     public static final String WarningVelocity = "warnVeloKey";
@@ -65,6 +75,14 @@ public class DetailsFragment extends Fragment {
     ViewPager viewPager;
     ViewPageAdapter viewPagerAdapter;
     View content;
+
+    ProgressDialog progressDialog;
+    JSONArray serverCSVrecords = null;
+    private static final String TAG_RESULTS = "result";
+    public String[] latestRecords;
+    public String[] allCSVRecords;
+
+
     public DetailsFragment() {
         // Required empty public constructor
     }
@@ -95,7 +113,7 @@ public class DetailsFragment extends Fragment {
 //        myMachineList.add(machine6);
 
         //Set variables
-        tvDMachineName = (TextView) v.findViewById(R.id.tvMachineName);
+        tvDMachineID = (TextView) v.findViewById(R.id.tvMachineName);
         tvDTemperature = (TextView) v.findViewById(R.id.tvTemperatureField);
         tvDVelocity = (TextView) v.findViewById(R.id.tvVelocityField);
         tvDHour = (TextView) v.findViewById(R.id.tvHourField);
@@ -105,27 +123,11 @@ public class DetailsFragment extends Fragment {
 
         //retrieving data using bundle
         Bundle bundle = getArguments();
-        Bundle bundle2 = getArguments();
-        Bundle bundle3 = getArguments();
 
-        //For home fragment
-        if(bundle != null) {
-            tvDMachineName.setText(String.valueOf(bundle.getString("name")));
-            machineName = bundle.getString("name");
-        }
-
-        //For list fragment
-        if(bundle2 != null) {
-            tvDMachineName.setText(String.valueOf(bundle2.getString("name")));
-            machineID = bundle2.getString("name");
-            tvDTemperature.setText(String.valueOf(bundle2.getString("temp")));
-            tvDVelocity.setText(String.valueOf(bundle2.getString("velo")));
-        }
-
-        //For favorite fragment
-        if(bundle3 != null) {
-            tvDMachineName.setText(machineID);
-            machineID = bundle3.getString("name");
+        //For home/list/favorite fragment
+        if (bundle != null) {
+            tvDMachineID.setText(String.valueOf(bundle.getString("name")));
+            machineID = bundle.getString("name");
         }
 
         //database helper
@@ -144,17 +146,12 @@ public class DetailsFragment extends Fragment {
         //call compute time
         //time = computeTime(startDate,endDate);
 
-        //call machine details
-        machineDetails(machineName);
 
-        if (checkEvent(machineID) == false)
-        {
+        if (checkEvent(machineID) == false) {
             //tvDFavourite.setText("Click to favourite");
             tvDNoFavourite.setVisibility(View.VISIBLE);
             tvDFavourite.setVisibility(View.INVISIBLE);
-        }
-        else
-        {
+        } else {
             //tvDFavourite.setText("Click to unfavourite");
             tvDFavourite.setVisibility(View.VISIBLE);
             tvDNoFavourite.setVisibility(View.INVISIBLE);
@@ -164,8 +161,7 @@ public class DetailsFragment extends Fragment {
         tvDNoFavourite.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                if (checkEvent(machineID) == false)
-                {
+                if (checkEvent(machineID) == false) {
 
                     databaseHelper.addmachineID(machineID);
                    /* ContentValues values = new ContentValues();
@@ -179,7 +175,8 @@ public class DetailsFragment extends Fragment {
 
                 }
 
-            }});
+            }
+        });
 
         tvDFavourite.setOnClickListener(new View.OnClickListener() {
 
@@ -202,8 +199,8 @@ public class DetailsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Bitmap bm = screenShot(getView().getRootView());
-                File file = saveBitmap(bm, machineID+"_details.png");
-                Log.i("chase", "filepath: "+file.getAbsolutePath());
+                File file = saveBitmap(bm, machineID + "_details.png");
+                Log.i("chase", "filepath: " + file.getAbsolutePath());
                 Uri uri = Uri.fromFile(new File(file.getAbsolutePath()));
                 Intent shareIntent = new Intent();
                 shareIntent.setAction(Intent.ACTION_SEND);
@@ -214,6 +211,10 @@ public class DetailsFragment extends Fragment {
                 startActivity(Intent.createChooser(shareIntent, "Share Via"));
             }
         });
+
+        progressDialog = new ProgressDialog(getActivity());
+        //retrieve data
+        getCSVData();
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) v.findViewById(R.id.viewpager);
@@ -231,7 +232,7 @@ public class DetailsFragment extends Fragment {
 
     //function to take a screenshot of the current page
     private Bitmap screenShot(View view) {
-        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(),view.getHeight(), Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         view.draw(canvas);
         return bitmap;
@@ -254,10 +255,10 @@ public class DetailsFragment extends Fragment {
     }
 
     //save the image
-    private static File saveBitmap(Bitmap bm, String fileName){
+    private static File saveBitmap(Bitmap bm, String fileName) {
         final String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Screenshots";
         File dir = new File(path);
-        if(!dir.exists())
+        if (!dir.exists())
             dir.mkdirs();
         File file = new File(dir, fileName);
         try {
@@ -271,53 +272,140 @@ public class DetailsFragment extends Fragment {
         return file;
     }
 
-    //Retrieve machine details
-    private void machineDetails(String machineName) {
+    //Set detail color
+    private void detailColor() {
+        //check temperature value range color
+        if (Double.parseDouble(tempValue) < Double.parseDouble(tempWarningValue)) {
+            //Normal state text color
+            tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
+        } else if ((Double.parseDouble(tempValue) >= Double.parseDouble(tempWarningValue)
+                & Double.parseDouble(tempValue) < Double.parseDouble(tempCriticalValue))) {
+            //Warning state text color
+            tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
+        } else {
+            //Critical state text color
+            tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
+        }
 
-        Iterator<Machine> i = myMachineList.iterator();
-        while (i.hasNext()) {
-            Machine s = i.next();
-            if (machineName.contains(s.getMachineID()))
-            {
-                //check temperature value range
-                if (Double.parseDouble(s.getmachineTemp()) < Double.parseDouble(tempWarningValue)) {
-                    //Normal state text color
-                    tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
-                }
-                else if ((Double.parseDouble(s.getmachineTemp()) >= Double.parseDouble(tempWarningValue)
-                        & Double.parseDouble(s.getmachineTemp()) < Double.parseDouble(tempCriticalValue))) {
-                    //Warning state text color
-                    tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
-                }
-                else {
-                    //Critical state text color
-                    tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
-                }
+        //check velocity value range color
+        if (Double.parseDouble(veloValue) < Double.parseDouble(veloWarningValue)) {
+            //Normal state text color
+            tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
+        } else if (Double.parseDouble(veloValue) >= Double.parseDouble(veloWarningValue)
+                & Double.parseDouble(veloValue) <= Double.parseDouble(veloCriticalValue)) {
+            //Warning state text color
+            tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
+        } else {
+            //Critical state text color
+            tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
+        }
 
-                //check velocity value range
-                if (Double.parseDouble(s.getmachineVelo()) < Double.parseDouble(veloWarningValue)) {
-                    //Normal state text color
-                    tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
-                }
-                else if (Double.parseDouble(s.getmachineVelo()) >= Double.parseDouble(veloWarningValue)
-                        & Double.parseDouble(s.getmachineVelo()) <= Double.parseDouble(veloCriticalValue)) {
-                    //Warning state text color
-                    tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
-                }
-                else {
-                    //Critical state text color
-                    tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
-                }
+    }
 
-                tvDTemperature.setText(String.valueOf(Double.parseDouble(s.getmachineTemp())));
-                tvDVelocity.setText(String.valueOf(Double.parseDouble(s.getmachineVelo())));
-                tvDHour.setText(String.valueOf(Double.parseDouble(s.getMachineHour())));
+
+    public void getCSVData() {
+        class GetCSVDataJSON extends AsyncTask<Void, Void, JSONObject> {
+
+            URL encodedUrl;
+            HttpURLConnection urlConnection = null;
+
+            String url = "http://itpsenmon.net23.net/readFromCSV.php";
+
+            JSONObject responseObj;
+
+            @Override
+            protected void onPreExecute() {
+                progressDialog.setMessage("Loading Records...");
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setIndeterminate(false);
+                progressDialog.show();
             }
+
+            @Override
+            protected JSONObject doInBackground(Void... params) {
+                try {
+                    encodedUrl = new URL(url);
+                    urlConnection = (HttpURLConnection) encodedUrl.openConnection();
+                    urlConnection.setDoInput(true);
+                    urlConnection.setDoOutput(true);
+                    urlConnection.setUseCaches(false);
+                    urlConnection.setRequestProperty("Content-Type", "application/json");
+                    urlConnection.connect();
+
+                    InputStream input = urlConnection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
+                    Log.d("doInBackground(Resp)", result.toString());
+                    responseObj = new JSONObject(result.toString());
+
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } finally {
+                    urlConnection.disconnect();
+                }
+
+                return responseObj;
+            }
+
+            @Override
+            protected void onPostExecute(JSONObject result) {
+                super.onPostExecute(result);
+                getCSVRecords(result);
+
+                //set machine detail color
+                detailColor();
+
+                progressDialog.dismiss();
+            }
+        }
+        GetCSVDataJSON g = new GetCSVDataJSON();
+        g.execute();
+    }
+
+    //Get the server CSV records
+    public void getCSVRecords(JSONObject jsonObj) {
+        try {
+            serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);
+
+            String cleanupLatestRecords;
+
+            //remove all unwanted symbols and text
+            cleanupLatestRecords = serverCSVrecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"", "").replace("]", "");
+            //split different csv records, the ending of each csv record list is machineID.csv
+            allCSVRecords = cleanupLatestRecords.split(".csv,");
+            //loop through each csv and get the latest records and split each field
+            for (String record : allCSVRecords) {
+                latestRecords = record.split(",");
+
+                if (machineID.equals(latestRecords[9].replace(".csv", ""))) {
+                    tempValue = latestRecords[6];
+                    veloValue = latestRecords[5];
+                    tvDTemperature.setText(tempValue);
+                    tvDVelocity.setText(veloValue);
+                    tvDHour.setText("22");
+                }
+            }
+
+            Log.d("cleanupLatestRecords: ", cleanupLatestRecords);
+            Log.d("CSVRecords2: ", allCSVRecords[1]);
+            Log.d("LatestRecords: ", latestRecords[0]);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
-    //Calculate time differences once detect machine is in "off" state
-    private String computeTime (String startDate, String endDate) {
+    //Calculate time differences of machine
+    private String computeTime(String startDate, String endDate) {
 
         //Declare variables
         String timediff = "";
@@ -340,8 +428,7 @@ public class DetailsFragment extends Fragment {
             diffMinutes = diff / (60 * 1000) % 60;
             diffHours = diff / (60 * 60 * 1000) % 24;
             diffDays = diff / (24 * 60 * 60 * 1000);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -360,17 +447,15 @@ public class DetailsFragment extends Fragment {
     }
 
     // to check if the machineID has already stored in the databasehelper
-    public boolean checkEvent(String machineID)
-    {
+    public boolean checkEvent(String machineID) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
-        String queryString = "SELECT * FROM FavouriteTable WHERE machine = '"+machineID+"'";
+        String queryString = "SELECT * FROM FavouriteTable WHERE machine = '" + machineID + "'";
         Cursor c = db.rawQuery(queryString, null);
-        if(c.getCount() > 0){
+        if (c.getCount() > 0) {
             Log.i("CHECK", "true , found in the database");
             return true;
-        }
-        else{
+        } else {
             Log.i("CHECK", "false, not found in the database");
             return false;
         }

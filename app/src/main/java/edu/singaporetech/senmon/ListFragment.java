@@ -115,7 +115,7 @@ public class ListFragment extends Fragment {
         Bundle bundle = getArguments();
         if (bundle != null) {
             //Log.i(TAG + " Machine Name ", String.valueOf(bundle.getStringArrayList("name")));
-            machineArray.add(String.valueOf(bundle.getStringArrayList("name")));
+            machineArray.add(String.valueOf(bundle.getString("name")));
         }
 
 
@@ -144,11 +144,9 @@ public class ListFragment extends Fragment {
 
                 DetailsFragment details = new DetailsFragment();
                 //using Bundle to send data
-                Bundle bundle2 = new Bundle();
-                bundle2.putString("name", intentMachineID.getText().toString());
-                bundle2.putString("temp", intentTemp.getText().toString());
-                bundle2.putString("velo", intentVelo.getText().toString());
-                details.setArguments(bundle2); //data being send to MachineListFragment
+                Bundle bundle = new Bundle();
+                bundle.putString("name", intentMachineID.getText().toString());
+                details.setArguments(bundle); //data being send to MachineListFragment
                 //Edited by kerui
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -269,6 +267,7 @@ public class ListFragment extends Fragment {
     {
         try {
             serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);
+            myMachineList.clear();
 
             String cleanupLatestRecords;
 
