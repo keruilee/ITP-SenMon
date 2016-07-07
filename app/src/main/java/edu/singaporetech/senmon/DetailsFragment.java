@@ -194,7 +194,7 @@ public class DetailsFragment extends Fragment {
                     ContentValues values = new ContentValues();
                     SQLiteDatabase testDb = testDatabasehelper.getWritableDatabase();
                      // KR do take note might need to change as update
-                    testDb.execSQL("UPDATE DatabaseTable SET machineFavouriteStatus = 'no' WHERE machineID = '" + machineID + "'");
+                    testDb.execSQL("UPDATE DatabaseTable SET machineFavouriteStatus = NULL WHERE machineID = '" + machineID + "'");
                     checkEventForDataBaseHelperFavourite(machineID);
                     //tvDFavourite.setText("Click to favourite");
                     tvDNoFavourite.setVisibility(View.VISIBLE);
@@ -458,17 +458,24 @@ public class DetailsFragment extends Fragment {
 
     public String checkEventForDataBaseHelperFavourite(String machineID) {
         SQLiteDatabase db = testDatabasehelper.getWritableDatabase();
-        String statusForFavoruite;
+        String statusForFavo;
+        int index;
 
-        String queryString = "SELECT machineFavouriteStatus FROM DatabaseTable WHERE machineID = '" + machineID + "'";
+        String queryString = "SELECT * FROM DatabaseTable WHERE machineID = '" + machineID + "' ";
         Cursor c = db.rawQuery(queryString, null);
         if (c.getCount() > 0) {
             c.moveToFirst();
-            statusForFavoruite = c.getString(c.getColumnIndex("machineFavouriteStatus"));
-            Log.i("checkDataBaseHelper",statusForFavoruite);
-            Log.i("c.getCount",c.getCount() + "");
 
-            return statusForFavoruite;
+            statusForFavo = c.getString(c.getColumnIndex("machineFavouriteStatus"));
+            Log.i("checkDataBaseHelper", statusForFavo + "");
+            Log.i("c.getCount", c.getCount() + "");
+            if (statusForFavo == null || statusForFavo.isEmpty()) {
+                Log.i("dbHelper null?", statusForFavo + "");
+                return "no";
+            } else {
+                return "yes";
+            }
+
         } else {
             Log.i("checkDataBaseHelper", "false, not found in the database");
             return "not found";

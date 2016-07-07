@@ -71,40 +71,6 @@ public class FavouriteFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_favourite, container, false);
         databaseHelper = new FavouriteDatabaseHelper(getActivity());
 
-            Cursor c = FavouriteList();
-            if (c.moveToFirst()) {
-                do {
-                     Machine machineFavourite = new Machine (c.getString(1),"0.1","0.1","0.1","0.1","0.1","0.1","0.1","0.1","0.1","0.1c","","");
-                    myFavouriteMachineList.add(machineFavourite);
-                } while (c.moveToNext());
-
-            }c.close();
-
-// Compare if it is in the favourite list
-  /*      for(int i = 0 ; favouriteList.size()<i ; i++)
-        {Log.i("compare","" + myMachineList.size() );
-            for (int j = 0 ; myMachineList.size()<i ; i++){
-                if (myMachineList.get(j).getMachineID() ==favouriteList.get(i) )
-                {
-                    Machine machineFavourite =  new Machine(myMachineList.get(j).getMachineID(),
-                            myMachineList.get(j).getMachineDate(),
-                            myMachineList.get(j).getMachineTime(),
-                            myMachineList.get(j).getMachineVx(),
-                            myMachineList.get(j).getMachineVy(),
-                            myMachineList.get(j).getMachineVz(),
-                            myMachineList.get(j).getmachineVelo(),
-                            myMachineList.get(j).getmachineTemp(),
-                            myMachineList.get(j).getMachineTS(),
-                            myMachineList.get(j).getMachineHud(),
-                            myMachineList.get(j).getMachineHour()
-                    );
-                    myFavouriteMachineList.add(machineFavourite);
-                }
-            }
-        }*/
-
-
-
             listViewListing = (ListView) rootView.findViewById(R.id.ListView);
             adapter = new CustomAdapter(getActivity(),R.layout.fragment_favourite,myFavouriteMachineList);
             listViewListing.setAdapter(adapter);
@@ -151,7 +117,9 @@ public class FavouriteFragment extends Fragment {
         Cursor c = FavouriteList();
         if (c.moveToFirst()) {
             do {
-                Machine machineFavourite = new Machine (c.getString(1),"0.1","0.1","0.1","0.1","0.1","0.1","0.1","0.1","0.1","0.1","","");
+                Machine machineFavourite = new Machine (c.getString(1),c.getString(2),c.getString(3),
+                        c.getString(4),c.getString(5),c.getString(6),c.getString(7),c.getString(8),c.getString(9),c.getString(10),
+                        c.getString(11),c.getString(12),c.getString(13));
                 myFavouriteMachineList.add(machineFavourite);
             } while (c.moveToNext());
 
