@@ -281,7 +281,7 @@ public class ListFragment extends Fragment {
                 latestRecords = record.split(",");
 
                 Machine machine = new Machine(latestRecords[9].replace(".csv",""),latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],
-                        latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],"22");
+                        latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],"22","","");
 
                 myMachineList.add(machine);
 

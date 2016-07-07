@@ -44,10 +44,6 @@ import java.util.List;
 public class HomeFragment extends Fragment {
 
     //Declare variables
-    public ArrayList<String> normHArray = new ArrayList<String>();
-    public ArrayList<String> warnHArray = new ArrayList<String>();
-    public ArrayList<String> critHArray = new ArrayList<String>();
-    public ArrayList<String> allHArray = new ArrayList<String>();
     String hmachineID = "";
 
     //Declare variables
@@ -56,6 +52,9 @@ public class HomeFragment extends Fragment {
     private TextView tvCritLbl, tvWarnLbl, tvNormLbl, critBtn, warnBtn, normBtn, allBtn;
     View v;
     String tempWarningValue, tempCriticalValue, veloWarningValue, veloCriticalValue;
+    final String CRITICAL = "Critical";
+    final String WARNING = "Warning";
+    final String NORMAL = "Normal";
     SharedPreferences RangeSharedPreferences;
     public static final String MyRangePREFERENCES = "MyRangePrefs" ;
     public static final String WarningTemperature = "warnTempKey";
@@ -70,6 +69,8 @@ public class HomeFragment extends Fragment {
     public String[] allCSVRecords;
 
     final ArrayList<Machine> myMachineList = new ArrayList<Machine>();
+    final ArrayList<Machine> myDatabaseList = new ArrayList<Machine>();
+    private DatabaseHelper DbHelper;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -79,6 +80,8 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_home, container, false);
+
+        DbHelper = new DatabaseHelper(this.getActivity());
 
         //Hardcode array
 //        Machine machine = new Machine("SDK001-M001-01-0001a","","","","","",   "0.03", "36.11", "","","50");
@@ -301,16 +304,22 @@ public class HomeFragment extends Fragment {
             @Override
             protected void onPostExecute(JSONObject result){
                 super.onPostExecute(result);
-                getCSVRecords(result);
 
-                //call see value method
-                seeValue();
+                getCSVRecords(result);
 
                 //call compute machine method
                 computeMachine();
 
                 //check priority method
                 hmachineID = checkPriority();
+
+
+
+                checkDatabaseRecord();
+
+
+                seeValue();
+
 
                 progressDialog.dismiss();
             }
@@ -324,7 +333,12 @@ public class HomeFragment extends Fragment {
     {
         try {
             serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);
-            myMachineList.clear();
+
+            if (!(myMachineList.isEmpty())) {
+                myMachineList.clear();
+            }
+
+            checkForEmptyDatabase();
 
             String cleanupLatestRecords;
 
@@ -338,9 +352,11 @@ public class HomeFragment extends Fragment {
                 latestRecords = record.split(",");
 
                 Machine machine = new Machine(latestRecords[9].replace(".csv",""),latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],
-                        latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],"22");
+                        latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],"22","","");
 
                 myMachineList.add(machine);
+                DbHelper.addmachine(latestRecords[9].replace(".csv",""),latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],
+                        latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],"22");
             }
 
             Log.d("cleanupLatestRecords: ", cleanupLatestRecords);
@@ -352,39 +368,24 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void seeValue() {
-        int i = 1;
-        for(Machine seeMachine : myMachineList){
-
-            Log.i(TAG + "Array", String.valueOf(i) + " " + seeMachine.getMachineID() + " " + seeMachine.getmachineTemp() + " " + seeMachine.getmachineVelo() + " " + seeMachine.getMachineHour());
-            i++;
-
-        }
-
-    }
-
-
-    /////Computation of machines in each state
+    //Computation of machines in each state
     private void computeMachine() {
         //Declare variables
-        ArrayList<String> normArray = new ArrayList<String>();
-        ArrayList<String> warnArray = new ArrayList<String>();
-        ArrayList<String> critArray = new ArrayList<String>();
-
         int noOfCrit = 0;
         int noOfWarn = 0;
         int noOfNorm = 0;
-        int m, n, o;
 
         int totalMachine = myMachineList.size();
-        Log.i(TAG + " Total Machine ", String.valueOf(totalMachine));
+        Log.d(TAG + " Total Machine ", String.valueOf(totalMachine));
 
         for(Machine machine : myMachineList)
         {
             //number of normal machine
             if (Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempWarningValue)
                     | (Double.parseDouble(machine.getmachineVelo()) < Double.parseDouble(veloWarningValue))) {
-                normArray.add(machine.getMachineID());
+
+                //update normal state on the row
+                DbHelper.updateMachineState(machine.getMachineID(), NORMAL);
                 noOfNorm++;
 
             }
@@ -394,48 +395,43 @@ public class HomeFragment extends Fragment {
                     | (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(veloWarningValue)
                     & Double.parseDouble(machine.getmachineVelo()) <= Double.parseDouble(veloCriticalValue))) {
 
-                for (m = 0; m < normArray.size(); m++) {
-                    if (normArray.get(m).equals(machine.getMachineID())) {
-                        normArray.remove(m);
-                        noOfNorm--;
-                    }
+
+                ///check whether particular machine have normal state
+                if (DbHelper.checkMachineState(machine.getMachineID(), NORMAL) == true)
+                {
+                    noOfNorm--;
+                    Log.d("remove normal", String.valueOf(machine.getMachineID()));
                 }
 
-                warnArray.add(machine.getMachineID());
+                //update warning state on the row
+                DbHelper.updateMachineState(machine.getMachineID(), WARNING);
                 noOfWarn++;
             }
             //number of critical machine
             if (Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempCriticalValue)
                     | (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(veloCriticalValue))) {
 
-                for (n = 0; n < normArray.size(); n++) {
-                    if (normArray.get(n).equals(machine.getMachineID())) {
-                        normArray.remove(n);
-                        noOfNorm--;
-                    }
+                ///check whether particular machine have normal state
+                if (DbHelper.checkMachineState(machine.getMachineID(), NORMAL) == true)
+                {
+                    noOfNorm--;
+                    Log.d("remove normal", String.valueOf(machine.getMachineID()));
                 }
 
-                for (o = 0; o < warnArray.size(); o++) {
-                    if (warnArray.get(o).equals(machine.getMachineID())) {
-                        warnArray.remove(o);
-                        noOfWarn--;
-                    }
+                ///check whether particular machine have warning state
+                if (DbHelper.checkMachineState(machine.getMachineID(), WARNING) == true)
+                {
+                    noOfWarn--;
+                    Log.d("remove warning", String.valueOf(machine.getMachineID()));
                 }
 
-                critArray.add(machine.getMachineID());
+
+                //update critical state on the row
+                DbHelper.updateMachineState(machine.getMachineID(), CRITICAL);
                 noOfCrit++;
             }
         }
 
-
-        ////store machine name in each array state
-        normHArray = normArray;
-        warnHArray = warnArray;
-        critHArray = critArray;
-
-        allHArray.addAll(normArray);
-        allHArray.addAll(warnArray);
-        allHArray.addAll(critArray);
 
         //Set to display number of machine for each button
         tvCrit.setText(noOfCrit + "/" + totalMachine + " " + getString(R.string.machine_name));
@@ -451,78 +447,62 @@ public class HomeFragment extends Fragment {
     private String checkPriority() {
         //declare variables
         String machineID = "";
-        Double machineValue = 0.00;
-        ArrayList<Double> arrayWH = new ArrayList<Double>();
-        ArrayList<Double> arrayCH = new ArrayList<Double>();
+        Double machineHour = 0.00;
+        String state = "";
+        ArrayList<Double> harrayHour = new ArrayList<Double>();
 
-
-        //Display different alert depending on states
-        if (critHArray.isEmpty()) {
-            //show normal alert
-            if (warnHArray.isEmpty()) {
+        //Display different alert bar depending on state
+        harrayHour = DbHelper.checkMachineInParticularState(CRITICAL);
+        if (harrayHour.isEmpty())
+        {
+            //show normal alert bar
+            harrayHour = DbHelper.checkMachineInParticularState(WARNING);
+            if (harrayHour.isEmpty())
+            {
+                state = NORMAL;
                 tvNormLbl.setVisibility(View.VISIBLE);
             }
-            //show warning alert
-            else {
-                for (Machine machine1 : myMachineList) {
-                    for (int i = 0; i < warnHArray.size(); i++) {
-                        if (machine1.getMachineID().equals(warnHArray.get(i))) {
-                            arrayWH.add(Double.parseDouble(machine1.getMachineHour()));
-                        }
-                    }
-                }
+            //show warning alert bar
+            else
+            {
+                state = WARNING;
+                machineHour = computeHour(harrayHour);
+                machineID = DbHelper.machineUsingHour(state, machineHour.toString());
 
-                machineValue = computeHour(arrayWH);
-
-                for (int t = 0; t < arrayWH.size(); t++) {
-                    if (machineValue.equals(arrayWH.get(t))) {
-                        machineID = warnHArray.get(t);
-                    }
-                }
                 tvWarnLbl.setText(machineID + " " + getString(R.string.warning_lbl));
                 tvWarnLbl.setVisibility(View.VISIBLE);
             }
-
         }
-        //show critical alert
-        else {
-            for (Machine machine2 : myMachineList) {
-                for (int p = 0; p < critHArray.size(); p++) {
-                    if (machine2.getMachineID().equals(critHArray.get(p))) {
-                        arrayCH.add(Double.parseDouble(machine2.getMachineHour()));
-                    }
-                }
-            }
+        //show critical alert bar
+        else
+        {
+            state = CRITICAL;
+            machineHour = computeHour(harrayHour);
+            machineID = DbHelper.machineUsingHour(state, machineHour.toString());
 
-            machineValue = computeHour(arrayCH);
-
-            for (int u = 0; u < arrayCH.size(); u++) {
-                if (machineValue.equals(arrayCH.get(u))) {
-                    machineID = critHArray.get(u);
-                }
-            }
             tvCritLbl.setText(machineID + " " + getString(R.string.critical_lbl));
             tvCritLbl.setVisibility(View.VISIBLE);
         }
-        Log.i(TAG + " Machine Name ", machineID);
+
+        Log.d(TAG + " Machine Name ", machineID);
         return machineID;
     }
 
 
     //////Compute longest machine hour
-    private Double computeHour(ArrayList<Double> array) {
+    private Double computeHour(ArrayList<Double> arrayHour) {
         double hour = 0.00;
-        double highest = array.get(0);
-        int size = array.size();
+        double highest = arrayHour.get(0);
+        int size = arrayHour.size();
 
         if (size == 1)
         {
             hour = highest;
         }
         else {
-            for (int i = 1; i < array.size(); i++) {
-                if (array.get(i) > highest)
-                    highest = array.get(i);
+            for (int i = 1; i < arrayHour.size(); i++) {
+                if (arrayHour.get(i) > highest)
+                    highest = arrayHour.get(i);
                 hour = highest;
             }
         }
@@ -561,4 +541,63 @@ public class HomeFragment extends Fragment {
             allBtn.getBackground().setColorFilter(getResources().getColor(R.color.colorLighterAll), PorterDuff.Mode.SRC_ATOP);
         }
     }
+
+    private void checkForEmptyDatabase()
+    {
+        SQLiteDatabase db = DbHelper.getWritableDatabase();
+        Cursor cursor = db.query(DbHelper.TABLE_NAME, null, null, null, null, null, null);
+
+        if (cursor.getCount() > 0)
+        {
+            Log.d(TAG, "Database not empty");
+            DbHelper.clearRows();
+        }
+        else
+        {
+            Log.d(TAG, "Database empty");
+        }
+    }
+
+    private void checkDatabaseRecord()
+    {
+        if (!(myDatabaseList.isEmpty()))
+        {
+            myDatabaseList.clear();
+        }
+        // Select All Query
+        String selectQuery = "SELECT * FROM " + DbHelper.TABLE_NAME;
+        SQLiteDatabase db = DbHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        // looping through all rows and adding to mydatabaselist
+        if (cursor.moveToFirst()) {
+            do {
+                Machine dbMachine = new Machine(cursor.getString(1),cursor.getString(2),cursor.getString(3),
+                        cursor.getString(4),cursor.getString(5),cursor.getString(6),cursor.getString(7),cursor.getString(8),
+                        cursor.getString(9),cursor.getString(10),cursor.getString(11),cursor.getString(12),cursor.getString(13));
+                myDatabaseList.add(dbMachine);
+            } while (cursor.moveToNext());
+        }
+    }
+
+    private void seeValue() {
+        int i = 1;
+        int j = 1;
+        for(Machine seeMachine : myMachineList){
+
+            Log.i(TAG + "Server Array", String.valueOf(i) + " " + seeMachine.getMachineID() + " " + seeMachine.getmachineTemp() + " " + seeMachine.getmachineVelo() + " " + seeMachine.getMachineHour());
+            i++;
+
+        }
+
+        for(Machine seedbMachine :  myDatabaseList){
+
+            Log.i(TAG + "Database Array", String.valueOf(j) + " " + seedbMachine.getMachineID() + " " + seedbMachine.getmachineTemp() + " " + seedbMachine.getmachineVelo() + " " + seedbMachine.getMachineStatus());
+            j++;
+
+
+        }
+        Log.d("Number of row in db ", String.valueOf(DbHelper.getRowsCount()));
+
+    }
+
 }

@@ -15,10 +15,13 @@ public class Machine {
     private String machineTS;//TS
     private String machineHud;
     private String machineHour;
+    private String machineStatus;
+    private String machineFavouriteStatus;
 
 
     public Machine(String machineID, String machineDate, String machineTime, String machineVx, String machineVy,
-                   String machineVz, String machineVelo, String machineTemp, String machineTS, String machineHud, String machineHour)
+                   String machineVz, String machineVelo, String machineTemp, String machineTS, String machineHud, String machineHour,
+                   String machineStatus, String machineFavouriteStatus)
     {
         //super();
         this.machineID = machineID;
@@ -32,6 +35,8 @@ public class Machine {
         this.machineTS = machineTS;
         this.machineHud = machineHud;
         this.machineHour = machineHour;
+        this.machineStatus = machineStatus;
+        this.machineFavouriteStatus = machineFavouriteStatus;
     }
 
     public String getMachineID()
@@ -56,4 +61,8 @@ public class Machine {
     {return machineHud;}
     public String getMachineHour()
     {return machineHour;}
+    public String getMachineStatus()
+    {return machineStatus;}
+    public String getMachineFavouriteStatus()
+    {return machineFavouriteStatus;}
 }

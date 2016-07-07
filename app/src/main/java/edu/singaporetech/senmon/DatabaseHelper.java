@@ -14,6 +14,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 /**
  * Created by jinyu on 1/7/2016.
  */
@@ -42,24 +44,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     final static String[] columns = {_ID,MACHINEID,MACHINEDATE,MACHINETIME,MACHINEVX,MACHINEVY,MACHINEVZ,MACHINEVELO,
-                                      MACHINETEMP,MACHINETS,MACHINEHUD,MACHINEHOUR,MACHINESTATUS,MACHINEFAVOURITESTATUS};
+            MACHINETEMP,MACHINETS,MACHINEHUD,MACHINEHOUR,MACHINESTATUS,MACHINEFAVOURITESTATUS};
 
     final private static String DBNAME = "DBNAME";
     final private static Integer VERSION = 1;
     final private static String CREATE_CMD = "CREATE TABLE " + TABLE_NAME + " (" + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                                        columns[1] + " STRING, " +
-                                        columns[2] + " STRING, " +
-                                        columns[3] + " STRING, " +
-                                        columns[4] + " STRING, " +
-                                        columns[5] + " STRING, " +
-                                        columns[6] + " STRING, " +
-                                        columns[7] + " STRING, " +
-                                        columns[8] + " STRING, " +
-                                        columns[9] + " STRING, " +
-                                        columns[10] + " STRING, " +
-                                        columns[11] + " STRING, " +
-                                        columns[12] + " STRING, " +
-                                        columns[13] + " STRING )";
+            columns[1] + " STRING, " +
+            columns[2] + " STRING, " +
+            columns[3] + " STRING, " +
+            columns[4] + " STRING, " +
+            columns[5] + " STRING, " +
+            columns[6] + " STRING, " +
+            columns[7] + " STRING, " +
+            columns[8] + " STRING, " +
+            columns[9] + " STRING, " +
+            columns[10] + " STRING, " +
+            columns[11] + " STRING, " +
+            columns[12] + " STRING, " +
+            columns[13] + " STRING )";
 
     public DatabaseHelper(Context context) {
         // logic to create database
@@ -86,7 +88,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void deleteDatabase() {
         mContext.deleteDatabase(DBNAME);
     }
-    // Add  data into database //
+
+    // Add one data into database //
     public void addmachineID(String addmachineID) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -94,10 +97,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_NAME, null, values);
         db.close(); // Closing database connection
     }
+
+    // Add  data into database //
+    public void addmachine(String addmachineID, String addmachineDate, String addmachineTime,
+                           String addmachineVx, String addmachineVy, String addmachineVz,
+                           String addmachineVelo, String addmachineTemp, String addmachineTS,
+                           String addmachineHud, String addmachineHour)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(MACHINEID, addmachineID);
+        values.put(MACHINEDATE, addmachineDate);
+        values.put(MACHINETIME, addmachineTime);
+        values.put(MACHINEVX, addmachineVx);
+        values.put(MACHINEVY, addmachineVy);
+        values.put(MACHINEVZ, addmachineVz);
+        values.put(MACHINEVELO, addmachineVelo);
+        values.put(MACHINETEMP, addmachineTemp);
+        values.put(MACHINETS, addmachineTS);
+        values.put(MACHINEHUD, addmachineHud);
+        values.put(MACHINEHOUR, addmachineHour);
+
+
+        db.insert(TABLE_NAME, null, values);
+        db.close(); // Closing database connection
+    }
+
     // Clear rows //
     public void clearRows() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        db.execSQL(CREATE_CMD);
         db.close();
     }
 
@@ -115,9 +146,72 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
+    // Update machine state in database //
+    public void updateMachineState(String machineID, String machineStatus) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(MACHINESTATUS, machineStatus);
+        db.update(TABLE_NAME, cv, MACHINEID + "= ?", new String[] {machineID});
+        db.close();
+    }
+
+    // Check current machine state in database //
+    public boolean checkMachineState(String machineID, String machineStatus) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, columns,
+                MACHINEID + " = ? AND " + MACHINESTATUS + " = ?",
+                new String[] { machineID, machineStatus }, null,null,null);
+        // looping through if exist
+        if (cursor.moveToFirst()) {
+            do {
+                return true;
+            } while (cursor.moveToNext());
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+
+    // Check number of machine in particular state in database //
+    public ArrayList<Double> checkMachineInParticularState (String machineStatus) {
+        ArrayList<Double> arrayHour = new ArrayList<Double>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, columns,
+                MACHINESTATUS + " = ?",
+                new String[] { machineStatus }, null,null,null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                arrayHour.add(Double.parseDouble(cursor.getString(11)));
+            } while (cursor.moveToNext());
+        }
+        return arrayHour;
+    }
+
+    // Get machine ID based on hour database //
+    public String machineUsingHour(String machineState, String machineHour) {
+        String value = "";
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, columns,
+                MACHINEHOUR + " = ? AND " + MACHINESTATUS + " = ?",
+                new String[] { machineHour, machineState }, null,null,null);
+        // looping through if exist
+        if (cursor.moveToFirst()) {
+            do {
+                value = cursor.getString(1);
+
+            } while (cursor.moveToNext());
+        }
+        return value;
+    }
+
     // Get column
     public static String[] getColumns()
-        { return columns;}
+    { return columns;}
 
     //get id
     public static String getId()
