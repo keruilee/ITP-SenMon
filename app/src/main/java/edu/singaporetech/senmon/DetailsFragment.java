@@ -1,6 +1,5 @@
 package edu.singaporetech.senmon;
 
-
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -15,11 +14,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.ContactsContract;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,7 +45,6 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -63,9 +59,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
 
 
 /**
@@ -80,10 +74,9 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
     String endDate = "04/20/2012 15:42:41";
     String time = "";
 
-
     //Declare variables
     String TAG = "Details Fragment";
-    private TextView tvDMachineID, tvDTemperature, tvDVelocity, tvDHour;
+    private TextView tvDMachineID, tvDTemperature, tvDVelocity, tvDHour, tvNoData;
     private ImageView tvDFavourite, tvDShare;
     String machineID = "";
     String tempValue, veloValue;
@@ -102,14 +95,10 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
     View content;
 
     ProgressDialog progressDialog;
-    JSONArray serverCSVrecords = null;
     private static final String TAG_RESULTS = "result";
-    public String[] latestRecords;
-    public String[] allCSVRecords;
 
     private TabLayout tabLayout;
     private RelativeLayout lineChartLayout;
-    public String[][] allCSVRecords2;
     private CheckBox cbTemp, cbVelo, cbLines;
     private LineChart lineChart ;
     private YAxis leftAxis, rightAxis;
@@ -143,6 +132,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
         tvDHour = (TextView) v.findViewById(R.id.tvHourField);
         tvDFavourite = (ImageView) v.findViewById(R.id.btnfavourite);
         tvDShare = (ImageView) v.findViewById(R.id.shareBtn);
+        tvNoData = (TextView) v.findViewById(R.id.tvNoData);
 
         lineChart = (LineChart) v.findViewById(R.id.lineChart);
         stackedChart = (BarChart) v.findViewById(R.id.barChart);
@@ -211,7 +201,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 Log.e("TAG", "on tab selected");
-                if(tabLayout.getSelectedTabPosition() < 1) {
+                if(tabLayout.getSelectedTabPosition() == 0) {
                     lineChartLayout.setVisibility(View.VISIBLE);
                     stackedChart.setVisibility(View.INVISIBLE);
                 }
@@ -224,24 +214,22 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-
+                // do nothing
             }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
+                // do nothing
             }
         });
 
         progressDialog = new ProgressDialog(getActivity());
 
-        //retrieve data
-        getCSVDataHX();
-
         // Give the TabLayout the ViewPage
         tabLayout = (TabLayout) v.findViewById(R.id.graph_tabs);
 
-        loadGraph();
+        //retrieve data
+        getCSVData();
 
         return v;
     }
@@ -386,109 +374,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
             //Critical state text color
             tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
         }
-
-    }
-
-
-    public void getCSVDataHX() {
-        class GetCSVDataJSON extends AsyncTask<Void, Void, JSONObject> {
-
-            URL encodedUrl;
-            HttpURLConnection urlConnection = null;
-
-            String url = "http://itpsenmon.net23.net/readFromCSV.php";
-
-            JSONObject responseObj;
-
-            @Override
-            protected void onPreExecute() {
-                progressDialog.setMessage("Loading Records...");
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                progressDialog.setIndeterminate(false);
-                progressDialog.show();
-            }
-
-            @Override
-            protected JSONObject doInBackground(Void... params) {
-                try {
-                    encodedUrl = new URL(url);
-                    urlConnection = (HttpURLConnection) encodedUrl.openConnection();
-                    urlConnection.setDoInput(true);
-                    urlConnection.setDoOutput(true);
-                    urlConnection.setUseCaches(false);
-                    urlConnection.setRequestProperty("Content-Type", "application/json");
-                    urlConnection.connect();
-
-                    InputStream input = urlConnection.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-                    StringBuilder result = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        result.append(line);
-                    }
-                    Log.d("doInBackground(Resp)", result.toString());
-                    responseObj = new JSONObject(result.toString());
-
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } finally {
-                    urlConnection.disconnect();
-                }
-
-                return responseObj;
-            }
-
-            @Override
-            protected void onPostExecute(JSONObject result) {
-                super.onPostExecute(result);
-                getCSVRecordsHX(result);
-
-                //set machine detail color
-                detailColor();
-
-                progressDialog.dismiss();
-            }
-        }
-        GetCSVDataJSON g = new GetCSVDataJSON();
-        g.execute();
-    }
-
-    //Get the server CSV records
-    public void getCSVRecordsHX(JSONObject jsonObj) {
-        try {
-            serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);
-
-            String cleanupLatestRecords;
-
-            //remove all unwanted symbols and text
-            cleanupLatestRecords = serverCSVrecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"", "").replace("]", "");
-            //split different csv records, the ending of each csv record list is machineID.csv
-            allCSVRecords = cleanupLatestRecords.split(".csv,");
-            //loop through each csv and get the latest records and split each field
-            for (String record : allCSVRecords) {
-                latestRecords = record.split(",");
-
-                if (machineID.equals(latestRecords[9].replace(".csv", ""))) {
-                    tempValue = latestRecords[6];
-                    veloValue = latestRecords[5];
-                    tvDTemperature.setText(tempValue);
-                    tvDVelocity.setText(veloValue);
-                    tvDHour.setText("22");
-                }
-            }
-
-            Log.d("cleanupLatestRecords: ", cleanupLatestRecords);
-            Log.d("CSVRecords2: ", allCSVRecords[1]);
-            Log.d("LatestRecords: ", latestRecords[0]);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     //Calculate time differences of machine
@@ -529,10 +414,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
         Log.i(TAG + " Total ", String.valueOf(Long.toString(diffDays) + " " + Long.toString(diffHours) + " " + Long.toString(diffMinutes)
                 + " " + Long.toString(diffSeconds)));
 
-
         return timediff;
     }
-
 
     public String checkEventForDataBaseHelperFavourite(String machineID) {
         SQLiteDatabase db = testDatabasehelper.getWritableDatabase();
@@ -560,11 +443,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    public void loadGraph() {
-        setupLineChart();
-        getCSVData();
-    }
-
     //Added by Kerui
     public void getCSVData() {
         class GetCSVDataJSON extends AsyncTask<Void, Void, JSONObject> {
@@ -579,6 +457,10 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
 
             @Override
             protected void onPreExecute() {
+                progressDialog.setMessage("Loading Records...");
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setIndeterminate(false);
+                progressDialog.show();
                 try
                 {
                     data = URLEncoder.encode("machine", "UTF-8")
@@ -587,8 +469,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
                 catch(Exception e)
                 {
                 }
-                lineChart.setNoDataTextDescription("Loading graph...");
-                stackedChart.setNoDataTextDescription("Loading graph...");
+                lineChart.setNoDataText("Loading graph...");
+                stackedChart.setNoDataText("Loading graph...");
             }
 
             @Override
@@ -597,9 +479,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
 
                     encodedUrl = new URL(url);
                     urlConnection = (HttpURLConnection) encodedUrl.openConnection();
-                    //urlConnection.setUseCaches(false);
-                    //urlConnection.setRequestProperty("Content-Type", "application/json");
-                    //urlConnection.setDoInput(true);
                     urlConnection.setDoOutput(true);
                     OutputStreamWriter wr = new OutputStreamWriter(urlConnection.getOutputStream());
                     wr.write( data );
@@ -633,7 +512,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
             protected void onPostExecute(JSONObject result){
                 super.onPostExecute(result);
                 getCSVRecords(result);
-                initialSetup();                     // done loading, set up line chart
+                setupLineChart();
+                setupStackedChart();
             }
         }
         GetCSVDataJSON g = new GetCSVDataJSON();
@@ -645,82 +525,97 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
     {
         try {
             JSONArray serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);
-            allCSVRecords2 = new String[serverCSVrecords.length()][];
-            for(int i = 0; i<serverCSVrecords.length() ; i++){
-                String object = serverCSVrecords.get(i).toString();
-                object = object.replace("\r", "").replace("\n", "");
-                String[] currentRecord = object.split(",");
-                allCSVRecords2[i] = currentRecord;
-            }
+            int i = 0, numOfNormal = 0, numOfWarning = 0, numOfCritical = 0;
+            String[] currentRecord;
+            int numOfRecords = serverCSVrecords.length();
 
+            // got at least 1 record
+            if(serverCSVrecords.length() > 0) {
+                // load last record first
+                String object = serverCSVrecords.get(numOfRecords - 1).toString();
+                object = object.replace("\r", "").replace("\n", "");
+                currentRecord = object.split(",");
+                tempValue = currentRecord[6];
+                veloValue = currentRecord[5];
+                tvDTemperature.setText(tempValue);
+                tvDVelocity.setText(veloValue);
+                tvDHour.setText("22");
+                detailColor();
+                progressDialog.dismiss();
+
+                SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+                SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
+
+                // load other records for graph
+                while (i < serverCSVrecords.length()) {
+                    object = serverCSVrecords.get(i).toString();
+                    object = object.replace("\r", "").replace("\n", "");
+                    currentRecord = object.split(",");
+
+                    if (i == 0)
+                        stackedXVals.add(currentRecord[0]);
+
+                    float tempValue, velValue;
+                    Date recordDate;
+                    String recordDateString;
+                    // for line charts
+                    try {
+                        recordDate = dateTimeFormatter.parse(currentRecord[0] + " " + currentRecord[1]);
+                    } catch (Exception e) {
+                        continue;   // date in wrong format; skip current record
+                    }
+                    recordDateString = dateTimeFormatter.format(recordDate);
+                    tempValue = Float.parseFloat(currentRecord[6]);
+                    velValue = Float.parseFloat(currentRecord[5]);
+                    lineXVals.add(recordDateString);
+                    tempYVals.add(new Entry(tempValue, i));
+                    veloYVals.add(new Entry(velValue, i));
+
+                    // here onwards: for stacked bar chart
+                    recordDateString = dateFormatter.format(recordDate);
+
+                    // new date = new x label; add date to x-axis and reset states variable to zero
+                    if (!recordDateString.equals(stackedXVals.get(stackedXVals.size() - 1))) {
+                        stackedYVals.add(new BarEntry(new float[]{numOfNormal, numOfWarning, numOfCritical}, stackedXVals.size() - 1));
+                        numOfNormal = 0;
+                        numOfWarning = 0;
+                        numOfCritical = 0;
+                        try {
+                            stackedXVals.add(recordDateString);
+                        } catch (Exception e) {
+                            stackedXVals.add(currentRecord[0]);
+                        }
+                    }
+
+                    // determine state of machine
+                    if (velValue >= Float.parseFloat(veloCriticalValue) || tempValue >= Float.parseFloat(tempCriticalValue))
+                        numOfCritical++;
+                    else if (velValue >= Float.parseFloat(veloWarningValue) || tempValue >= Float.parseFloat(veloWarningValue))
+                        numOfWarning++;
+                    else
+                        numOfNormal++;
+
+                    i++;
+                }
+                stackedYVals.add(new BarEntry(new float[] { numOfNormal, numOfWarning, numOfCritical }, stackedXVals.size()-1));
+            }
+            else {      // no records found for machine
+                progressDialog.dismiss();
+                lineChart.setNoDataText("No records found");
+                stackedChart.setNoDataText("No records found");
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    private void initialSetup() {
-
-        // clear previous values
-        int i = 0, numOfNormal = 0, numOfWarning = 0, numOfCritical = 0;
-
-        stackedXVals.add(allCSVRecords2[i][0]);
-        SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("MM/dd/yyyy HH:mm");
-        SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
-        float tempValue, velValue;
-        Date recordDate;
-        String recordDateString;
-        while (i < allCSVRecords2.length)
-        {
-            // for line charts
-            try {
-                recordDate = dateTimeFormatter.parse(allCSVRecords2[i][0] + " " + allCSVRecords2[i][1]);
-            } catch(Exception e) {
-                continue;   // date in wrong format; skip current record
-            }
-            recordDateString = dateTimeFormatter.format(recordDate);
-            tempValue = Float.parseFloat(allCSVRecords2[i][6]);
-            velValue = Float.parseFloat(allCSVRecords2[i][5]);
-            lineXVals.add(recordDateString);
-            tempYVals.add(new Entry(tempValue, i));
-            veloYVals.add(new Entry(velValue, i));
-
-            // for stacked bar chart
-            recordDateString = dateFormatter.format(recordDate);
-            if(!recordDateString.equals(stackedXVals.get(stackedXVals.size()-1)))
-            {
-                stackedYVals.add(new BarEntry(new float[] { numOfNormal, numOfWarning, numOfCritical }, stackedXVals.size()-1));
-                numOfNormal = 0;
-                numOfWarning = 0;
-                numOfCritical = 0;
-                try {
-                    stackedXVals.add(recordDateString);
-                } catch(Exception e) {
-                    stackedXVals.add(allCSVRecords2[i][0]);
-                }
-            }
-
-            if(velValue >= Float.parseFloat(veloCriticalValue) || tempValue >= Float.parseFloat(tempCriticalValue))
-                numOfCritical++;
-            else if(velValue >= Float.parseFloat(veloWarningValue) || tempValue >= Float.parseFloat(veloWarningValue))
-                numOfWarning++;
-            else
-                numOfNormal++;
-
-            i++;
-        }
-
-        stackedYVals.add(new BarEntry(new float[] { numOfNormal, numOfWarning, numOfCritical }, stackedXVals.size()-1));
-
-        setLineData();
-        setupStackedChart();
-    }
-
+    // set up line chart with preferred settings
     private void setupLineChart() {
         lineChart.setDrawGridBackground(false);
         lineChart.setDrawBorders(false);
         // no description textelse
         lineChart.setDescription("");
-        lineChart.setNoDataTextDescription("You need to provide data for the chart.");
+        lineChart.setNoDataText("Loading graph...");
 
         // enable touch gestures
         lineChart.setTouchEnabled(true);
@@ -797,15 +692,14 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
         // set the marker to the chart
         lineChart.setMarkerView(mv);
 
-        if(lineXVals.size() > 30)
-            lineChart.zoom(8, 0, lineXVals.size()-1, tempYVals.size()-1);
-        lineChart.moveViewToX(lineXVals.size()-1);
-
         Legend l = lineChart.getLegend();
         l.setForm(Legend.LegendForm.SQUARE);
+
+        insertLineData();
     }
 
-    private void setLineData() {
+    // put data into line chart
+    private void insertLineData() {
         // create a dataset and give it a type
         tempSet = new LineDataSet(tempYVals, "TEMPERATURE");
         tempSet.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -846,14 +740,20 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
 
         // set data
         lineChart.setData(data);
-        lineChart.invalidate();         // refresh the graph
+
+        // set viewport
+        if(lineXVals.size() > 30)
+            lineChart.zoom(8, 0, lineXVals.size()-1, tempYVals.size()-1);
+        lineChart.moveViewToX(lineXVals.size()-1);
     }
 
+    // set up stacked chart with preferred settings
     private void setupStackedChart() {
-        setStackedData();
+        insertStackedData();
+
         //stackedChart.setOnChartValueSelectedListener(this);
 
-        stackedChart.setDescription("");
+        stackedChart.setNoDataText("Loading graph...");
 
         // scaling can now only be done on x- and y-axis separately
         stackedChart.setScaleXEnabled(true);
@@ -861,9 +761,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
         stackedChart.setDrawGridBackground(false);
         stackedChart.setDrawBarShadow(false);
         stackedChart.setVisibleXRangeMaximum(7);
-        if(stackedXVals.size() > 7)
-            stackedChart.moveViewToX(stackedXVals.size() - 7);
-
         stackedChart.setDrawValueAboveBar(false);
 
         // change the position of the y-labels
@@ -875,38 +772,34 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
         xLabels.setPosition(XAxis.XAxisPosition.BOTTOM);
 
         Legend l = stackedChart.getLegend();
-        l.setPosition(Legend.LegendPosition.BELOW_CHART_RIGHT);
+        l.setPosition(Legend.LegendPosition.BELOW_CHART_LEFT);
         l.setFormSize(8f);
         l.setFormToTextSpace(4f);
         l.setXEntrySpace(6f);
     }
 
-    private void setStackedData() {
+    // put data into stacked chart
+    private void insertStackedData() {
         BarDataSet set1;
 
-        if (stackedChart.getData() != null &&
-                stackedChart.getData().getDataSetCount() > 0) {
-            set1 = (BarDataSet)stackedChart.getData().getDataSetByIndex(0);
-            set1.setYVals(stackedYVals);
-            stackedChart.getData().setXVals(stackedXVals);
-            stackedChart.getData().notifyDataChanged();
-            stackedChart.notifyDataSetChanged();
-        } else {
-            set1 = new BarDataSet(stackedYVals, "");
-            set1.setColors(getColors());
-            set1.setStackLabels(new String[]{"Safe", "Warning", "Critical"});
+        set1 = new BarDataSet(stackedYVals, "| Machine States Count / Day");
+        set1.setColors(getColors());
+        set1.setStackLabels(new String[]{"Safe", "Warning", "Critical"});
 
-            ArrayList<IBarDataSet> dataSets = new ArrayList<>();
-            dataSets.add(set1);
+        ArrayList<IBarDataSet> dataSets = new ArrayList<>();
+        dataSets.add(set1);
 
-            BarData data = new BarData(stackedXVals, dataSets);
+        BarData data = new BarData(stackedXVals, dataSets);
+        data.setValueFormatter(new WholeNumValueFormatter());
+        stackedChart.setData(data);
 
-            stackedChart.setData(data);
-        }
+        if(stackedXVals.size() > 7)
+            stackedChart.moveViewToX(stackedXVals.size() - 7);
 
-        stackedChart.invalidate();  // refresh the graph
+        stackedChart.invalidate();
     }
 
+    // set up colours for stacked chart
     private int[] getColors() {
 
         int stacksize = 3;
@@ -921,16 +814,21 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
         return colors;
     }
 
+    // update line chart when checkboxes are pressed
     private void updateLineChart(String datasetSelected, boolean added)
     {
         LineData data = lineChart.getData();
         if(added){
             if(data.getDataSetCount() <= 0)
-                xAxis.setDrawLabels(true);
+            {
+                lineChart.setVisibility(View.VISIBLE);
+                tvNoData.setVisibility(View.INVISIBLE);
+            }
             if(datasetSelected.equals("TEMPERATURE"))
             {
                 data.addDataSet(tempSet);
                 leftAxis.setDrawLabels(true);
+                leftAxis.setEnabled(true);
                 if(cbLines.isChecked())
                 {
                     leftAxis.addLimitLine(tempCritLine);
@@ -941,6 +839,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
             {
                 data.addDataSet(veloSet);
                 rightAxis.setDrawLabels(true);
+                rightAxis.setEnabled(true);
                 if(cbLines.isChecked())
                 {
                     rightAxis.addLimitLine(veloCriticalLine);
@@ -954,15 +853,20 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
             if(datasetSelected.equals("TEMPERATURE"))
             {
                 leftAxis.setDrawLabels(false);
+                leftAxis.setEnabled(false);
                 leftAxis.removeAllLimitLines();
             }
             else
             {
                 rightAxis.setDrawLabels(false);
+                rightAxis.setEnabled(false);
                 rightAxis.removeAllLimitLines();
             }
             if(data.getDataSetCount() <= 0)
-                xAxis.setDrawLabels(false);
+            {
+                lineChart.setVisibility(View.INVISIBLE);
+                tvNoData.setVisibility(View.VISIBLE);
+            }
         }
         lineChart.notifyDataSetChanged();
         lineChart.invalidate();
