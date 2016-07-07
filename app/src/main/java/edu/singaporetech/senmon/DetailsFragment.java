@@ -2,6 +2,7 @@ package edu.singaporetech.senmon;
 
 
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +14,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.ContactsContract;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -70,7 +72,10 @@ public class DetailsFragment extends Fragment {
     public static final String CriticalTemperature = "critTempKey";
     public static final String WarningVelocity = "warnVeloKey";
     public static final String CriticalVelocity = "critVeloKey";
-    private FavouriteDatabaseHelper databaseHelper;
+   // private FavouriteDatabaseHelper databaseHelper;
+
+    private DatabaseHelper testDatabasehelper;
+
     private TabLayout tabLayout;
     ViewPager viewPager;
     ViewPageAdapter viewPagerAdapter;
@@ -87,7 +92,6 @@ public class DetailsFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -96,21 +100,6 @@ public class DetailsFragment extends Fragment {
 
         // Inflate the layout for this fragment
         v = inflater.inflate(R.layout.fragment_details, container, false);
-
-        //Hardcode array
-//        Machine machine = new Machine("SDK001-M001-01-0001a", "0.3", "36.11", "50");
-//        Machine machine2 = new Machine("SDK221-M001-01-0001a", "0.2244", "10.11", "33");
-//        Machine machine3 = new Machine("SDK331-M001-01-0001a", "0.293", "20.11", "53");
-//        Machine machine4 = new Machine("ADK444-M001-01-0001a", "0.922", "30.11", "900");
-//        Machine machine5 = new Machine("SDK555-M001-01-0001a", "0.312", "40.11", "6");
-//        Machine machine6 = new Machine("SDK166-M001-01-0001a", "0.9222", "5.11", "3");
-//
-//        myMachineList.add(machine);
-//        myMachineList.add(machine2);
-//        myMachineList.add(machine3);
-//        myMachineList.add(machine4);
-//        myMachineList.add(machine5);
-//        myMachineList.add(machine6);
 
         //Set variables
         tvDMachineID = (TextView) v.findViewById(R.id.tvMachineName);
@@ -128,11 +117,16 @@ public class DetailsFragment extends Fragment {
         if (bundle != null) {
             tvDMachineID.setText(String.valueOf(bundle.getString("name")));
             machineID = bundle.getString("name");
+            Log.i("WHAT IS in the bundle?" ,machineID );
         }
 
         //database helper
-        databaseHelper = new FavouriteDatabaseHelper(getContext());
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        //databaseHelper = new FavouriteDatabaseHelper(getContext());
+       // SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        // test for the new database helper
+        testDatabasehelper = new DatabaseHelper((getContext()));
+
 
         //retrieve range values
         RangeSharedPreferences = getContext().getSharedPreferences(MyRangePREFERENCES, Context.MODE_PRIVATE);
@@ -146,51 +140,63 @@ public class DetailsFragment extends Fragment {
         //call compute time
         //time = computeTime(startDate,endDate);
 
-
-        if (checkEvent(machineID) == false) {
+    // to checked what is the favourite status , yes or no , if yes , set the star as higlighted
+        if (checkEventForDataBaseHelperFavourite(machineID) == "no")
+        {
             //tvDFavourite.setText("Click to favourite");
             tvDNoFavourite.setVisibility(View.VISIBLE);
             tvDFavourite.setVisibility(View.INVISIBLE);
-        } else {
+        }
+        else if (checkEventForDataBaseHelperFavourite(machineID) == "yes")
+        {
             //tvDFavourite.setText("Click to unfavourite");
             tvDFavourite.setVisibility(View.VISIBLE);
             tvDNoFavourite.setVisibility(View.INVISIBLE);
         }
+        else if (checkEventForDataBaseHelperFavourite(machineID) == "not found")
+        {
+            tvDNoFavourite.setVisibility(View.VISIBLE);
+            tvDFavourite.setVisibility(View.INVISIBLE);
 
+            ContentValues values = new ContentValues();
+            SQLiteDatabase testDb = testDatabasehelper.getWritableDatabase();
+            values.put(testDatabasehelper.MACHINEID, machineID); // KR do take note might need to change as update
+            values.put(testDatabasehelper.MACHINEFAVOURITESTATUS, "no");
+            testDb.insert(testDatabasehelper.TABLE_NAME, null, values);
+        }
 
+        // set on click listener , if the user has favourite the machine
         tvDNoFavourite.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                if (checkEvent(machineID) == false) {
 
-                    databaseHelper.addmachineID(machineID);
-                   /* ContentValues values = new ContentValues();
-                    values.put(databaseHelper.MACHINEID, machineID);
-                    db.insert(databaseHelper.TABLE_NAME, null, values);*/
-                    checkEvent(machineID);
+// KEIRUI do take note might need to change as update for that particular row sth like db.update(testDatabasehelper.TABLE_NAME, values, "machineID =" + machineID, null);
+
+                    ContentValues values = new ContentValues();
+                    SQLiteDatabase testDb = testDatabasehelper.getWritableDatabase();
+                // KR do take note might need to change as update
+                    testDb.execSQL("UPDATE DatabaseTable SET machineFavouriteStatus = 'yes' WHERE machineID = '" + machineID + "'");
+                    checkEventForDataBaseHelperFavourite(machineID);
                     //tvDFavourite.setText("Click to unfavourite");
                     tvDFavourite.setVisibility(View.VISIBLE);
                     tvDNoFavourite.setVisibility(View.INVISIBLE);
                     Toast.makeText(getActivity(), "Added into Favourite List", Toast.LENGTH_SHORT).show();
 
-                }
-
             }
         });
-
+        // removed from the list
         tvDFavourite.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                if (checkEvent(machineID) == true)
-
-                {
-                    databaseHelper.removeMachineID(machineID);
-                    checkEvent(machineID);
+                    ContentValues values = new ContentValues();
+                    SQLiteDatabase testDb = testDatabasehelper.getWritableDatabase();
+                     // KR do take note might need to change as update
+                    testDb.execSQL("UPDATE DatabaseTable SET machineFavouriteStatus = 'no' WHERE machineID = '" + machineID + "'");
+                    checkEventForDataBaseHelperFavourite(machineID);
                     //tvDFavourite.setText("Click to favourite");
                     tvDNoFavourite.setVisibility(View.VISIBLE);
                     tvDFavourite.setVisibility(View.INVISIBLE);
                     Toast.makeText(getActivity(), "Removed from Favourite List", Toast.LENGTH_SHORT).show();
-                }
             }
         });
 
@@ -446,7 +452,7 @@ public class DetailsFragment extends Fragment {
         return timediff;
     }
 
-    // to check if the machineID has already stored in the databasehelper
+/*    // to check if the machineID has already stored in the databasehelper
     public boolean checkEvent(String machineID) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
@@ -458,6 +464,26 @@ public class DetailsFragment extends Fragment {
         } else {
             Log.i("CHECK", "false, not found in the database");
             return false;
+        }
+
+    }*/
+    //
+    public String checkEventForDataBaseHelperFavourite(String machineID) {
+        SQLiteDatabase db = testDatabasehelper.getWritableDatabase();
+        String statusForFavoruite;
+
+        String queryString = "SELECT machineFavouriteStatus FROM DatabaseTable WHERE machineID = '" + machineID + "'";
+        Cursor c = db.rawQuery(queryString, null);
+        if (c.getCount() > 0) {
+            c.moveToFirst();
+            statusForFavoruite = c.getString(c.getColumnIndex("machineFavouriteStatus"));
+            Log.i("checkDataBaseHelper",statusForFavoruite);
+            Log.i("c.getCount",c.getCount() + "");
+
+            return statusForFavoruite;
+        } else {
+            Log.i("checkDataBaseHelper", "false, not found in the database");
+            return "not found";
         }
 
     }
