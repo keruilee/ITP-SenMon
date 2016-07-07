@@ -1,3 +1,4 @@
+/*
 package edu.singaporetech.senmon;
 
 
@@ -5,9 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.database.Cursor;
 import android.database.DataSetObserver;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -57,10 +56,7 @@ import javax.crypto.Mac;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 
 
-/**
- * A simple {@link Fragment} subclass.
- */
-public class ListFragment extends Fragment {
+public class test extends Fragment {
 
     String TAG = "List Fragment";
     Context context;
@@ -90,9 +86,6 @@ public class ListFragment extends Fragment {
     //For the sorting tab
     private TabLayout tabLayout;
 
-    // for database helper
-    public DatabaseHelper mydatabaseHelper ;
-
     public ListFragment() {
     }
 
@@ -105,7 +98,7 @@ public class ListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        context = getContext();
         View rootView = inflater.inflate(R.layout.fragment_list, container, false);
 
         // Give the TabLayout the ViewPage
@@ -124,24 +117,6 @@ public class ListFragment extends Fragment {
         }
 
 
-        /////////////////// take out the data from databasehelper///////////////////////
-        mydatabaseHelper = new DatabaseHelper(getActivity());
-        Cursor c = FavouriteList();
-        myMachineList.clear();
-
-        if (c.moveToFirst()) {
-            do {
-                    Machine machineFavourite = new Machine(c.getString(1), c.getString(2), c.getString(3),
-                            c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
-                            c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
-                    myMachineList.add(machineFavourite);
-                updateDateTime.setText("Updated on " + c.getString(14));
-
-            } while (c.moveToNext());
-
-        }c.close();
-
-
         // set up list with listadapter
         listViewListing = (ListView) rootView.findViewById(R.id.ListView);
         adapter = new CustomAdapter(getActivity(), R.layout.fragment_list, myMachineList);
@@ -152,10 +127,8 @@ public class ListFragment extends Fragment {
             @Override
             public void onRefresh() {
                 Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
-                progressDialog = new ProgressDialog(getActivity());
                 myMachineList.clear();
                 getCSVData();
-
             }
         });
         ////// when click on the item   //////////////////////
@@ -200,7 +173,8 @@ public class ListFragment extends Fragment {
             }
         });
 
-
+        progressDialog = new ProgressDialog(getActivity());
+        getCSVData();
 
         return rootView;
     }
@@ -212,74 +186,10 @@ public class ListFragment extends Fragment {
 
         super.onResume();
         myMachineList.clear();
-        Cursor c = FavouriteList();
-        if (c.moveToFirst()) {
-            do {
-                Machine machineFavourite = new Machine(c.getString(1), c.getString(2), c.getString(3),
-                        c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
-                        c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
-                myMachineList.add(machineFavourite);
-                updateDateTime.setText("Updated on " + c.getString(14));
-
-            } while (c.moveToNext());
-
-        }c.close();
+        getCSVData();
 
     }
-
-         ///////// To update the tab when the user select///////////////
-    public void updateList() {
-        switch(selectedTab)
-        {
-            case 0:
-                Log.i("SWITCH", "0 , Sort machine id");
-                Collections.sort(myMachineList, new Comparator<Machine>() {
-                    public int compare(Machine m1, Machine m2) {
-                        return m1.getMachineID().compareTo(m2.getMachineID());
-                    }
-                });
-                break;
-
-            case 1:
-                Log.i("SWITCH", "1 , Sort temp");
-                Collections.sort(myMachineList, new Comparator<Machine>() {
-                    public int compare(Machine m1, Machine m2) {
-
-                        Log.i("SWITCH", "1 , Sort temp m1" + m1.getmachineTemp());
-                        Log.i("SWITCH", "1 , Sort temp m2" + m2.getmachineTemp());
-                        return Double.compare(Double.parseDouble(m2.getmachineTemp()), Double.parseDouble(m1.getmachineTemp()));
-                    }
-                });
-                Log.i("Sort", "Sorting temp done");
-                break;
-
-            case 2:
-                Log.i("SWITCH", "2 , Sort velo");
-                Collections.sort(myMachineList, new Comparator<Machine>() {
-                    public int compare(Machine m1, Machine m2) {
-                        return Double.compare(Double.parseDouble(m2.getmachineVelo()), Double.parseDouble(m1.getmachineVelo()));
-                    }
-                });
-                break;
-
-            default:
-                break;
-        }
-        adapter.notifyDataSetChanged();
-    }
-
-
-    public Cursor FavouriteList() {
-        // to return all records in the form of a Cursor object
-        SQLiteDatabase db = mydatabaseHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("Select * from " + mydatabaseHelper.getTableName(), null);
-        Log.i("Cursor", "Cursor");
-        return cursor;
-    }
-
-
-    ////////////////////////update the list///////////////////////////
-
+    //Added by Kerui
     public void getCSVData(){
         class GetCSVDataJSON extends AsyncTask<Void, Void, JSONObject> {
 
@@ -329,8 +239,10 @@ public class ListFragment extends Fragment {
                 }finally {
                     urlConnection.disconnect();
                 }
+
                 return responseObj;
             }
+
             @Override
             protected void onPostExecute(JSONObject result){
                 super.onPostExecute(result);
@@ -341,6 +253,7 @@ public class ListFragment extends Fragment {
                 // for swipe refresh to dismiss the loading icon
                 mSwipeRefreshLayout.setRefreshing(false);
                 // display the date time
+                dateTime();
             }
         }
         GetCSVDataJSON g = new GetCSVDataJSON();
@@ -355,6 +268,7 @@ public class ListFragment extends Fragment {
             myMachineList.clear();
 
             String cleanupLatestRecords;
+
             //remove all unwanted symbols and text
             cleanupLatestRecords = serverCSVrecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"","").replace("]","");
             //split different csv records, the ending of each csv record list is machineID.csv
@@ -364,18 +278,10 @@ public class ListFragment extends Fragment {
             {
                 latestRecords = record.split(",");
 
-/*
                 Machine machine = new Machine(latestRecords[9].replace(".csv",""),latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],
                         latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],"22","","");
 
                 myMachineList.add(machine);
-*/
-
-                //Change database
-                mydatabaseHelper.changeDatabase(latestRecords[9].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
-                        latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], "22");
-                mydatabaseHelper.updateMachineDateTime(latestRecords[9].replace(".csv", ""), DateFormat.getDateTimeInstance().format(new Date()));
-
 
             }
 
@@ -386,19 +292,55 @@ public class ListFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        dateTime();
+    }
 
-        myMachineList.clear();
-        Cursor c = FavouriteList();
-        if (c.moveToFirst()) {
-            do {
-                Machine machineFavourite = new Machine(c.getString(1), c.getString(2), c.getString(3),
-                        c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
-                        c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
-                myMachineList.add(machineFavourite);
-                updateDateTime.setText("Updated on " + c.getString(14));
 
-            } while (c.moveToNext());
+    public void dateTime()
+    {
+        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        Log.i("DATETIME", ""+currentDateTimeString.toString());
+        updateDateTime.setText("Updated on:" +currentDateTimeString);
+    }
 
-        }c.close();
+    public void updateList() {
+        switch(selectedTab)
+        {
+            case 0:
+                Log.i("SWITCH", "0 , Sort machine id");
+                Collections.sort(myMachineList, new Comparator<Machine>() {
+                    public int compare(Machine m1, Machine m2) {
+                        return m1.getMachineID().compareTo(m2.getMachineID());
+                    }
+                });
+                break;
+
+            case 1:
+                Log.i("SWITCH", "1 , Sort temp");
+                Collections.sort(myMachineList, new Comparator<Machine>() {
+                    public int compare(Machine m1, Machine m2) {
+
+                        Log.i("SWITCH", "1 , Sort temp m1" + m1.getmachineTemp());
+                        Log.i("SWITCH", "1 , Sort temp m2" + m2.getmachineTemp());
+                        return Double.compare(Double.parseDouble(m2.getmachineTemp()), Double.parseDouble(m1.getmachineTemp()));
+                    }
+                });
+                Log.i("Sort", "Sorting temp done");
+                break;
+
+            case 2:
+                Log.i("SWITCH", "2 , Sort velo");
+                Collections.sort(myMachineList, new Comparator<Machine>() {
+                    public int compare(Machine m1, Machine m2) {
+                        return Double.compare(Double.parseDouble(m2.getmachineVelo()), Double.parseDouble(m1.getmachineVelo()));
+                    }
+                });
+                break;
+
+            default:
+                break;
+        }
+        adapter.notifyDataSetChanged();
     }
 }
+*/

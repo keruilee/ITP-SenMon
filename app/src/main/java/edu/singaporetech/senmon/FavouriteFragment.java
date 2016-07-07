@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,7 +31,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.crypto.Mac;
@@ -57,6 +60,13 @@ public class FavouriteFragment extends Fragment {
     public String[] latestRecords;
     public String[] allCSVRecords;
 
+    // for swipe
+    public SwipeRefreshLayout mSwipeRefreshLayout = null;
+
+    // for date time
+    TextView updateDateTime;
+
+
     public FavouriteFragment() {
         // Required empty public constructor
     }
@@ -73,6 +83,9 @@ public class FavouriteFragment extends Fragment {
         myFavouriteMachineList.clear();
         View rootView = inflater.inflate(R.layout.fragment_favourite, container, false);
 
+        // Retrieve the SwipeRefreshLayout and ListView instances
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefresh);
+        updateDateTime= (TextView) rootView.findViewById(R.id.textViewUpdateDateTime);
 
         mydatabaseHelper = new DatabaseHelper(getActivity());
         Cursor c = FavouriteList();
@@ -86,8 +99,10 @@ public class FavouriteFragment extends Fragment {
                     Machine machineFavourite = new Machine(c.getString(1), c.getString(2), c.getString(3),
                             c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
                             c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
+                    updateDateTime.setText("Updated on " + c.getString(14));
                     myFavouriteMachineList.add(machineFavourite);
                 }
+                updateDateTime.setText("Updated on " + c.getString(14));
             } while (c.moveToNext());
 
         }c.close();
@@ -121,7 +136,17 @@ public class FavouriteFragment extends Fragment {
                 transaction.commit();
             }
         });
+        //////////////////swipe///////////////
+                mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
+                        progressDialog = new ProgressDialog(getActivity());
+                        myFavouriteMachineList.clear();
+                        getCSVData();
 
+            }
+        });
         return rootView;
         // / return inflater.inflate(R.layout.fragment_list, container, false);
     }
@@ -142,7 +167,9 @@ public class FavouriteFragment extends Fragment {
                             c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
                             c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
                     myFavouriteMachineList.add(machineFavourite);
+
                 }
+                updateDateTime.setText("Updated on " + c.getString(14));
             } while (c.moveToNext());
 
         }c.close();
@@ -155,5 +182,134 @@ public class FavouriteFragment extends Fragment {
         Cursor cursor = db.rawQuery("Select * from " + mydatabaseHelper.getTableName(), null);
 
         return cursor;
+
+    }
+
+    ////////////////////////update the list///////////////////////////
+
+    public void getCSVData(){
+        class GetCSVDataJSON extends AsyncTask<Void, Void, JSONObject> {
+
+            URL encodedUrl;
+            HttpURLConnection urlConnection = null;
+
+            String url = "http://itpsenmon.net23.net/readFromCSV.php";
+
+            JSONObject responseObj;
+
+            @Override
+            protected void onPreExecute() {
+                progressDialog.setMessage("Loading Records...");
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setIndeterminate(false);
+                progressDialog.show();
+            }
+
+            @Override
+            protected JSONObject doInBackground(Void... params) {
+                try {
+                    encodedUrl = new URL(url);
+                    urlConnection = (HttpURLConnection) encodedUrl.openConnection();
+                    urlConnection.setDoInput(true);
+                    urlConnection.setDoOutput(true);
+                    urlConnection.setUseCaches(false);
+                    urlConnection.setRequestProperty("Content-Type", "application/json");
+                    urlConnection.connect();
+
+                    InputStream input = urlConnection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
+                    Log.d("doInBackground(Resp)", result.toString());
+                    responseObj = new JSONObject(result.toString());
+
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }finally {
+                    urlConnection.disconnect();
+                }
+                return responseObj;
+            }
+            @Override
+            protected void onPostExecute(JSONObject result){
+                super.onPostExecute(result);
+                getCSVRecords(result);
+                               // display list with sorted values
+                progressDialog.dismiss();
+
+                // for swipe refresh to dismiss the loading icon
+                mSwipeRefreshLayout.setRefreshing(false);
+                // display the date time
+            }
+        }
+        GetCSVDataJSON g = new GetCSVDataJSON();
+        g.execute();
+    }
+
+    //Get the server CSV records
+    public void getCSVRecords(JSONObject jsonObj)
+    {
+        try {
+            serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);
+            myFavouriteMachineList.clear();
+
+            String cleanupLatestRecords;
+            //remove all unwanted symbols and text
+            cleanupLatestRecords = serverCSVrecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"","").replace("]","");
+            //split different csv records, the ending of each csv record list is machineID.csv
+            allCSVRecords = cleanupLatestRecords.split(".csv,");
+            //loop through each csv and get the latest records and split each field
+            for(String record : allCSVRecords)
+            {
+                latestRecords = record.split(",");
+
+/*
+                Machine machine = new Machine(latestRecords[9].replace(".csv",""),latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],
+                        latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],"22","","");
+
+                myMachineList.add(machine);
+*/
+
+                //Change database
+                mydatabaseHelper.changeDatabase(latestRecords[9].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
+                        latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], "22");
+                mydatabaseHelper.updateMachineDateTime(latestRecords[9].replace(".csv", ""), DateFormat.getDateTimeInstance().format(new Date()));
+
+
+            }
+
+            Log.d("cleanupLatestRecords: ", cleanupLatestRecords);
+            Log.d("CSVRecords2: ", allCSVRecords[1]);
+            Log.d("LatestRecords: ", latestRecords[0]);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        myFavouriteMachineList.clear();
+        Cursor c = FavouriteList();
+        String statusForFavo;
+        if (c.moveToFirst()) {
+            do {
+                statusForFavo = c.getString(c.getColumnIndex("machineFavouriteStatus"));
+                if (statusForFavo != null) {
+                    Log.i("stats", statusForFavo);
+                    Machine machineFavourite = new Machine(c.getString(1), c.getString(2), c.getString(3),
+                            c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
+                            c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
+                    myFavouriteMachineList.add(machineFavourite);
+
+                }
+                updateDateTime.setText("Updated on " + c.getString(14));
+            } while (c.moveToNext());
+        }
     }
 }
