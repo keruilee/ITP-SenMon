@@ -38,13 +38,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     final static String MACHINEHOUR     = "machineHour";
     final static String MACHINESTATUS   = "machineStatus"; // Critical , Warning , Normal , use this as a standard
     final static String MACHINEFAVOURITESTATUS = "machineFavouriteStatus"; // yes, no , use this as a standard
+    final static String MACHINEUPDATEDATETIME = "machineUpdateDateTime"; // yes, no , use this as a standard
 
 
     final static String _ID = "_id";
 
 
     final static String[] columns = {_ID,MACHINEID,MACHINEDATE,MACHINETIME,MACHINEVX,MACHINEVY,MACHINEVZ,MACHINEVELO,
-            MACHINETEMP,MACHINETS,MACHINEHUD,MACHINEHOUR,MACHINESTATUS,MACHINEFAVOURITESTATUS};
+            MACHINETEMP,MACHINETS,MACHINEHUD,MACHINEHOUR,MACHINESTATUS,MACHINEFAVOURITESTATUS,MACHINEUPDATEDATETIME};
 
     final private static String DBNAME = "DBNAME";
     final private static Integer VERSION = 1;
@@ -61,7 +62,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             columns[10] + " STRING, " +
             columns[11] + " STRING, " +
             columns[12] + " STRING, " +
-            columns[13] + " STRING )";
+            columns[13] + " STRING, " +
+            columns[14] + " STRING )";
 
     public DatabaseHelper(Context context) {
         // logic to create database
@@ -89,14 +91,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         mContext.deleteDatabase(DBNAME);
     }
 
-    // Add one data into database //
-    public void addmachineID(String addmachineID) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(MACHINEID, addmachineID);
-        db.insert(TABLE_NAME, null, values);
-        db.close(); // Closing database connection
-    }
 
     // Add  data into database //
     public void addmachine(String addmachineID, String addmachineDate, String addmachineTime,
@@ -146,6 +140,45 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
+    // Update machine detail in database //
+    public void updateMachineDetail(String addmachineID, String addmachineDate, String addmachineTime,
+                                    String addmachineVx, String addmachineVy, String addmachineVz,
+                                    String addmachineVelo, String addmachineTemp, String addmachineTS,
+                                    String addmachineHud, String addmachineHour)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(MACHINEDATE, addmachineDate);
+        values.put(MACHINETIME, addmachineTime);
+        values.put(MACHINEVX, addmachineVx);
+        values.put(MACHINEVY, addmachineVy);
+        values.put(MACHINEVZ, addmachineVz);
+        values.put(MACHINEVELO, addmachineVelo);
+        values.put(MACHINETEMP, addmachineTemp);
+        values.put(MACHINETS, addmachineTS);
+        values.put(MACHINEHUD, addmachineHud);
+        values.put(MACHINEHOUR, addmachineHour);
+        values.put(MACHINESTATUS, "");
+        db.update(TABLE_NAME, values, MACHINEID + "= ?", new String[] {addmachineID});
+        db.close();
+    }
+
+    // find machine //
+    public boolean findMachine (String findMachineID) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, columns,
+                MACHINEID + " = ?",
+                new String[] { findMachineID }, null,null,null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                return true;
+            } while (cursor.moveToNext());
+        }
+        return false;
+    }
+
     // Update machine state in database //
     public void updateMachineState(String machineID, String machineStatus) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -154,6 +187,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.update(TABLE_NAME, cv, MACHINEID + "= ?", new String[] {machineID});
         db.close();
     }
+
 
     // Check current machine state in database //
     public boolean checkMachineState(String machineID, String machineStatus) {
@@ -209,6 +243,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return value;
     }
 
+    public void changeDatabase(String changemachineID, String changemachineDate, String changemachineTime,
+                               String changemachineVx, String changemachineVy, String changemachineVz,
+                               String changemachineVelo, String changemachineTemp, String changemachineTS,
+                               String changemachineHud, String changemachineHour){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, null);
+
+        //Database is not empty
+        if (cursor.getCount() > 0)
+        {
+            Log.d(TAG, "Database not empty");
+            //Machine exist in database
+            if (findMachine(changemachineID) == true)
+            {
+                updateMachineDetail(changemachineID,changemachineDate,changemachineTime,changemachineVx,changemachineVy,changemachineVz,
+                        changemachineVelo,changemachineTemp,changemachineTS,changemachineHud,changemachineHour);
+            }
+            else
+            {
+                //Machine dont exist in database
+                addmachine(changemachineID,changemachineDate,changemachineTime,changemachineVx,changemachineVy,changemachineVz,
+                        changemachineVelo,changemachineTemp,changemachineTS,changemachineHud,changemachineHour);
+            }
+        }
+        //Database is empty
+        else
+        {
+            Log.d(TAG, "Database empty");
+            addmachine(changemachineID,changemachineDate,changemachineTime,changemachineVx,changemachineVy,changemachineVz,
+                    changemachineVelo,changemachineTemp,changemachineTS,changemachineHud,changemachineHour);
+        }
+    }
+
     // Get column
     public static String[] getColumns()
     { return columns;}
@@ -247,5 +314,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     {return MACHINESTATUS;}
     public String getMachineFavouriteStatus()
     {return MACHINEFAVOURITESTATUS;}
+    public String getMachineupdatedatetime()
+    {return MACHINEUPDATEDATETIME;}
 
 }

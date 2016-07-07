@@ -44,9 +44,6 @@ import java.util.List;
 public class HomeFragment extends Fragment {
 
     //Declare variables
-    String hmachineID = "";
-
-    //Declare variables
     String TAG = "Home Fragment";
     private TextView tvCrit, tvWarn, tvNorm, tvAll;
     private TextView tvCritLbl, tvWarnLbl, tvNormLbl, critBtn, warnBtn, normBtn, allBtn;
@@ -55,6 +52,7 @@ public class HomeFragment extends Fragment {
     final String CRITICAL = "Critical";
     final String WARNING = "Warning";
     final String NORMAL = "Normal";
+    String hmachineID = "";
     SharedPreferences RangeSharedPreferences;
     public static final String MyRangePREFERENCES = "MyRangePrefs" ;
     public static final String WarningTemperature = "warnTempKey";
@@ -69,8 +67,10 @@ public class HomeFragment extends Fragment {
     public String[] allCSVRecords;
 
     final ArrayList<Machine> myMachineList = new ArrayList<Machine>();
-    final ArrayList<Machine> myDatabaseList = new ArrayList<Machine>();
     private DatabaseHelper DbHelper;
+
+    //for testing
+    final ArrayList<Machine> myDatabaseList = new ArrayList<Machine>();
 
     public HomeFragment() {
         // Required empty public constructor
@@ -82,21 +82,6 @@ public class HomeFragment extends Fragment {
         v = inflater.inflate(R.layout.fragment_home, container, false);
 
         DbHelper = new DatabaseHelper(this.getActivity());
-
-        //Hardcode array
-//        Machine machine = new Machine("SDK001-M001-01-0001a","","","","","",   "0.03", "36.11", "","","50");
-//        Machine machine2 = new Machine("SDK221-M001-01-0001a","","","","","",  "2.44", "10.11", "","", "33");
-//        Machine machine3 = new Machine("SDK331-M001-01-0001a","","","","","",  "0.293", "20.11", "","", "53");
-//        Machine machine4 = new Machine("ADK444-M001-01-0001a","","","","","",  "9.22", "30.11", "","", "900");
-//        Machine machine5 = new Machine("SDK555-M001-01-0001a","","","","","",  "0.312", "40.11", "","", "6");
-//        Machine machine6 = new Machine("SDK166-M001-01-0001a","","","","","",  "0.922", "5.11", "","", "3");
-//
-//        myMachineList.add(machine);
-//        myMachineList.add(machine2);
-//        myMachineList.add(machine3);
-//        myMachineList.add(machine4);
-//        myMachineList.add(machine5);
-//        myMachineList.add(machine6);
 
         //Set variables
         tvCrit = (TextView) v.findViewById(R.id.critTxt);
@@ -137,6 +122,7 @@ public class HomeFragment extends Fragment {
         }
 
         progressDialog = new ProgressDialog(getActivity());
+
         //retrieve data
         getCSVData();
 
@@ -314,11 +300,9 @@ public class HomeFragment extends Fragment {
                 hmachineID = checkPriority();
 
 
-
-                checkDatabaseRecord();
-
-
-                seeValue();
+                //For testing
+                //checkDatabaseRecord();
+                //seeValue();
 
 
                 progressDialog.dismiss();
@@ -338,8 +322,6 @@ public class HomeFragment extends Fragment {
                 myMachineList.clear();
             }
 
-            checkForEmptyDatabase();
-
             String cleanupLatestRecords;
 
             //remove all unwanted symbols and text
@@ -355,8 +337,11 @@ public class HomeFragment extends Fragment {
                         latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],"22","","");
 
                 myMachineList.add(machine);
-                DbHelper.addmachine(latestRecords[9].replace(".csv",""),latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],
+
+                //Change database
+                DbHelper.changeDatabase(latestRecords[9].replace(".csv",""),latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],
                         latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],"22");
+
             }
 
             Log.d("cleanupLatestRecords: ", cleanupLatestRecords);
@@ -400,7 +385,6 @@ public class HomeFragment extends Fragment {
                 if (DbHelper.checkMachineState(machine.getMachineID(), NORMAL) == true)
                 {
                     noOfNorm--;
-                    Log.d("remove normal", String.valueOf(machine.getMachineID()));
                 }
 
                 //update warning state on the row
@@ -415,14 +399,12 @@ public class HomeFragment extends Fragment {
                 if (DbHelper.checkMachineState(machine.getMachineID(), NORMAL) == true)
                 {
                     noOfNorm--;
-                    Log.d("remove normal", String.valueOf(machine.getMachineID()));
                 }
 
                 ///check whether particular machine have warning state
                 if (DbHelper.checkMachineState(machine.getMachineID(), WARNING) == true)
                 {
                     noOfWarn--;
-                    Log.d("remove warning", String.valueOf(machine.getMachineID()));
                 }
 
 
@@ -542,22 +524,7 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void checkForEmptyDatabase()
-    {
-        SQLiteDatabase db = DbHelper.getWritableDatabase();
-        Cursor cursor = db.query(DbHelper.TABLE_NAME, null, null, null, null, null, null);
-
-        if (cursor.getCount() > 0)
-        {
-            Log.d(TAG, "Database not empty");
-            DbHelper.clearRows();
-        }
-        else
-        {
-            Log.d(TAG, "Database empty");
-        }
-    }
-
+    //For testing
     private void checkDatabaseRecord()
     {
         if (!(myDatabaseList.isEmpty()))
