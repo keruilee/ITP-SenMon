@@ -43,7 +43,7 @@ public class CustomAdapter extends ArrayAdapter<Machine> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         context = this.getContext();
-        Log.i("CustomAdapter", "test1");
+
         LayoutInflater inflater = LayoutInflater.from(getContext());
 
         View rowView = inflater.inflate(R.layout.custom_row, null, true);
@@ -59,7 +59,7 @@ public class CustomAdapter extends ArrayAdapter<Machine> {
         textViewVelo.setText(myMachine.getmachineVelo());
 
 
-        Log.i("CustomAdapter", "test2");
+
         tempvalue = Double.parseDouble(myMachine.getmachineTemp());
         velovalue = Double.parseDouble(myMachine.getmachineVelo());
 

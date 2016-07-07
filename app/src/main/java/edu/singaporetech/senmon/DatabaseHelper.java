@@ -163,6 +163,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    // update machine updated date time
+    public void updateMachineDateTime(String machineID, String machineUpdateDateTime) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(MACHINEUPDATEDATETIME, machineUpdateDateTime);
+        db.update(TABLE_NAME, cv, MACHINEID + "= ?", new String[] {machineID});
+        db.close();
+    }
+
+
+
     // find machine //
     public boolean findMachine (String findMachineID) {
 

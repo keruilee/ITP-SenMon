@@ -33,8 +33,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 
@@ -346,9 +348,10 @@ public class HomeFragment extends Fragment {
                 myMachineList.add(machine);
 
                 //Change database
-                DbHelper.changeDatabase(latestRecords[9].replace(".csv",""),latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],
-                        latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],"22");
-
+                DbHelper.changeDatabase(latestRecords[9].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
+                        latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], "22");
+                DbHelper.updateMachineDateTime(latestRecords[9].replace(".csv", ""), DateFormat.getDateTimeInstance().format(new Date()));
+                Log.d("cleanupLatestRecords: ", DbHelper.toString());
             }
 
             Log.d("cleanupLatestRecords: ", cleanupLatestRecords);
@@ -579,5 +582,7 @@ public class HomeFragment extends Fragment {
         Log.d("Number of row in db ", String.valueOf(DbHelper.getRowsCount()));
 
     }
+
+
 
 }

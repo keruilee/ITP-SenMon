@@ -24,11 +24,39 @@
             />
 
 
-    <ListView
-        android:layout_width="wrap_content"
-        android:layout_height="458dp"
-        android:id="@+id/ListView"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_below="@+id/line"/>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/line"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+        <TextView
+            android:text="Updated on: "
+            android:textSize="30px"
+            android:textStyle="bold"
+            android:layout_height="fill_parent"
+            android:layout_width="fill_parent"
+            android:id="@+id/textViewUpdateDateTime"
+            />
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefresh"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
+
+
+            <ListView
+                android:id="@+id/ListView"
+                android:layout_width="match_parent"
+                android:layout_height="223dp"
+                android:layout_below="@+id/textViewUpdateDateTime"
+                android:layout_gravity="left|top" />
+
+        </android.support.v4.widget.SwipeRefreshLayout>
+
+
+    </FrameLayout>
 
 </RelativeLayout>
