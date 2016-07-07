@@ -30,12 +30,17 @@ public class BackgroundService extends Service{
     public static final String WarningEnabled = "warningEnabledKey";
     public static final String CriticalEnabled = "criticalEnabledKey";
     public static final String FavNtfnOnly = "favNtfnOnlyKey";
+
+    public static final String NumberOfCritical = "numOfCrit";
+    public static final String NumberOfWarning = "numOfWarn";
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
 
     NotificationManager notificationManager;
     int WarnNotificID = 111;
+    int CritNotificID = 222;
     boolean isWarnNotificActive = false;
+    boolean isCritNotificActive = false;
 
     @Override
     public IBinder onBind(Intent intent){
@@ -57,84 +62,99 @@ public class BackgroundService extends Service{
             Log.d("LOG", "BACKGROUND IS RUNNING");
             sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 //            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+            //Declare variables
 
-            if(sharedPreferences.getBoolean(NotificationsEnabled,true)) {
-                Log.d("LOL", "SERVICE RECEIVED THE VARIABLE");
-                if (sharedPreferences.getBoolean(WarningEnabled, true)) {
-                    Log.d("LOL", "SERVICE RECEIVED THE WARNING ENABLED VARIABLE");
-                    NotificationCompat.Builder WarnNotificBuilder = (NotificationCompat.Builder) new
-                            NotificationCompat.Builder(context).setContentTitle("Attention!")
-                            .setContentText("Machine is in Warning State!")
-                            .setTicker("Machine needs attention!")
-                            .setSmallIcon(R.drawable.ic_warning_white_48dp)
-                            .setAutoCancel(true);
-                    Intent openIntent = new Intent(context, MainActivity.class);
+            int noOfCrit = sharedPreferences.getInt(NumberOfCritical, 0);
+            int noOfWarn = sharedPreferences.getInt(NumberOfWarning, 0);
 
-                    TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(context);
-                    taskStackBuilder.addParentStack(MainActivity.class);
-                    taskStackBuilder.addNextIntent(openIntent);
+            //if there is any machines in the warning state
 
-                    PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(0,
-                            PendingIntent.FLAG_UPDATE_CURRENT);
-/*
-                    //TODO fire off the notification for warning machines *temp holding place
-                    WarnNotificBuilder.setContentIntent(pendingIntent);
+            Log.d("NUMBER OF CRITICALS", "" + noOfCrit);
+            Log.d("NUMBER OF WARNINGS", "" + noOfWarn);
+            if (sharedPreferences.getBoolean(NotificationsEnabled, true)) {
+                if (noOfWarn > 0) {
+                    Log.d("LOL", "SERVICE RECEIVED THE VARIABLE");
+                    if (sharedPreferences.getBoolean(WarningEnabled, true)) {
+                        Log.d("LOL", "SERVICE RECEIVED THE WARNING ENABLED VARIABLE");
+                        NotificationCompat.Builder WarnNotificBuilder = (NotificationCompat.Builder) new
+                                NotificationCompat.Builder(context).setContentTitle("Attention!")
+                                .setContentText("There are " + noOfWarn + " Machine(s) in the Warning State!")
+                                .setSmallIcon(R.drawable.ic_warning_white_48dp)
+                                .setAutoCancel(true);
+                        Intent openIntent = new Intent(context, MainActivity.class);
+
+                        TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(context);
+                        taskStackBuilder.addParentStack(MainActivity.class);
+                        taskStackBuilder.addNextIntent(openIntent);
+
+                        PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(0,
+                                PendingIntent.FLAG_UPDATE_CURRENT);
+
+                        //TODO fire off the notification for warning machines *temp holding place
+                        WarnNotificBuilder.setContentIntent(pendingIntent);
 //
-                notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                notificationManager.notify(WarnNotificID, WarnNotificBuilder.build());
-                Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-                v.vibrate(800);
+                        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                        notificationManager.notify(WarnNotificID, WarnNotificBuilder.build());
+                        Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+                        v.vibrate(800);
 
-                try {
-                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                    Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
-                    r.play();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                        try {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
+                            r.play();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        isWarnNotificActive = true;
+
+                        //call the destroy method
+                        stopSelf();
+
+                    }
                 }
-                isWarnNotificActive = true;
-*/
-                    //call the destroy method
-                    stopSelf();
 
+
+                if (noOfCrit > 0) {
+                    //notifications for critical states
+////            //TODO build notifications for critical machines
+                    if (sharedPreferences.getBoolean(CriticalEnabled, true)) {
+                        Log.d("SHAREPREFERENCE", "SERVICE RECEIVED THE CRITICAL ENABLED VARIABLE");
+                        NotificationCompat.Builder CritNotificBuilder = (NotificationCompat.Builder) new
+                                NotificationCompat.Builder(context).setContentTitle("URGENT!")
+                                .setContentText("There are " + noOfCrit + " Machine(s) in Critical State!")
+                                .setSmallIcon(R.drawable.ic_cancel_white_48dp)
+                                .setAutoCancel(true);
+                        Intent openIntent = new Intent(context, MainActivity.class);
+
+                        TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(context);
+                        taskStackBuilder.addParentStack(MainActivity.class);
+                        taskStackBuilder.addNextIntent(openIntent);
+
+                        PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(0,
+                                PendingIntent.FLAG_UPDATE_CURRENT);
+
+//                     //TODO fire off the critical notification
+                        CritNotificBuilder.setContentIntent(pendingIntent);
+
+                        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                        notificationManager.notify(CritNotificID, CritNotificBuilder.build());
+                        Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+                        v.vibrate(1000);
+
+                        try {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
+                            r.play();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        isCritNotificActive = true;
+
+                        //call the destroy method
+                        stopSelf();
+                    }
                 }
             }
-
-////            //TODO build notifications for critical machines
-//            NotificationCompat.Builder CritNotificBuilder = (NotificationCompat.Builder) new
-//                    NotificationCompat.Builder(context).setContentTitle("Attention!")
-//                    .setContentText("Machine is in Critical State!")
-//                    .setTicker("Machine needs attention!")
-//                    .setSmallIcon(R.drawable.ic_cancel_white_48dp)
-//                    .setAutoCancel(true);
-//            Intent openIntent = new Intent(context, MainActivity.class);
-//
-//            TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(context);
-//            taskStackBuilder.addParentStack(MainActivity.class);
-//            taskStackBuilder.addNextIntent(openIntent);
-//
-//            PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(0,
-//                    PendingIntent.FLAG_UPDATE_CURRENT);
-//
-//            //TODO fire off the critical notification
-//            CritNotificBuilder.setContentIntent(pendingIntent);
-//
-//            notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-//            notificationManager.notify(CritNotificID, CritNotificBuilder.build());
-//            Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-//            v.vibrate(1000);
-//
-//            try {
-//                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-//                Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
-//                r.play();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//            isCritNotificActive = true;
-
-            //call the destroy method
-            stopSelf();
         }
     };
 

@@ -54,11 +54,18 @@ public class HomeFragment extends Fragment {
     final String NORMAL = "Normal";
     String hmachineID = "";
     SharedPreferences RangeSharedPreferences;
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
+    public static final String MyPREFERENCES = "MyPrefs" ;
     public static final String MyRangePREFERENCES = "MyRangePrefs" ;
     public static final String WarningTemperature = "warnTempKey";
     public static final String CriticalTemperature = "critTempKey";
     public static final String WarningVelocity = "warnVeloKey";
     public static final String CriticalVelocity = "critVeloKey";
+    public static final String NumberOfCritical = "numOfCrit";
+    public static final String NumberOfWarning = "numOfWarn";
+
+    public Context context;
 
     ProgressDialog progressDialog;
     JSONArray serverCSVrecords = null;
@@ -80,7 +87,7 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_home, container, false);
-
+        context = getContext();
         DbHelper = new DatabaseHelper(this.getActivity());
 
         //Set variables
@@ -416,11 +423,17 @@ public class HomeFragment extends Fragment {
 
 
         //Set to display number of machine for each button
+        sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         tvCrit.setText(noOfCrit + "/" + totalMachine + " " + getString(R.string.machine_name));
         tvWarn.setText(noOfWarn + "/" + totalMachine + " " + getString(R.string.machine_name));
         tvNorm.setText(noOfNorm + "/" + totalMachine + " " + getString(R.string.machine_name));
         tvAll.setText(totalMachine + " " + getString(R.string.machine_name));
 
+        //put number of crit and warning into shared preference
+        editor = sharedPreferences.edit();
+        editor.putInt(NumberOfCritical, noOfCrit);
+        editor.putInt(NumberOfWarning, noOfWarn);
+        editor.commit();
         //Set disabled of button
         disableButton(noOfCrit, noOfWarn, noOfNorm);
     }

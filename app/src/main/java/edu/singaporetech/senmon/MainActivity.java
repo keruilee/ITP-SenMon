@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity
     public static final String FavNtfnOnly = "favNtfnOnlyKey";
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
-    private Context context;
+    public Context context;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
