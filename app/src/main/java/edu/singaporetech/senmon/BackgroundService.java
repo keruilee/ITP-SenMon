@@ -121,7 +121,7 @@ public class BackgroundService extends Service{
                         Log.d("SHAREPREFERENCE", "SERVICE RECEIVED THE CRITICAL ENABLED VARIABLE");
                         NotificationCompat.Builder CritNotificBuilder = (NotificationCompat.Builder) new
                                 NotificationCompat.Builder(context).setContentTitle("URGENT!")
-                                .setContentText("There are " + noOfCrit + " Machine(s) in Critical State!")
+                                .setContentText("There are " + noOfCrit + " Machine(s) in the Critical State!")
                                 .setSmallIcon(R.drawable.ic_cancel_white_48dp)
                                 .setAutoCancel(true);
                         Intent openIntent = new Intent(context, MainActivity.class);

@@ -437,6 +437,7 @@ public class HomeFragment extends Fragment {
         editor.putInt(NumberOfCritical, noOfCrit);
         editor.putInt(NumberOfWarning, noOfWarn);
         editor.commit();
+
         //Set disabled of button
         disableButton(noOfCrit, noOfWarn, noOfNorm);
     }
