@@ -120,13 +120,8 @@ public class DetailsFragment extends Fragment {
             Log.i("WHAT IS in the bundle?" ,machineID );
         }
 
-        //database helper
-        //databaseHelper = new FavouriteDatabaseHelper(getContext());
-       // SQLiteDatabase db = databaseHelper.getReadableDatabase();
-
         // test for the new database helper
         testDatabasehelper = new DatabaseHelper((getContext()));
-
 
         //retrieve range values
         RangeSharedPreferences = getContext().getSharedPreferences(MyRangePREFERENCES, Context.MODE_PRIVATE);
@@ -140,23 +135,31 @@ public class DetailsFragment extends Fragment {
         //call compute time
         //time = computeTime(startDate,endDate);
 
+
+        String check = checkEventForDataBaseHelperFavourite(machineID);
+
+
     // to checked what is the favourite status , yes or no , if yes , set the star as higlighted
-        if (checkEventForDataBaseHelperFavourite(machineID) == "no")
+        if (check.equalsIgnoreCase("no"))
         {
             //tvDFavourite.setText("Click to favourite");
             tvDNoFavourite.setVisibility(View.VISIBLE);
             tvDFavourite.setVisibility(View.INVISIBLE);
+            Log.i("status no?",checkEventForDataBaseHelperFavourite(machineID) );
         }
-        else if (checkEventForDataBaseHelperFavourite(machineID) == "yes")
+        else if (check.equalsIgnoreCase("yes"))
         {
             //tvDFavourite.setText("Click to unfavourite");
-            tvDFavourite.setVisibility(View.VISIBLE);
             tvDNoFavourite.setVisibility(View.INVISIBLE);
+            tvDFavourite.setVisibility(View.VISIBLE);
+            Log.i("status yes?", checkEventForDataBaseHelperFavourite(machineID));
+
         }
-        else if (checkEventForDataBaseHelperFavourite(machineID) == "not found")
+        else
         {
             tvDNoFavourite.setVisibility(View.VISIBLE);
             tvDFavourite.setVisibility(View.INVISIBLE);
+            Log.i("status no found?", checkEventForDataBaseHelperFavourite(machineID));
 
             ContentValues values = new ContentValues();
             SQLiteDatabase testDb = testDatabasehelper.getWritableDatabase();
@@ -452,22 +455,7 @@ public class DetailsFragment extends Fragment {
         return timediff;
     }
 
-/*    // to check if the machineID has already stored in the databasehelper
-    public boolean checkEvent(String machineID) {
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
-        String queryString = "SELECT * FROM FavouriteTable WHERE machine = '" + machineID + "'";
-        Cursor c = db.rawQuery(queryString, null);
-        if (c.getCount() > 0) {
-            Log.i("CHECK", "true , found in the database");
-            return true;
-        } else {
-            Log.i("CHECK", "false, not found in the database");
-            return false;
-        }
-
-    }*/
-    //
     public String checkEventForDataBaseHelperFavourite(String machineID) {
         SQLiteDatabase db = testDatabasehelper.getWritableDatabase();
         String statusForFavoruite;
