@@ -33,6 +33,7 @@ public class BackgroundService extends Service{
 
     public static final String NumberOfCritical = "numOfCrit";
     public static final String NumberOfWarning = "numOfWarn";
+    public static final String NumberOfFavourite = "numOfFav";
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
 
@@ -154,6 +155,9 @@ public class BackgroundService extends Service{
                         stopSelf();
                     }
                 }
+            }
+            if(sharedPreferences.getBoolean(FavNtfnOnly,true)){
+                Log.d("Favourite Notific", "ENABLED");
             }
         }
     };

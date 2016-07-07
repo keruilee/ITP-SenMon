@@ -2,7 +2,9 @@ package edu.singaporetech.senmon;
 
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.nfc.Tag;
@@ -47,6 +49,13 @@ public class FavouriteFragment extends Fragment {
     private FavouriteDatabaseHelper databaseHelper;
     public DatabaseHelper mydatabaseHelper ;
 
+    public Context context;
+
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
+    public static final String MyPREFERENCES = "MyPrefs" ;
+
+    public static final String NumberOfFavourite = "numOfFav";
 
     CustomAdapter adapter;
 
@@ -82,7 +91,7 @@ public class FavouriteFragment extends Fragment {
                              Bundle savedInstanceState) {
         myFavouriteMachineList.clear();
         View rootView = inflater.inflate(R.layout.fragment_favourite, container, false);
-
+        context = getContext();
         // Retrieve the SwipeRefreshLayout and ListView instances
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefresh);
         updateDateTime= (TextView) rootView.findViewById(R.id.textViewUpdateDateTime);
@@ -297,6 +306,8 @@ public class FavouriteFragment extends Fragment {
         myFavouriteMachineList.clear();
         Cursor c = FavouriteList();
         String statusForFavo;
+//        int numOfFav = 0;
+//        Log.d("NUMBER OF FAVOURITES", "ZER0");
         if (c.moveToFirst()) {
             do {
                 statusForFavo = c.getString(c.getColumnIndex("machineFavouriteStatus"));
@@ -306,10 +317,19 @@ public class FavouriteFragment extends Fragment {
                             c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
                             c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
                     myFavouriteMachineList.add(machineFavourite);
+//                    numOfFav++;
 
                 }
                 updateDateTime.setText("Updated on " + c.getString(14));
             } while (c.moveToNext());
         }
+//        Log.d("NUMBER OF FAVOURITES", "ZER0");
+//        if(numOfFav > 0) {
+//            Log.d("NUMBER OF FAVOURITES", ""+numOfFav);
+//            sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+//            editor = sharedPreferences.edit();
+//            editor.putInt(NumberOfFavourite, numOfFav);
+//            editor.commit();
+//        }
     }
 }

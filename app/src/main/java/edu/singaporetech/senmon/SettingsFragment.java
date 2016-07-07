@@ -14,6 +14,7 @@ import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.NotificationCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,7 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
     public static final String WarningEnabled = "warningEnabledKey";
     public static final String CriticalEnabled = "criticalEnabledKey";
     public static final String FavNtfnOnly = "favNtfnOnlyKey";
+    public static final String NumberOfFavourite = "numOfFav";
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
 
@@ -42,13 +44,7 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
     Button editRangeBtn;
 
     NotificationManager notificationManager;
-    int WarnNotificID = 111;
-    int CritNotificID = 222;
-    int FavNotificID = 333;
 
-    boolean isWarnNotificActive = false;
-    boolean isCritNotificActive = false;
-    boolean isFavNotificActive = false;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -77,8 +73,9 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
         ntfnCriticalSw.setOnCheckedChangeListener(SettingsFragment.this);
         ntfnFavSw.setOnCheckedChangeListener(SettingsFragment.this);
 
-        sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-
+//        sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+//        int noOfFave = sharedPreferences.getInt(NumberOfFavourite,0);
+//        Log.d("SHARED NUMBER OF FAV", ""+noOfFave);
         favExists = favouriteExists();
         if(!favExists)                      // by default fav notifications switch is enabled
             ntfnFavSw.setEnabled(false);
@@ -159,10 +156,6 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
                 }
                 else {
                     editor.putBoolean(CriticalEnabled, false);
-                    //TODO if the switch is off then cancel notifications
-                    if(isCritNotificActive){
-                        notificationManager.cancel(CritNotificID);
-                    }
                 }
 
                 break;
@@ -182,14 +175,16 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
 
     public boolean favouriteExists() {
         // to return all records in the form of a Cursor object
-        FavouriteDatabaseHelper favDatabase = new FavouriteDatabaseHelper(getActivity());;
+        FavouriteDatabaseHelper favDatabase = new FavouriteDatabaseHelper(getActivity());
         int count = (int) favDatabase.getRowsCount();
         if(count == 0) {            // no fav machine
+            Log.d("FAAVOURITE COUNT", count+"");
             editor = sharedPreferences.edit();
             editor.putBoolean(FavNtfnOnly, false);          // update shared preference to disable alert fav only
             editor.commit();
             return false;
         }
+        Log.d("FAAVOURITE COUNT", count+"");
         return true;
     }
 
