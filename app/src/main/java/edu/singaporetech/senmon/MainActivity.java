@@ -150,23 +150,47 @@ public class MainActivity extends AppCompatActivity
         //link to critical machine
         else if (id == R.id.nav_critical) {
 
+            ListFragment list = new ListFragment();
+            //using Bundle to send data
+            Bundle bundle = new Bundle();
+            bundle.putString("name", "Critical");
+            list.setArguments(bundle); //data being send to MachineListFragment
+            FragmentManager manager = getSupportFragmentManager();
+            manager.beginTransaction().replace(R.id.relativelayoutfor_fragment, list).addToBackStack(null).commit();
 
         }
         //link to warning machine
         else if (id == R.id.nav_warning) {
 
+            ListFragment list = new ListFragment();
+            //using Bundle to send data
+            Bundle bundle = new Bundle();
+            bundle.putString("name", "Warning");
+            list.setArguments(bundle); //data being send to MachineListFragment
+            FragmentManager manager = getSupportFragmentManager();
+            manager.beginTransaction().replace(R.id.relativelayoutfor_fragment, list).addToBackStack(null).commit();
+
         }
         //link to normal machine
         else if (id == R.id.nav_normal) {
+            ListFragment list = new ListFragment();
+            //using Bundle to send data
+            Bundle bundle = new Bundle();
+            bundle.putString("name", "Normal");
+            list.setArguments(bundle); //data being send to MachineListFragment
+            FragmentManager manager = getSupportFragmentManager();
+            manager.beginTransaction().replace(R.id.relativelayoutfor_fragment, list).addToBackStack(null).commit();
 
         }
         //link to all machine
         else if (id == R.id.nav_all) {
-            ListFragment myListFragment = new ListFragment();
-            FragmentManager myManager = getSupportFragmentManager();
-            Toast toast = Toast.makeText(getApplicationContext(), "List!", Toast.LENGTH_SHORT);
-            toast.show();
-            myManager.beginTransaction().replace(R.id.relativelayoutfor_fragment, myListFragment).addToBackStack(null).commit();
+            ListFragment list = new ListFragment();
+            //using Bundle to send data
+            Bundle bundle = new Bundle();
+            bundle.putString("name", "All");
+            list.setArguments(bundle); //data being send to MachineListFragment
+            FragmentManager manager = getSupportFragmentManager();
+            manager.beginTransaction().replace(R.id.relativelayoutfor_fragment, list).addToBackStack(null).commit();
         }
         //link to setting
         else if (id == R.id.nav_settings) {

@@ -71,7 +71,8 @@ public class ListFragment extends Fragment {
     CustomAdapter adapter;
 
     public ArrayList<Machine> myMachineList = new ArrayList<Machine>();
-    public ArrayList<String> machineArray = new ArrayList<String>();
+    //public ArrayList<String> machineArray = new ArrayList<String>();
+    String status = "";
 
     ProgressDialog progressDialog;
     JSONArray serverCSVrecords = null;
@@ -120,112 +121,92 @@ public class ListFragment extends Fragment {
         Bundle bundle = getArguments();
         if (bundle != null) {
             //Log.i(TAG + " Machine Name ", String.valueOf(bundle.getStringArrayList("name")));
-            machineArray.add(String.valueOf(bundle.getString("name")));
+            //machineArray.add(String.valueOf(bundle.getString("name")));
+            status = String.valueOf(bundle.getString("name"));
+            Log.i("TEST", status);
         }
 
 
         /////////////////// take out the data from databasehelper///////////////////////
         mydatabaseHelper = new DatabaseHelper(getActivity());
-        Cursor c = FavouriteList();
         myMachineList.clear();
+        if (status.equalsIgnoreCase("all"))
+        {
+            Log.d("LF All" ,"all");
+           myMachineList = mydatabaseHelper.returnStringMachineAllString();
+        }
+        else {
+            Log.d("All", "not all");
+            myMachineList = mydatabaseHelper.returnStringMachineStateString(status);
+        }
 
-        if (c.moveToFirst()) {
-            do {
-                    Machine machineFavourite = new Machine(c.getString(1), c.getString(2), c.getString(3),
-                            c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
-                            c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
-                    myMachineList.add(machineFavourite);
-                updateDateTime.setText("Updated on " + c.getString(14));
-
-            } while (c.moveToNext());
-
-        }c.close();
-
-
-        // set up list with listadapter
-        listViewListing = (ListView) rootView.findViewById(R.id.ListView);
-        adapter = new CustomAdapter(getActivity(), R.layout.fragment_list, myMachineList);
-        listViewListing.setAdapter(adapter);
-
-        //////////////////swipe///////////////
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
-                progressDialog = new ProgressDialog(getActivity());
-                myMachineList.clear();
-                getCSVData();
-
-            }
-        });
-        ////// when click on the item   //////////////////////
-        listViewListing.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ViewGroup viewgrp = (ViewGroup) view;
-                TextView intentMachineID = (TextView) viewgrp.findViewById(R.id.textViewmachineid);
-                TextView intentTemp = (TextView) viewgrp.findViewById(R.id.textViewTemp);
-                TextView intentVelo = (TextView) viewgrp.findViewById(R.id.textViewVelocity);
-
-                DetailsFragment details = new DetailsFragment();
-                //using Bundle to send data
-                Bundle bundle = new Bundle();
-                bundle.putString("name", intentMachineID.getText().toString());
-                details.setArguments(bundle); //data being send to MachineListFragment
-                //Edited by kerui
-                FragmentManager fragmentManager = getFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.replace(R.id.relativelayoutfor_fragment, details);
-                transaction.addToBackStack(null);
-                transaction.commit();
-            }
-        });
-
-        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                Log.e("TAG", "on tab selected");
-                selectedTab = tabLayout.getSelectedTabPosition();
-                updateList();
+            for (Machine m : myMachineList) {
+                Log.d("hahaah", m.getMachineID());
             }
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
+            // set up list with listadapter
+            listViewListing = (ListView) rootView.findViewById(R.id.ListView);
+            adapter = new CustomAdapter(getActivity(), R.layout.fragment_list, myMachineList);
+            listViewListing.setAdapter(adapter);
 
-            }
+            //////////////////swipe///////////////
+            mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
+                    progressDialog = new ProgressDialog(getActivity());
+                    myMachineList.clear();
+                    getCSVData();
 
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
+                }
+            });
+            ////// when click on the item   //////////////////////
+            listViewListing.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    ViewGroup viewgrp = (ViewGroup) view;
+                    TextView intentMachineID = (TextView) viewgrp.findViewById(R.id.textViewmachineid);
+                    TextView intentTemp = (TextView) viewgrp.findViewById(R.id.textViewTemp);
+                    TextView intentVelo = (TextView) viewgrp.findViewById(R.id.textViewVelocity);
 
-            }
-        });
+                    DetailsFragment details = new DetailsFragment();
+                    //using Bundle to send data
+                    Bundle bundle = new Bundle();
+                    bundle.putString("name", intentMachineID.getText().toString());
+                    details.setArguments(bundle); //data being send to MachineListFragment
+                    //Edited by kerui
+                    FragmentManager fragmentManager = getFragmentManager();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    transaction.replace(R.id.relativelayoutfor_fragment, details);
+                    transaction.addToBackStack(null);
+                    transaction.commit();
+                }
+            });
 
+            tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    Log.e("TAG", "on tab selected");
+                    selectedTab = tabLayout.getSelectedTabPosition();
+                    updateList();
+                }
+
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
+
+                }
+
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
+
+                }
+            });
 
 
         return rootView;
     }
 
-    //
-    @Override
-    public void onResume() {
-        Log.e("DEBUG", "onResume of LoginFragment");
 
-        super.onResume();
-        myMachineList.clear();
-        Cursor c = FavouriteList();
-        if (c.moveToFirst()) {
-            do {
-                Machine machineFavourite = new Machine(c.getString(1), c.getString(2), c.getString(3),
-                        c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
-                        c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
-                myMachineList.add(machineFavourite);
-                updateDateTime.setText("Updated on " + c.getString(14));
-
-            } while (c.moveToNext());
-
-        }c.close();
-
-    }
 
          ///////// To update the tab when the user select///////////////
     public void updateList() {

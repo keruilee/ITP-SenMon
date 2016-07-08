@@ -287,6 +287,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    // Find machine in a particular state in database //
+    public ArrayList <Machine> returnStringMachineStateString(String machineStatus) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList <Machine> machineString = new ArrayList<Machine>();
+
+        Cursor c = db.query(TABLE_NAME, columns,
+               MACHINESTATUS + " = ?",
+                new String[] {  machineStatus }, null,null,null);
+        // looping through if exist
+        if (c.moveToFirst()) {
+            do {
+                Machine machineStringObj  = new Machine(c.getString(1), c.getString(2), c.getString(3),
+                        c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
+                        c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
+                machineString.add(machineStringObj);
+
+            } while (c.moveToNext());
+        }
+        return machineString;
+
+    }
+    public ArrayList <Machine> returnStringMachineAllString() {
+        ArrayList <Machine> machineString = new ArrayList<Machine>();
+
+        // Select All Query
+        String selectQuery = "SELECT * FROM " + TABLE_NAME;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        // looping through all rows and adding to mydatabaselist
+        if (cursor.moveToFirst()) {
+            do {
+                Machine machineStringObj = new Machine(cursor.getString(1),cursor.getString(2),cursor.getString(3),
+                        cursor.getString(4),cursor.getString(5),cursor.getString(6),cursor.getString(7),cursor.getString(8),
+                        cursor.getString(9),cursor.getString(10),cursor.getString(11),cursor.getString(12),cursor.getString(13));
+                machineString.add(machineStringObj);
+            } while (cursor.moveToNext());
+        }
+        return machineString;
+    }
+
     // Get column
     public static String[] getColumns()
     { return columns;}
