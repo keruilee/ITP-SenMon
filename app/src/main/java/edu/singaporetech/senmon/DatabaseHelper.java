@@ -293,11 +293,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ArrayList <Machine> machineString = new ArrayList<Machine>();
 
         Cursor c = db.query(TABLE_NAME, columns,
-               MACHINESTATUS + " = ?",
-                new String[] {  machineStatus }, null,null,null);
+                MACHINESTATUS + " = ?",
+                new String[]{machineStatus}, null, null, null);
         // looping through if exist
         if (c.moveToFirst()) {
             do {
+                Log.d(TAG, c.getString(1) + "" + c.getString(12));
                 Machine machineStringObj  = new Machine(c.getString(1), c.getString(2), c.getString(3),
                         c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
                         c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
@@ -308,6 +309,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return machineString;
 
     }
+
+    /////////// return favourite string///////////
+
+    // Find machine in a particular state in database //
+    public ArrayList <Machine> returnFavourite() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList <Machine> machineString = new ArrayList<Machine>();
+
+
+        String selectQuery = "SELECT * FROM " + TABLE_NAME + " WHERE machineFavouriteStatus = 'yes'";
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        // looping through if exist
+        if (c.moveToFirst()) {
+            do {
+                Log.d(TAG, c.getString(1) + "" + c.getString(12));
+                Machine machineStringObj  = new Machine(c.getString(1), c.getString(2), c.getString(3),
+                        c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
+                        c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
+                machineString.add(machineStringObj);
+
+            } while (c.moveToNext());
+        }
+        return machineString;
+
+    }
+
+
+
     public ArrayList <Machine> returnStringMachineAllString() {
         ArrayList <Machine> machineString = new ArrayList<Machine>();
 

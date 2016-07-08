@@ -4,6 +4,7 @@ package edu.singaporetech.senmon;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.database.DataSetObserver;
@@ -64,13 +65,26 @@ public class ListFragment extends Fragment {
 
     String TAG = "List Fragment";
     Context context;
+    String tempWarningValue, tempCriticalValue, veloWarningValue, veloCriticalValue;
+    SharedPreferences RangeSharedPreferences;
+    SharedPreferences DateTimeSharedPreferences;
+    SharedPreferences.Editor editor;
 
-    private static final String TAG_RESULTS="result";
+    public static final String MyPREFERENCES = "MyPrefs";
+    public static final String MyRangePREFERENCES = "MyRangePrefs";
+    public static final String WarningTemperature = "warnTempKey";
+    public static final String CriticalTemperature = "critTempKey";
+    public static final String WarningVelocity = "warnVeloKey";
+    public static final String CriticalVelocity = "critVeloKey";
+
+
+    private static final String TAG_RESULTS = "result";
 
     ListView listViewListing;
     CustomAdapter adapter;
 
     public ArrayList<Machine> myMachineList = new ArrayList<Machine>();
+    public ArrayList<Machine> myTempoMachineList = new ArrayList<Machine>();
     //public ArrayList<String> machineArray = new ArrayList<String>();
     public String status = "";
 
@@ -87,12 +101,12 @@ public class ListFragment extends Fragment {
 
     // for date time
     TextView updateDateTime;
-
+    String dateTime;
     //For the sorting tab
     private TabLayout tabLayout;
 
     // for database helper
-    public DatabaseHelper mydatabaseHelper ;
+    public DatabaseHelper mydatabaseHelper;
 
     public ListFragment() {
     }
@@ -114,7 +128,7 @@ public class ListFragment extends Fragment {
 
         // Retrieve the SwipeRefreshLayout and ListView instances
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefresh);
-        updateDateTime= (TextView) rootView.findViewById(R.id.textViewUpdateDateTime);
+        updateDateTime = (TextView) rootView.findViewById(R.id.textViewUpdateDateTime);
 
 
         //retrieving data using bundle
@@ -126,95 +140,105 @@ public class ListFragment extends Fragment {
             Log.i("TEST", status);
         }
 
+        /////////////////retrieve range values ////////////
+        RangeSharedPreferences = getContext().getSharedPreferences(MyRangePREFERENCES, Context.MODE_PRIVATE);
+
+        //reload the value from the shared preferences and display it
+        tempWarningValue = RangeSharedPreferences.getString(WarningTemperature, String.valueOf(Double.parseDouble(getString(R.string.temp_warning_value))));
+        tempCriticalValue = RangeSharedPreferences.getString(CriticalTemperature, String.valueOf(Double.parseDouble(getString(R.string.temp_critical_value))));
+        veloWarningValue = RangeSharedPreferences.getString(WarningVelocity, String.valueOf(Double.parseDouble(getString(R.string.velo_warning_value))));
+        veloCriticalValue = RangeSharedPreferences.getString(CriticalVelocity, String.valueOf(Double.parseDouble(getString(R.string.velo_critical_value))));
+
+        ////////////////////////Retrived datatime sharef pref///////////////////////
+
+        DateTimeSharedPreferences = getContext().getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
+        dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
+        updateDateTime.setText("Updated on :"+dateTime);
+
 
         /////////////////// take out the data from databasehelper///////////////////////
         mydatabaseHelper = new DatabaseHelper(getActivity());
         myMachineList.clear();
-        if (status.equalsIgnoreCase("all"))
-        {
-            Log.d("LF All" ,"all");
-           myMachineList = mydatabaseHelper.returnStringMachineAllString();
-        }
-        else {
+        if (status.equalsIgnoreCase("all")) {
+            Log.d("LF All", "all");
+            myMachineList = mydatabaseHelper.returnStringMachineAllString();
+        } else {
             Log.d("All", "not all");
             myMachineList = mydatabaseHelper.returnStringMachineStateString(status);
         }
 
-            for (Machine m : myMachineList) {
-                Log.d("hahaah", m.getMachineID());
+        for (Machine m : myMachineList) {
+            Log.d("hahaah?", m.getMachineID());
+        }
+
+        // set up list with listadapter
+        listViewListing = (ListView) rootView.findViewById(R.id.ListView);
+        adapter = new CustomAdapter(getActivity(), R.layout.fragment_list, myMachineList);
+        listViewListing.setAdapter(adapter);
+
+        //////////////////swipe///////////////
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
+                Log.i("REFRESH", "what bundle?" + status);
+                progressDialog = new ProgressDialog(getActivity());
+                getCSVData();
+                Log.i("REFRESH", "what bundle? After" + status);
+
+            }
+        });
+
+        ////// when click on the item   //////////////////////
+        listViewListing.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ViewGroup viewgrp = (ViewGroup) view;
+                TextView intentMachineID = (TextView) viewgrp.findViewById(R.id.textViewmachineid);
+                TextView intentTemp = (TextView) viewgrp.findViewById(R.id.textViewTemp);
+                TextView intentVelo = (TextView) viewgrp.findViewById(R.id.textViewVelocity);
+
+                DetailsFragment details = new DetailsFragment();
+                //using Bundle to send data
+                Bundle bundle = new Bundle();
+                bundle.putString("name", intentMachineID.getText().toString());
+                details.setArguments(bundle); //data being send to MachineListFragment
+                //Edited by kerui
+                FragmentManager fragmentManager = getFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(R.id.relativelayoutfor_fragment, details);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+        });
+
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                Log.e("TAG", "on tab selected");
+                selectedTab = tabLayout.getSelectedTabPosition();
+                updateList();
             }
 
-            // set up list with listadapter
-            listViewListing = (ListView) rootView.findViewById(R.id.ListView);
-            adapter = new CustomAdapter(getActivity(), R.layout.fragment_list, myMachineList);
-            listViewListing.setAdapter(adapter);
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
 
-            //////////////////swipe///////////////
-            mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
-                    Log.i("REFRESH", "what bundle?" + status);
-                    progressDialog = new ProgressDialog(getActivity());
-                    myMachineList.clear();
-                    getCSVData();
-                    Log.i("REFRESH", "what bundle? After" + status);
+            }
 
-                }
-            });
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
 
-            ////// when click on the item   //////////////////////
-            listViewListing.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    ViewGroup viewgrp = (ViewGroup) view;
-                    TextView intentMachineID = (TextView) viewgrp.findViewById(R.id.textViewmachineid);
-                    TextView intentTemp = (TextView) viewgrp.findViewById(R.id.textViewTemp);
-                    TextView intentVelo = (TextView) viewgrp.findViewById(R.id.textViewVelocity);
-
-                    DetailsFragment details = new DetailsFragment();
-                    //using Bundle to send data
-                    Bundle bundle = new Bundle();
-                    bundle.putString("name", intentMachineID.getText().toString());
-                    details.setArguments(bundle); //data being send to MachineListFragment
-                    //Edited by kerui
-                    FragmentManager fragmentManager = getFragmentManager();
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    transaction.replace(R.id.relativelayoutfor_fragment, details);
-                    transaction.addToBackStack(null);
-                    transaction.commit();
-                }
-            });
-
-            tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-                @Override
-                public void onTabSelected(TabLayout.Tab tab) {
-                    Log.e("TAG", "on tab selected");
-                    selectedTab = tabLayout.getSelectedTabPosition();
-                    updateList();
-                }
-
-                @Override
-                public void onTabUnselected(TabLayout.Tab tab) {
-
-                }
-
-                @Override
-                public void onTabReselected(TabLayout.Tab tab) {
-
-                }
-            });
+            }
+        });
 
 
         return rootView;
     }
 
 
-
-         ///////// To update the tab when the user select///////////////
+    ///////// To update the tab when the user select///////////////
     public void updateList() {
-        switch(selectedTab)
-        {
+        switch (selectedTab) {
             case 0:
                 Log.i("SWITCH", "0 , Sort machine id");
                 Collections.sort(myMachineList, new Comparator<Machine>() {
@@ -253,18 +277,9 @@ public class ListFragment extends Fragment {
     }
 
 
-    public Cursor FavouriteList() {
-        // to return all records in the form of a Cursor object
-        SQLiteDatabase db = mydatabaseHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("Select * from " + mydatabaseHelper.getTableName(), null);
-        Log.i("Cursor", "Cursor");
-        return cursor;
-    }
-
-
     ////////////////////////update the list///////////////////////////
 
-    public void getCSVData(){
+    public void getCSVData() {
         class GetCSVDataJSON extends AsyncTask<Void, Void, JSONObject> {
 
             URL encodedUrl;
@@ -310,15 +325,17 @@ public class ListFragment extends Fragment {
                     e.printStackTrace();
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }finally {
+                } finally {
                     urlConnection.disconnect();
                 }
                 return responseObj;
             }
+
             @Override
-            protected void onPostExecute(JSONObject result){
+            protected void onPostExecute(JSONObject result) {
                 super.onPostExecute(result);
                 getCSVRecords(result);
+                computeMachineState();
                 updateList();                   // display list with sorted values
                 progressDialog.dismiss();
 
@@ -332,31 +349,30 @@ public class ListFragment extends Fragment {
     }
 
     //Get the server CSV records
-    public void getCSVRecords(JSONObject jsonObj)
-    {
+    public void getCSVRecords(JSONObject jsonObj) {
         try {
             serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);
-            myMachineList.clear();
+            myTempoMachineList.clear();
+
 
             String cleanupLatestRecords;
             //remove all unwanted symbols and text
-            cleanupLatestRecords = serverCSVrecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"","").replace("]","");
+            cleanupLatestRecords = serverCSVrecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"", "").replace("]", "");
             //split different csv records, the ending of each csv record list is machineID.csv
             allCSVRecords = cleanupLatestRecords.split(".csv,");
             //loop through each csv and get the latest records and split each field
-            for(String record : allCSVRecords)
-            {
+            for (String record : allCSVRecords) {
                 latestRecords = record.split(",");
-
-/*
+                //Change database
                 Machine machine = new Machine(latestRecords[9].replace(".csv",""),latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],
                         latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],"22","","");
 
-                myMachineList.add(machine);
-*/
-                //Change database
+                myTempoMachineList.add(machine);
                 mydatabaseHelper.changeDatabase(latestRecords[9].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
                         latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], "22");
+
+                Log.i("VELO",latestRecords[8]);
+                Log.i("TEMP" , latestRecords[7]);
                 mydatabaseHelper.updateMachineDateTime(latestRecords[9].replace(".csv", ""), DateFormat.getDateTimeInstance().format(new Date()));
 
             }
@@ -369,20 +385,43 @@ public class ListFragment extends Fragment {
             e.printStackTrace();
         }
 
-        myMachineList.clear();
-        Cursor c = FavouriteList();
-        if (c.moveToFirst()) {
-            do {
-                Machine machineFavourite = new Machine(c.getString(1), c.getString(2), c.getString(3),
-                        c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
-                        c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
-                myMachineList.add(machineFavourite);
-                updateDateTime.setText("Updated on " + c.getString(14));
+    }
 
-            } while (c.moveToNext());
+    //Computation of machines in each state
+    private void computeMachineState() {
+        editor = DateTimeSharedPreferences.edit();
+        editor.putString("DT_PREFS_KEY", DateFormat.getDateTimeInstance().format(new Date()));
 
-        }c.close();
+        editor.commit();
+        dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
+        updateDateTime.setText("Updated on :"+dateTime);
 
+        Log.d(" computeMachine", "testing");
+        for(Machine machine : myTempoMachineList)
+        {
+        //normal machine
+        if (Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempWarningValue)) {
+            if (Double.parseDouble(machine.getmachineVelo()) < Double.parseDouble(veloWarningValue)) {
+                mydatabaseHelper.updateMachineState(machine.getMachineID(), "Normal");
+            }
+            else if (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(veloCriticalValue)) {
+                mydatabaseHelper.updateMachineState(machine.getMachineID(), "Critical");
+            }
+            else {
+                mydatabaseHelper.updateMachineState(machine.getMachineID(), "Warning");
+            }
         }
+        else if (Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempWarningValue) & Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempCriticalValue)) {
+            if (Double.parseDouble(machine.getmachineVelo()) < Double.parseDouble(veloCriticalValue)) {
+                mydatabaseHelper.updateMachineState(machine.getMachineID(), "Critical");
+            }
+            else if (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(veloCriticalValue)) {
+                mydatabaseHelper.updateMachineState(machine.getMachineID(), "Warning");
+            }
+        }
+        else if (Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempCriticalValue)){
+            mydatabaseHelper.updateMachineState(machine.getMachineID(), "Critical");
 
+    }
+        }}
 }

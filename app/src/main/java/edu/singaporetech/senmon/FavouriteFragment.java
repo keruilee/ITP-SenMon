@@ -50,9 +50,11 @@ public class FavouriteFragment extends Fragment {
     public DatabaseHelper mydatabaseHelper ;
 
     public Context context;
-
-    SharedPreferences sharedPreferences;
+    SharedPreferences DateTimeSharedPreferences;
     SharedPreferences.Editor editor;
+    SharedPreferences sharedPreferences;
+    String dateTime;
+
     public static final String MyPREFERENCES = "MyPrefs" ;
 
     public static final String NumberOfFavourite = "numOfFav";
@@ -60,8 +62,7 @@ public class FavouriteFragment extends Fragment {
     CustomAdapter adapter;
 
     ArrayList<Machine> myFavouriteMachineList = new ArrayList<Machine>();
-
-
+    ArrayList<Machine> myTempoMachineList = new ArrayList<Machine>();
     private static final String TAG_RESULTS="result";
     ProgressDialog progressDialog;
     JSONArray serverCSVrecords = null;
@@ -108,10 +109,14 @@ public class FavouriteFragment extends Fragment {
                     Machine machineFavourite = new Machine(c.getString(1), c.getString(2), c.getString(3),
                             c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
                             c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
-                    updateDateTime.setText("Updated on " + c.getString(14));
+
                     myFavouriteMachineList.add(machineFavourite);
                 }
-                updateDateTime.setText("Updated on " + c.getString(14));
+
+                DateTimeSharedPreferences = getContext().getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
+                dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
+                updateDateTime.setText("Updated on :"+dateTime);
+
             } while (c.moveToNext());
 
         }c.close();
@@ -178,7 +183,7 @@ public class FavouriteFragment extends Fragment {
                     myFavouriteMachineList.add(machineFavourite);
 
                 }
-                updateDateTime.setText("Updated on " + c.getString(14));
+
             } while (c.moveToNext());
 
         }c.close();
@@ -264,29 +269,24 @@ public class FavouriteFragment extends Fragment {
     }
 
     //Get the server CSV records
-    public void getCSVRecords(JSONObject jsonObj)
-    {
+    public void getCSVRecords(JSONObject jsonObj) {
         try {
             serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);
             myFavouriteMachineList.clear();
 
             String cleanupLatestRecords;
             //remove all unwanted symbols and text
-            cleanupLatestRecords = serverCSVrecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"","").replace("]","");
+            cleanupLatestRecords = serverCSVrecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"", "").replace("]", "");
             //split different csv records, the ending of each csv record list is machineID.csv
             allCSVRecords = cleanupLatestRecords.split(".csv,");
             //loop through each csv and get the latest records and split each field
-            for(String record : allCSVRecords)
-            {
+            for (String record : allCSVRecords) {
                 latestRecords = record.split(",");
 
-/*
-                Machine machine = new Machine(latestRecords[9].replace(".csv",""),latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],
-                        latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],"22","","");
+                Machine machine = new Machine(latestRecords[9].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
+                        latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], "22", "", "");
 
-                myMachineList.add(machine);
-*/
-
+                myTempoMachineList.add(machine);
                 //Change database
                 mydatabaseHelper.changeDatabase(latestRecords[9].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
                         latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], "22");
@@ -308,6 +308,15 @@ public class FavouriteFragment extends Fragment {
         String statusForFavo;
 //        int numOfFav = 0;
 //        Log.d("NUMBER OF FAVOURITES", "ZER0");
+
+        editor = DateTimeSharedPreferences.edit();
+        editor.putString("DT_PREFS_KEY", DateFormat.getDateTimeInstance().format(new Date()));
+
+        editor.commit();
+        dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
+        updateDateTime.setText("Updated on :" + dateTime);
+
+
         if (c.moveToFirst()) {
             do {
                 statusForFavo = c.getString(c.getColumnIndex("machineFavouriteStatus"));
@@ -320,7 +329,6 @@ public class FavouriteFragment extends Fragment {
 //                    numOfFav++;
 
                 }
-                updateDateTime.setText("Updated on " + c.getString(14));
             } while (c.moveToNext());
         }
 //        Log.d("NUMBER OF FAVOURITES", "ZER0");
@@ -331,5 +339,5 @@ public class FavouriteFragment extends Fragment {
 //            editor.putInt(NumberOfFavourite, numOfFav);
 //            editor.commit();
 //        }
-    }
-}
+    }}
+

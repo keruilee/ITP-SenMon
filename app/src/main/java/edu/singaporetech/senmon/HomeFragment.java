@@ -49,6 +49,8 @@ public class HomeFragment extends Fragment {
     String tempWarningValue, tempCriticalValue, veloWarningValue, veloCriticalValue;
     SharedPreferences RangeSharedPreferences;
     SharedPreferences sharedPreferences;
+    SharedPreferences DateTimeSharedPreferences;
+
     SharedPreferences.Editor editor;
     public static final String MyPREFERENCES = "MyPrefs" ;
     public static final String MyRangePREFERENCES = "MyRangePrefs" ;
@@ -361,8 +363,15 @@ public class HomeFragment extends Fragment {
                 DbHelper.changeDatabase(latestRecords[9].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
                         latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], "22");
                 DbHelper.updateMachineDateTime(latestRecords[9].replace(".csv", ""), DateFormat.getDateTimeInstance().format(new Date()));
+
                 Log.d("cleanupLatestRecords: ", DbHelper.toString());
             }
+
+            DateTimeSharedPreferences = context.getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
+            editor = DateTimeSharedPreferences.edit();
+            editor.putString("DT_PREFS_KEY", DateFormat.getDateTimeInstance().format(new Date()));
+            editor.commit();
+
 
             Log.d("cleanupLatestRecords: ", cleanupLatestRecords);
             Log.d("CSVRecords2: ", allCSVRecords[1]);

@@ -23,9 +23,10 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 
 
-/**
- * A simple {@link Fragment} subclass.
- */
+//*
+// * A simple {@link Fragment} subclass.
+
+
 public class SettingsFragment extends Fragment implements android.widget.CompoundButton.OnCheckedChangeListener {
 
     private Context context;
@@ -198,8 +199,8 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
             }
             else            // notifications enabled, set all to saved settings
             {
-                ntfnWarningSw.setChecked(sharedPreferences.getBoolean(WarningEnabled, true));
-                ntfnCriticalSw.setChecked(sharedPreferences.getBoolean(CriticalEnabled, true));
+                //ntfnWarningSw.setChecked(sharedPreferences.getBoolean(WarningEnabled, true));
+                //ntfnCriticalSw.setChecked(sharedPreferences.getBoolean(CriticalEnabled, true));
                 if(favExists)
                     ntfnFavSw.setChecked(sharedPreferences.getBoolean(FavNtfnOnly, false));
             }
