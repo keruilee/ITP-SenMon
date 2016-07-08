@@ -2,7 +2,6 @@ package edu.singaporetech.senmon;
 
 
 import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -12,15 +11,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,9 +31,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 
 /**
@@ -46,15 +40,13 @@ import java.util.List;
 public class HomeFragment extends Fragment {
 
     //Declare variables
-    String TAG = "Home Fragment";
-    private TextView tvCrit, tvWarn, tvNorm, tvAll;
-    private TextView tvCritLbl, tvWarnLbl, tvNormLbl, critBtn, warnBtn, normBtn, allBtn;
-    View v;
-    String tempWarningValue, tempCriticalValue, veloWarningValue, veloCriticalValue;
+    final String TAG = "Home Fragment";
     final String CRITICAL = "Critical";
     final String WARNING = "Warning";
     final String NORMAL = "Normal";
     String hmachineID = "";
+
+    String tempWarningValue, tempCriticalValue, veloWarningValue, veloCriticalValue;
     SharedPreferences RangeSharedPreferences;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
@@ -67,16 +59,21 @@ public class HomeFragment extends Fragment {
     public static final String NumberOfCritical = "numOfCrit";
     public static final String NumberOfWarning = "numOfWarn";
 
-    public Context context;
-
     ProgressDialog progressDialog;
     JSONArray serverCSVrecords = null;
     private static final String TAG_RESULTS="result";
     public String[] latestRecords;
     public String[] allCSVRecords;
 
-    final ArrayList<Machine> myMachineList = new ArrayList<Machine>();
+    ArrayList<Machine> myMachineList = new ArrayList<Machine>();
     private DatabaseHelper DbHelper;
+
+    private TextView tvCrit, tvWarn, tvNorm, tvAll;
+    private TextView tvCritLbl, tvWarnLbl, tvNormLbl, critBtn, warnBtn, normBtn, allBtn;
+    private SwipeRefreshLayout swipeContainer;
+    public Context context;
+    View v;
+
 
     //for testing
     final ArrayList<Machine> myDatabaseList = new ArrayList<Machine>();
@@ -88,9 +85,9 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         v = inflater.inflate(R.layout.fragment_home, container, false);
         context = getContext();
-        DbHelper = new DatabaseHelper(this.getActivity());
 
         //Set variables
         tvCrit = (TextView) v.findViewById(R.id.critTxt);
@@ -104,6 +101,10 @@ public class HomeFragment extends Fragment {
         warnBtn = (TextView) v.findViewById(R.id.warningBtn);
         normBtn = (TextView) v.findViewById(R.id.normalBtn);
         allBtn = (TextView) v.findViewById(R.id.allBtn);
+        swipeContainer = (SwipeRefreshLayout) v.findViewById(R.id.swipeContainer);
+
+        DbHelper = new DatabaseHelper(this.getActivity());
+        progressDialog = new ProgressDialog(this.getActivity());
 
         //retrieve range values
         RangeSharedPreferences = getContext().getSharedPreferences(MyRangePREFERENCES, Context.MODE_PRIVATE);
@@ -129,8 +130,6 @@ public class HomeFragment extends Fragment {
             Log.e("default: ", "21.0 31.0" + veloWarningValue + " " + veloCriticalValue);
             Log.e("default: ", "21.0 31.0" + tempWarningValue + " " + tempCriticalValue);
         }
-
-        progressDialog = new ProgressDialog(getActivity());
 
         //retrieve data
         getCSVData();
@@ -240,6 +239,17 @@ public class HomeFragment extends Fragment {
 
         });
 
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //retrieve data
+                getCSVData();
+
+                swipeContainer.setRefreshing(false);
+
+            }
+        });
+
         return v;
     }
 
@@ -310,8 +320,8 @@ public class HomeFragment extends Fragment {
 
 
                 //For testing
-                //checkDatabaseRecord();
-                //seeValue();
+                checkDatabaseRecord();
+                seeValue();
 
 
                 progressDialog.dismiss();
@@ -371,7 +381,7 @@ public class HomeFragment extends Fragment {
         int noOfNorm = 0;
 
         int totalMachine = myMachineList.size();
-        Log.d(TAG + " Total Machine ", String.valueOf(totalMachine));
+        Log.d(" Total Machine ", String.valueOf(totalMachine));
 
         for(Machine machine : myMachineList)
         {
@@ -483,7 +493,7 @@ public class HomeFragment extends Fragment {
             tvCritLbl.setVisibility(View.VISIBLE);
         }
 
-        Log.d(TAG + " Machine Name ", machineID);
+        Log.d(" Machine Name ", machineID);
         return machineID;
     }
 
@@ -568,14 +578,14 @@ public class HomeFragment extends Fragment {
         int j = 1;
         for(Machine seeMachine : myMachineList){
 
-            Log.i(TAG + "Server Array", String.valueOf(i) + " " + seeMachine.getMachineID() + " " + seeMachine.getmachineTemp() + " " + seeMachine.getmachineVelo() + " " + seeMachine.getMachineHour());
+            Log.i("Server Array", String.valueOf(i) + " " + seeMachine.getMachineID() + " " + seeMachine.getmachineTemp() + " " + seeMachine.getmachineVelo() + " " + seeMachine.getMachineHour());
             i++;
 
         }
 
         for(Machine seedbMachine :  myDatabaseList){
 
-            Log.i(TAG + "Database Array", String.valueOf(j) + " " + seedbMachine.getMachineID() + " " + seedbMachine.getmachineTemp() + " " + seedbMachine.getmachineVelo() + " " + seedbMachine.getMachineStatus());
+            Log.i("Database Array", String.valueOf(j) + " " + seedbMachine.getMachineID() + " " + seedbMachine.getmachineTemp() + " " + seedbMachine.getmachineVelo() + " " + seedbMachine.getMachineStatus());
             j++;
 
 
@@ -583,7 +593,6 @@ public class HomeFragment extends Fragment {
         Log.d("Number of row in db ", String.valueOf(DbHelper.getRowsCount()));
 
     }
-
 
 
 }
