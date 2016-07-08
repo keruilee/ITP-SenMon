@@ -72,7 +72,7 @@ public class ListFragment extends Fragment {
 
     public ArrayList<Machine> myMachineList = new ArrayList<Machine>();
     //public ArrayList<String> machineArray = new ArrayList<String>();
-    String status = "";
+    public String status = "";
 
     ProgressDialog progressDialog;
     JSONArray serverCSVrecords = null;
@@ -154,12 +154,15 @@ public class ListFragment extends Fragment {
                 @Override
                 public void onRefresh() {
                     Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
+                    Log.i("REFRESH", "what bundle?" + status);
                     progressDialog = new ProgressDialog(getActivity());
                     myMachineList.clear();
                     getCSVData();
+                    Log.i("REFRESH", "what bundle? After" + status);
 
                 }
             });
+
             ////// when click on the item   //////////////////////
             listViewListing.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -351,15 +354,13 @@ public class ListFragment extends Fragment {
 
                 myMachineList.add(machine);
 */
-
                 //Change database
                 mydatabaseHelper.changeDatabase(latestRecords[9].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
                         latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], "22");
                 mydatabaseHelper.updateMachineDateTime(latestRecords[9].replace(".csv", ""), DateFormat.getDateTimeInstance().format(new Date()));
 
-
             }
-
+            Log.i("REFRESH", "kr bundle?" + status);
             Log.d("cleanupLatestRecords: ", cleanupLatestRecords);
             Log.d("CSVRecords2: ", allCSVRecords[1]);
             Log.d("LatestRecords: ", latestRecords[0]);
@@ -381,5 +382,7 @@ public class ListFragment extends Fragment {
             } while (c.moveToNext());
 
         }c.close();
-    }
+
+        }
+
 }
