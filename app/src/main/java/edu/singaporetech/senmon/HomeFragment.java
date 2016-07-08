@@ -180,7 +180,7 @@ public class HomeFragment extends Fragment {
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 //using Bundle to send data
                 Bundle bundle = new Bundle();
-                bundle.putString("name", "critical");
+                bundle.putString("name", "Critical");
                 list.setArguments(bundle); //data being send to MachineListFragment
                 transaction.replace(R.id.relativelayoutfor_fragment, list);
                 transaction.addToBackStack(null);
@@ -197,7 +197,7 @@ public class HomeFragment extends Fragment {
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 //using Bundle to send data
                 Bundle bundle = new Bundle();
-                bundle.putString("name", "warning");
+                bundle.putString("name", "Warning");
                 list.setArguments(bundle); //data being send to MachineListFragment
                 transaction.replace(R.id.relativelayoutfor_fragment, list);
                 transaction.addToBackStack(null);
@@ -214,7 +214,7 @@ public class HomeFragment extends Fragment {
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 //using Bundle to send data
                 Bundle bundle = new Bundle();
-                bundle.putString("name", "normal");
+                bundle.putString("name", "Normal");
                 list.setArguments(bundle); //data being send to MachineListFragment
                 transaction.replace(R.id.relativelayoutfor_fragment, list);
                 transaction.addToBackStack(null);
@@ -231,7 +231,7 @@ public class HomeFragment extends Fragment {
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 //using Bundle to send data
                 Bundle bundle = new Bundle();
-                bundle.putString("name", "all");
+                bundle.putString("name", "All");
                 list.setArguments(bundle); //data being send to MachineListFragment
                 transaction.replace(R.id.relativelayoutfor_fragment, list);
                 transaction.addToBackStack(null);
