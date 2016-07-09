@@ -16,8 +16,8 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,10 +31,16 @@
         <activity
             android:name=".detail"
             android:label="@string/title_activity_detail"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <service android:name=".BackgroundService"/>
-        <receiver android:name=".AlarmReceiver"/>
+            android:theme="@style/AppTheme.NoActionBar" />
 
+        <service android:name=".BackgroundService" />
+
+        <receiver android:name=".AlarmReceiver" />
+
+        <activity
+            android:name=".Search_Result"
+            android:label="@string/title_activity_search__result"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

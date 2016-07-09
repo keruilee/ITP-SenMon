@@ -34,5 +34,6 @@
 
     <!--for settings fragment-->
     <string name="save_button">Save Changes</string>
+    <string name="title_activity_search__result">Search_Result</string>
 
 </resources>

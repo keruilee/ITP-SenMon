@@ -190,6 +190,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return false;
     }
 
+    ////////// To search a list of machine //////////////
+    public ArrayList <Machine> SearchMachine (String findMachineID) {
+        ArrayList <Machine> resultsString = new ArrayList<Machine>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "SELECT * FROM " + TABLE_NAME +" WHERE machineID LIKE " + "'%" +findMachineID +"%" ;
+        Cursor c = db.query(TABLE_NAME, columns,
+                MACHINEID + " = ?",
+                new String[] { findMachineID }, null,null,null);
+
+        if (c.moveToFirst()) {
+            do {
+                Log.d(TAG, c.getString(1) + "" + c.getString(12));
+                Machine machineStringObj  = new Machine(c.getString(1), c.getString(2), c.getString(3),
+                        c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
+                        c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
+                resultsString.add(machineStringObj);
+            } while (c.moveToNext());
+        }
+        return resultsString;
+    }
+
     // Update machine state in database //
     public void updateMachineState(String machineID, String machineStatus) {
         SQLiteDatabase db = this.getWritableDatabase();
