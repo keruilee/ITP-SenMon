@@ -159,6 +159,7 @@
         android:id="@+id/saveButton"
         android:layout_marginTop="44dp"
         android:layout_below="@+id/seekbarVelo"
-        android:layout_alignEnd="@+id/critVeloEditText" />
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

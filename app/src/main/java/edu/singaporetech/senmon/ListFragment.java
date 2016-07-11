@@ -69,6 +69,7 @@ public class ListFragment extends Fragment {
     SharedPreferences RangeSharedPreferences;
     SharedPreferences DateTimeSharedPreferences;
     SharedPreferences.Editor editor;
+    TextView title ;
 
     public static final String MyPREFERENCES = "MyPrefs";
     public static final String MyRangePREFERENCES = "MyRangePrefs";
@@ -125,6 +126,7 @@ public class ListFragment extends Fragment {
 
         // Give the TabLayout the ViewPage
         tabLayout = (TabLayout) rootView.findViewById(R.id.list_tabs);
+        title =(TextView) rootView.findViewById(R.id.title);
 
         // Retrieve the SwipeRefreshLayout and ListView instances
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefresh);
@@ -138,7 +140,9 @@ public class ListFragment extends Fragment {
             //machineArray.add(String.valueOf(bundle.getString("name")));
             status = String.valueOf(bundle.getString("name"));
             Log.i("TEST", status);
+            title.setText(status);
         }
+
 
         /////////////////retrieve range values ////////////
         RangeSharedPreferences = getContext().getSharedPreferences(MyRangePREFERENCES, Context.MODE_PRIVATE);
@@ -153,7 +157,7 @@ public class ListFragment extends Fragment {
 
         DateTimeSharedPreferences = getContext().getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
         dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
-        updateDateTime.setText("Updated on :"+dateTime);
+
 
 
         /////////////////// take out the data from databasehelper///////////////////////
@@ -167,10 +171,14 @@ public class ListFragment extends Fragment {
             myMachineList = mydatabaseHelper.returnStringMachineStateString(status);
         }
 
-        for (Machine m : myMachineList) {
-            Log.d("hahaah?", m.getMachineID());
-        }
-
+       if (myMachineList.isEmpty())
+       {
+           updateDateTime.setText("No Machine found in the list!");
+       }
+        else
+       {
+           updateDateTime.setText("Updated on :"+dateTime);
+       }
         // set up list with listadapter
         listViewListing = (ListView) rootView.findViewById(R.id.ListView);
         adapter = new CustomAdapter(getActivity(), R.layout.fragment_list, myMachineList);
@@ -394,7 +402,7 @@ public class ListFragment extends Fragment {
 
         editor.commit();
         dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
-        updateDateTime.setText("Updated on :"+dateTime);
+        //updateDateTime.setText("Updated on :"+dateTime);
 
         Log.d(" computeMachine", "testing");
         for(Machine machine : myTempoMachineList)

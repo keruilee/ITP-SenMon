@@ -16,7 +16,7 @@
 
         <TextView
             android:id="@+id/title"
-            android:layout_width="130dp"
+            android:layout_width="307dp"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Listing"
@@ -27,7 +27,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:id="@+id/textViewUpdateTime" />
+            android:id="@+id/textViewUpdateTime"
+            android:textColor="@color/colorFeedback"/>
 
 
     </LinearLayout>

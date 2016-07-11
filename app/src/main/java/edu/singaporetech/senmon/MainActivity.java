@@ -118,11 +118,19 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public boolean onQueryTextSubmit(String s) {
-                // Intent Activity
+
+/*
                 Intent intent = new Intent(getApplicationContext(), Search_Result.class);
-                // store query in Intent
                 intent.putExtra("SearchQuery", s);
-                startActivity(intent);
+
+                MainActivity.this.startActivity(intent);
+*/
+                SearchFragment searchfragment = new  SearchFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("SearchQuery",s);
+                searchfragment.setArguments(bundle); //data being send to MachineListFragment
+                FragmentManager manager = getSupportFragmentManager();
+                manager.beginTransaction().replace(R.id.relativelayoutfor_fragment, searchfragment).addToBackStack(null).commit();
                 return false;
             }
 

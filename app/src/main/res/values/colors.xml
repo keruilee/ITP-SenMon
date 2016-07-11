@@ -17,4 +17,6 @@
     <color name="colorLighterNormal">#99B691</color>
     <color name="colorLighterAll">#CDCDCD</color>
 
+    <color name="colorFeedback">#b27e7e</color>
+
 </resources>

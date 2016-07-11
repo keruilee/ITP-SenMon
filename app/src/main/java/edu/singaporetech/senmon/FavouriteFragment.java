@@ -96,33 +96,23 @@ public class FavouriteFragment extends Fragment {
         // Retrieve the SwipeRefreshLayout and ListView instances
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefresh);
         updateDateTime= (TextView) rootView.findViewById(R.id.textViewUpdateDateTime);
+        listViewListing = (ListView) rootView.findViewById(R.id.ListView);
+
 
         mydatabaseHelper = new DatabaseHelper(getActivity());
-        Cursor c = FavouriteList();
-        String statusForFavo;
-
-        if (c.moveToFirst()) {
-            do {
-                statusForFavo = c.getString(c.getColumnIndex("machineFavouriteStatus"));
-                if (statusForFavo != null) {
-                    Log.i("stats", statusForFavo);
-                    Machine machineFavourite = new Machine(c.getString(1), c.getString(2), c.getString(3),
-                            c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
-                            c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
-
-                    myFavouriteMachineList.add(machineFavourite);
-                }
-
-                DateTimeSharedPreferences = getContext().getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
-                dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
-                updateDateTime.setText("Updated on :"+dateTime);
-
-            } while (c.moveToNext());
-
-        }c.close();
+        myFavouriteMachineList = mydatabaseHelper.returnFavourite();
 
 
-        listViewListing = (ListView) rootView.findViewById(R.id.ListView);
+        DateTimeSharedPreferences = getContext().getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
+        dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
+        if (myFavouriteMachineList.isEmpty())
+        {
+            updateDateTime.setText("No results found");
+        }
+        else
+        {
+            updateDateTime.setText("Updated on :"+dateTime);
+        }
         adapter = new CustomAdapter(getActivity(),R.layout.fragment_favourite,myFavouriteMachineList);
         listViewListing.setAdapter(adapter);
 
@@ -164,40 +154,29 @@ public class FavouriteFragment extends Fragment {
         return rootView;
         // / return inflater.inflate(R.layout.fragment_list, container, false);
     }
+
     @Override
     public void onResume() {
-        Log.e("DEBUG", "onResume of LoginFragment");
+        Log.e("DEBUG", "onResume of FAV");
         super.onResume();
-        myFavouriteMachineList.clear();
-        Cursor c = FavouriteList();
-        String statusForFavo;
 
-        if (c.moveToFirst()) {
-            do {
-                statusForFavo = c.getString(c.getColumnIndex("machineFavouriteStatus"));
-                if (statusForFavo != null) {
-                    Log.i("stats", statusForFavo);
-                    Machine machineFavourite = new Machine(c.getString(1), c.getString(2), c.getString(3),
-                            c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
-                            c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
-                    myFavouriteMachineList.add(machineFavourite);
 
-                }
-
-            } while (c.moveToNext());
-
-        }c.close();
-
+//        mydatabaseHelper = new DatabaseHelper(getActivity());
+//        myFavouriteMachineList.clear();
+//
+//        myFavouriteMachineList = mydatabaseHelper.returnFavourite();
+//        if (myFavouriteMachineList.isEmpty())
+//        {
+//            updateDateTime.setText("No results found");
+//        }
+//        else
+//        {
+//            updateDateTime.setText("Updated on :"+dateTime);
+//        }
 
     }
-    public Cursor FavouriteList() {
-        // to return all records in the form of a Cursor object
-        SQLiteDatabase db = mydatabaseHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery("Select * from " + mydatabaseHelper.getTableName(), null);
 
-        return cursor;
 
-    }
 
     ////////////////////////update the list///////////////////////////
 
@@ -339,5 +318,14 @@ public class FavouriteFragment extends Fragment {
 //            editor.putInt(NumberOfFavourite, numOfFav);
 //            editor.commit();
 //        }
-    }}
+    }
 
+    public Cursor FavouriteList() {
+        // to return all records in the form of a Cursor object
+        SQLiteDatabase db = mydatabaseHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery("Select * from " + mydatabaseHelper.getTableName(), null);
+
+        return cursor;
+
+    }
+}

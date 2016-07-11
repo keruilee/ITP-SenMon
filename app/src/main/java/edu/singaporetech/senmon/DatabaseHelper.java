@@ -191,13 +191,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     ////////// To search a list of machine //////////////
-    public ArrayList <Machine> SearchMachine (String findMachineID) {
-        ArrayList <Machine> resultsString = new ArrayList<Machine>();
+    public ArrayList <String> SearchMachine (String findMachineID) {
+        ArrayList <String> resultsString = new ArrayList<String>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String selectQuery = "SELECT * FROM " + TABLE_NAME +" WHERE machineID LIKE " + "'%" +findMachineID +"%" ;
-        Cursor c = db.query(TABLE_NAME, columns,
-                MACHINEID + " = ?",
-                new String[] { findMachineID }, null,null,null);
+        String selectQuery = "SELECT * FROM " + TABLE_NAME +" WHERE machineID LIKE " + "'%" +findMachineID +"%' " ;
+
+        Cursor c = db.rawQuery(selectQuery, null);
 
         if (c.moveToFirst()) {
             do {
@@ -205,7 +204,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 Machine machineStringObj  = new Machine(c.getString(1), c.getString(2), c.getString(3),
                         c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
                         c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
-                resultsString.add(machineStringObj);
+                resultsString.add(c.getString(1));
+
+                Log.i(TAG+"search", machineStringObj.getMachineID());
             } while (c.moveToNext());
         }
         return resultsString;
@@ -331,23 +332,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    /////////// return favourite string///////////
 
     // Find machine in a particular state in database //
     public ArrayList <Machine> returnFavourite() {
+        Log.d("TEST FAV", "enter");
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList <Machine> machineString = new ArrayList<Machine>();
-
-
-        String selectQuery = "SELECT * FROM " + TABLE_NAME + " WHERE machineFavouriteStatus = 'yes'";
-
+        Machine machineStringObj;
+        String selectQuery = "SELECT * FROM " + TABLE_NAME + " WHERE machineFavouriteStatus == 'yes' ";
         Cursor c = db.rawQuery(selectQuery, null);
 
+        //Cursor c = db.query(TABLE_NAME, columns,MACHINESTATUS + " = ?",new String[]{""}, null, null, null);
         // looping through if exist
         if (c.moveToFirst()) {
             do {
-                Log.d(TAG, c.getString(1) + "" + c.getString(12));
-                Machine machineStringObj  = new Machine(c.getString(1), c.getString(2), c.getString(3),
+                Log.d("Favourite", c.getString(1) + "" + c.getString(12));
+                 machineStringObj  = new Machine(c.getString(1), c.getString(2), c.getString(3),
                         c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
                         c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
                 machineString.add(machineStringObj);
