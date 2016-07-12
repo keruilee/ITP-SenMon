@@ -411,54 +411,81 @@ public class HomeFragment extends Fragment {
         int totalMachine = myMachineList.size();
         Log.d(" Total Machine ", String.valueOf(totalMachine));
 
+        double machineTemp, machineVelo, tempWarning, tempCritical, veloWarning, veloCritical;
+
         for(Machine machine : myMachineList)
         {
-            //number of normal machine
-            if (Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempWarningValue)
-                    | (Double.parseDouble(machine.getmachineVelo()) < Double.parseDouble(veloWarningValue))) {
+//            number of normal machine
+//            if (Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempWarningValue)
+//                    | (Double.parseDouble(machine.getmachineVelo()) < Double.parseDouble(veloWarningValue))) {
+//
+//                //update normal state on the row
+//                DbHelper.updateMachineState(machine.getMachineID(), NORMAL);
+//                noOfNorm++;
+//
+//            }
+//            //number of warning machine
+//            if ((Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempWarningValue)
+//                    & Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempCriticalValue))
+//                    | (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(veloWarningValue)
+//                    & Double.parseDouble(machine.getmachineVelo()) <= Double.parseDouble(veloCriticalValue))) {
+//
+//
+//                ///check whether particular machine have normal state
+//                if (DbHelper.checkMachineState(machine.getMachineID(), NORMAL) == true)
+//                {
+//                    noOfNorm--;
+//                }
+//
+//                //update warning state on the row
+//                DbHelper.updateMachineState(machine.getMachineID(), WARNING);
+//                noOfWarn++;
+//            }
+//            //number of critical machine
+//            if (Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempCriticalValue)
+//                    | (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(veloCriticalValue))) {
+//
+//                ///check whether particular machine have normal state
+//                if (DbHelper.checkMachineState(machine.getMachineID(), NORMAL) == true)
+//                {
+//                    noOfNorm--;
+//                }
+//
+//                ///check whether particular machine have warning state
+//                if (DbHelper.checkMachineState(machine.getMachineID(), WARNING) == true)
+//                {
+//                    noOfWarn--;
+//                }
+//
+//
+//                //update critical state on the row
+//                DbHelper.updateMachineState(machine.getMachineID(), CRITICAL);
+//                noOfCrit++;
+//            }
 
-                //update normal state on the row
-                DbHelper.updateMachineState(machine.getMachineID(), NORMAL);
-                noOfNorm++;
+            // added in 
+            machineTemp = Double.parseDouble(machine.getmachineTemp());
+            machineVelo = Double.parseDouble(machine.getmachineVelo());
+            tempWarning = Double.parseDouble(tempWarningValue);
+            tempCritical = Double.parseDouble(tempCriticalValue);
+            veloWarning = Double.parseDouble(veloWarningValue);
+            veloCritical = Double.parseDouble(veloCriticalValue);
 
+            // determine states of machine
+            if(machineTemp >= tempCritical || machineVelo >= veloCritical)          // machine in critical state
+            {
+                DbHelper.updateMachineState(machine.getMachineID(), CRITICAL);
+                noOfCrit++;
             }
-            //number of warning machine
-            if ((Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempWarningValue)
-                    & Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempCriticalValue))
-                    | (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(veloWarningValue)
-                    & Double.parseDouble(machine.getmachineVelo()) <= Double.parseDouble(veloCriticalValue))) {
-
-
-                ///check whether particular machine have normal state
-                if (DbHelper.checkMachineState(machine.getMachineID(), NORMAL) == true)
-                {
-                    noOfNorm--;
-                }
-
-                //update warning state on the row
+            else if(machineTemp >= tempWarning || machineVelo >= veloWarning)       // machine in warning state
+            {
                 DbHelper.updateMachineState(machine.getMachineID(), WARNING);
                 noOfWarn++;
             }
-            //number of critical machine
-            if (Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempCriticalValue)
-                    | (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(veloCriticalValue))) {
-
-                ///check whether particular machine have normal state
-                if (DbHelper.checkMachineState(machine.getMachineID(), NORMAL) == true)
-                {
-                    noOfNorm--;
-                }
-
-                ///check whether particular machine have warning state
-                if (DbHelper.checkMachineState(machine.getMachineID(), WARNING) == true)
-                {
-                    noOfWarn--;
-                }
-
-
-                //update critical state on the row
-                DbHelper.updateMachineState(machine.getMachineID(), CRITICAL);
-                noOfCrit++;
+            else                                                                    // machine in off/normal state
+            {
+                DbHelper.updateMachineState(machine.getMachineID(), NORMAL);
+                noOfNorm++;
             }
         }
 

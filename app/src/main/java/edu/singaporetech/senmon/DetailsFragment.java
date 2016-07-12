@@ -355,11 +355,34 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     //Set detail color
     private void detailColor() {
         //check temperature value range color
+//        if (Double.parseDouble(tempValue) < Double.parseDouble(tempWarningValue)) {
+//            //Normal state text color
+//            tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
+//        } else if ((Double.parseDouble(tempValue) >= Double.parseDouble(tempWarningValue)
+//                && Double.parseDouble(tempValue) < Double.parseDouble(tempCriticalValue))) {
+//            //Warning state text color
+//            tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
+//        } else {
+//            //Critical state text color
+//            tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
+//        }
+//
+//        //check velocity value range color
+//        if (Double.parseDouble(veloValue) < Double.parseDouble(veloWarningValue)) {
+//            //Normal state text color
+//            tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
+//        } else if (Double.parseDouble(veloValue) >= Double.parseDouble(veloWarningValue)
+//                && Double.parseDouble(veloValue) < Double.parseDouble(veloCriticalValue)) {
+//            //Warning state text color
+//            tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
+//        } else {
+//            //Critical state text color
+//            tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
+//        }
         if (Double.parseDouble(tempValue) < Double.parseDouble(tempWarningValue)) {
             //Normal state text color
             tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
-        } else if ((Double.parseDouble(tempValue) >= Double.parseDouble(tempWarningValue)
-                & Double.parseDouble(tempValue) < Double.parseDouble(tempCriticalValue))) {
+        } else if (Double.parseDouble(tempValue) < Double.parseDouble(tempCriticalValue)) {
             //Warning state text color
             tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
         } else {
@@ -371,8 +394,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         if (Double.parseDouble(veloValue) < Double.parseDouble(veloWarningValue)) {
             //Normal state text color
             tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
-        } else if (Double.parseDouble(veloValue) >= Double.parseDouble(veloWarningValue)
-                & Double.parseDouble(veloValue) <= Double.parseDouble(veloCriticalValue)) {
+        } else if (Double.parseDouble(veloValue) < Double.parseDouble(veloCriticalValue)) {
             //Warning state text color
             tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
         } else {
