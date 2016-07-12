@@ -74,7 +74,7 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
         ntfnCriticalSw.setOnCheckedChangeListener(SettingsFragment.this);
         ntfnFavSw.setOnCheckedChangeListener(SettingsFragment.this);
 
-//        sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 //        int noOfFave = sharedPreferences.getInt(NumberOfFavourite,0);
 //        Log.d("SHARED NUMBER OF FAV", ""+noOfFave);
         favExists = favouriteExists();
