@@ -140,7 +140,7 @@ public class ListFragment extends Fragment {
             //machineArray.add(String.valueOf(bundle.getString("name")));
             status = String.valueOf(bundle.getString("name"));
             Log.i("TEST", status);
-            title.setText(status);
+            title.setText("Machines (" +status +")");
         }
 
 
@@ -173,11 +173,11 @@ public class ListFragment extends Fragment {
 
        if (myMachineList.isEmpty())
        {
-           updateDateTime.setText("No Machine found in the list!");
+           updateDateTime.setText("No machine found in the list!");
        }
         else
        {
-           updateDateTime.setText("Updated on :"+dateTime);
+           updateDateTime.setText("Updated on "+dateTime);
        }
         // set up list with listadapter
         listViewListing = (ListView) rootView.findViewById(R.id.ListView);
