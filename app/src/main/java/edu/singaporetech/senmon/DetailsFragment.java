@@ -115,7 +115,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     private ArrayList<Entry> veloYVals = new ArrayList<>();
     private ArrayList<BarEntry> stackedYVals = new ArrayList<>();
     private LineDataSet tempSet, veloSet;
-
+    private static final String TEMP_NAME = "TEMPERATURE", VELO_NAME = "VELOCITY";
     MyMarkerView mv;
 
     public DetailsFragment() {
@@ -714,7 +714,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         leftAxis.setAxisMinValue(0f);
         leftAxis.enableGridDashedLine(10f, 10f, 0f);
         leftAxis.setDrawZeroLine(false);
-        leftAxis.setValueFormatter(new TempYAxisValueFormatter());
+        leftAxis.setValueFormatter(new TempYAxisValueFormatter(context));
         leftAxis.setDrawGridLines(false);
         leftAxis.setTextColor(Color.parseColor("#2c3e50"));
         leftAxis.setSpaceTop(50);
@@ -724,7 +724,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         rightAxis.setAxisMinValue(0f);
         rightAxis.enableGridDashedLine(10f, 10f, 0f);
         rightAxis.setDrawZeroLine(false);
-        rightAxis.setValueFormatter(new VelYAxisValueFormatter());
+        rightAxis.setValueFormatter(new VelYAxisValueFormatter(context));
         rightAxis.setTextColor(Color.parseColor("#3498db"));
         rightAxis.setDrawGridLines(false);
 
@@ -743,7 +743,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     // put data into line chart
     private void insertLineData() {
         // create a dataset and give it a type
-        tempSet = new LineDataSet(tempYVals, "TEMPERATURE");
+        tempSet = new LineDataSet(tempYVals, TEMP_NAME);
         tempSet.setAxisDependency(YAxis.AxisDependency.LEFT);
         // set the line to be drawn like this "- - - - - -"
         tempSet.setDrawValues(false);
@@ -758,7 +758,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         tempSet.setDrawFilled(false);
 
 
-        veloSet = new LineDataSet(veloYVals, "VELOCITY");
+        veloSet = new LineDataSet(veloYVals, VELO_NAME);
         veloSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
         // set the line to be drawn like this "- - - - - -"
         veloSet.setDrawValues(false);
@@ -868,7 +868,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                 tvNoData.setVisibility(View.INVISIBLE);
                 cbLines.setEnabled(true);
             }
-            if(datasetSelected.equals("TEMPERATURE"))
+            if(datasetSelected.equals(TEMP_NAME))
             {
                 data.addDataSet(tempSet);
                 leftAxis.setDrawLabels(true);
@@ -894,7 +894,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         else if(data != null && data.getDataSetCount() > 0)
         {
             data.removeDataSet(data.getDataSetByLabel(datasetSelected, false));
-            if(datasetSelected.equals("TEMPERATURE"))
+            if(datasetSelected.equals(TEMP_NAME))
             {
                 leftAxis.setDrawLabels(false);
                 leftAxis.setEnabled(false);
@@ -922,10 +922,10 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
 
         ArrayList<ILineDataSet> dataSets = (ArrayList) lineChart.getData().getDataSets();
-        if(dataSets.get(dataSetIndex).getLabel().equals("TEMPERATURE"))
-            mv.setUnit("°C");
+        if(dataSets.get(dataSetIndex).getLabel().equals(TEMP_NAME))
+            mv.setUnit(getString(R.string.temp_unit));
         else
-            mv.setUnit("mm/s");
+            mv.setUnit(getString(R.string.velo_unit));
 
         // get date+time of selected entry
         SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("MM/dd/yyyy HH:mm");

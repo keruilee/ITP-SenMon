@@ -24,7 +24,6 @@
     <string name="warning_lbl">is in warning state!</string>
     <string name="critical_lbl">requires immediate action!</string>
 
-
     <!--for favourite fragment-->
     <string name="hello_blank_fragment">My Favourite</string>
     <string name="title_activity_detail">Detail</string>
@@ -35,5 +34,9 @@
     <!--for settings fragment-->
     <string name="save_button">Save Changes</string>
     <string name="title_activity_search__result">Search_Result</string>
+
+    <!-- for units -->
+    <string name="temp_unit">°C</string>
+    <string name="velo_unit">mm/s</string>
 
 </resources>

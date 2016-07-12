@@ -1,5 +1,7 @@
 package edu.singaporetech.senmon;
 
+import android.content.Context;
+
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.formatter.ValueFormatter;
@@ -13,13 +15,15 @@ import java.text.DecimalFormat;
  */
 public class VelYAxisValueFormatter implements YAxisValueFormatter {
     private DecimalFormat mFormat;
+    private Context context;
 
-    public VelYAxisValueFormatter () {
+    public VelYAxisValueFormatter (Context c) {
         mFormat = new DecimalFormat("########0.0"); // use one decimal
+        context = c;
     }
 
     @Override
     public String getFormattedValue(float value, YAxis yAxis) {
-        return mFormat.format(value) + "mm/s"; // append velocity unit to value
+        return mFormat.format(value) + context.getString(R.string.velo_unit); // append velocity unit to value
     }
 }

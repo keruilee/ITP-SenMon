@@ -1,5 +1,7 @@
 package edu.singaporetech.senmon;
 
+import android.content.Context;
+
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.formatter.ValueFormatter;
@@ -13,13 +15,15 @@ import java.text.DecimalFormat;
  */
 public class TempYAxisValueFormatter implements YAxisValueFormatter {
     private DecimalFormat mFormat;
+    private Context context;
 
-    public TempYAxisValueFormatter () {
+    public TempYAxisValueFormatter (Context c) {
         mFormat = new DecimalFormat("########0.0"); // use one decimal
+        context = c;
     }
 
     @Override
     public String getFormattedValue(float value, YAxis yAxis) {
-        return mFormat.format(value) + "°C"; // append temperature unit to value
+        return mFormat.format(value) + context.getString(R.string.temp_unit); // append temperature unit to value
     }
 }

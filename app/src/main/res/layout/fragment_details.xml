@@ -13,7 +13,8 @@
         android:textSize="30dp"
         android:layout_alignEnd="@+id/tableLayout"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:paddingStart="10dp"/>
 
     <ImageView
         android:id="@+id/btnfavourite"
@@ -86,7 +87,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="°C"
+                android:text="@string/temp_unit"
                 android:id="@+id/tvtempLabel"
                 android:layout_alignBaseline="@+id/tvVelocity"
                 android:layout_alignBottom="@+id/tvVelocity"
@@ -121,7 +122,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="mm/s"
+                android:text="@string/velo_unit"
                 android:id="@+id/tvveloLabel"
                 android:layout_above="@+id/tvHourField"
                 android:layout_alignStart="@+id/tvHourField"
