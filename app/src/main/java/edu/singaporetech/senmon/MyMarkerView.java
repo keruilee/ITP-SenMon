@@ -17,19 +17,22 @@ import com.github.mikephil.charting.utils.Utils;
  */
 public class MyMarkerView extends MarkerView {
 
-    private TextView tvContent;
+    private TextView tvContent, tvDate;
+    private String date, unit;
 
     public MyMarkerView(Context context, int layoutResource) {
         super(context, layoutResource);
 
         tvContent = (TextView) findViewById(R.id.tvContent);
+        tvDate = (TextView) findViewById(R.id.tvDate);
     }
 
     // callbacks everytime the MarkerView is redrawn, can be used to update the
     // content (user-interface)
     @Override
     public void refreshContent(Entry e, Highlight highlight) {
-        tvContent.setText("" +e.getVal());
+        tvDate.setText(date);
+        tvContent.setText("" +e.getVal() +unit);
     }
 
     @Override
@@ -42,5 +45,13 @@ public class MyMarkerView extends MarkerView {
     public int getYOffset(float ypos) {
         // this will cause the marker-view to be above the selected value
         return -getHeight();
+    }
+
+    public void setDate(String selectedDate) {
+        date = selectedDate;
+    }
+
+    public void setUnit(String selectedUnit) {
+        unit = selectedUnit;
     }
 }

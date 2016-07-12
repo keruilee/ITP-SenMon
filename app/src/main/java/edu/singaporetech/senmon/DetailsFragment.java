@@ -39,8 +39,10 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,15 +59,17 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class DetailsFragment extends Fragment implements View.OnClickListener {
+public class DetailsFragment extends Fragment implements View.OnClickListener, OnChartValueSelectedListener {
 
     Context context;
 
@@ -111,6 +115,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
     private ArrayList<Entry> veloYVals = new ArrayList<>();
     private ArrayList<BarEntry> stackedYVals = new ArrayList<>();
     private LineDataSet tempSet, veloSet;
+
+    MyMarkerView mv;
 
     public DetailsFragment() {
         // Required empty public constructor
@@ -200,7 +206,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                Log.e("TAG", "on tab selected");
                 if(tabLayout.getSelectedTabPosition() == 0) {
                     lineChartLayout.setVisibility(View.VISIBLE);
                     stackedChart.setVisibility(View.INVISIBLE);
@@ -512,6 +517,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
             protected void onPostExecute(JSONObject result){
                 super.onPostExecute(result);
                 getCSVRecords(result);
+                progressDialog.dismiss();
                 setupLineChart();
                 setupStackedChart();
             }
@@ -525,9 +531,11 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
     {
         try {
             JSONArray serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);
-            int i = 0, numOfNormal = 0, numOfWarning = 0, numOfCritical = 0;
+            int i = 0, numOfOff = 0, numOfNormal = 0, numOfWarning = 0, numOfCritical = 0, opHours = 0;
             String[] currentRecord;
             int numOfRecords = serverCSVrecords.length();
+            boolean withDate = false, beforeNoon = false;
+
 
             // got at least 1 record
             if(serverCSVrecords.length() > 0) {
@@ -539,25 +547,54 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
                 veloValue = currentRecord[5];
                 tvDTemperature.setText(tempValue);
                 tvDVelocity.setText(veloValue);
-                tvDHour.setText("22");
                 detailColor();
-                progressDialog.dismiss();
 
                 SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("MM/dd/yyyy HH:mm");
                 SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
+                SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
+
+                Date recordDate, recordTime;
+                String recordDateString, recordTimeString;
 
                 // load other records for graph
                 while (i < serverCSVrecords.length()) {
                     object = serverCSVrecords.get(i).toString();
                     object = object.replace("\r", "").replace("\n", "");
                     currentRecord = object.split(",");
+                    recordDate = dateFormatter.parse(currentRecord[0]);
+                    recordTime = timeFormatter.parse(currentRecord[1]);
+                    recordDateString = dateFormatter.format(recordDate);
+                    recordTimeString = timeFormatter.format(recordTime);
 
                     if (i == 0)
-                        stackedXVals.add(currentRecord[0]);
+                    {
+                        stackedXVals.add(recordDateString);
+                        if(recordTime.before(timeFormatter.parse("12:00")))          // time is past 12 noon (12:00 onwards)
+                            beforeNoon = true;
+                    }
+                    // determine whether to add x-label as date+time or time only
+                    // first time after 12am and 12pm will be the label with full date+time
+                    // the other labels in between will only have time
+                    if(!withDate && beforeNoon && recordTime.before(timeFormatter.parse("12:00")))          // first label after 12am, date+time
+                    {
+                        lineXVals.add(recordDateString +" " +recordTimeString);
+                        beforeNoon = false;
+                        withDate = true;
+                    }
+                    else if(!withDate && !beforeNoon && !recordTime.before(timeFormatter.parse("12:00")))   // first label after 12pm, date+time
+                    {
+                        lineXVals.add(recordDateString +" " +recordTimeString);
+                        beforeNoon = true;
+                        withDate = true;
+                    }
+                    else            // time only
+                    {
+                        lineXVals.add(recordTimeString);
+                        withDate = false;
+                    }
 
                     float tempValue, velValue;
-                    Date recordDate;
-                    String recordDateString;
+
                     // for line charts
                     try {
                         recordDate = dateTimeFormatter.parse(currentRecord[0] + " " + currentRecord[1]);
@@ -567,7 +604,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
                     recordDateString = dateTimeFormatter.format(recordDate);
                     tempValue = Float.parseFloat(currentRecord[6]);
                     velValue = Float.parseFloat(currentRecord[5]);
-                    lineXVals.add(recordDateString);
                     tempYVals.add(new Entry(tempValue, i));
                     veloYVals.add(new Entry(velValue, i));
 
@@ -576,15 +612,12 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
 
                     // new date = new x label; add date to x-axis and reset states variable to zero
                     if (!recordDateString.equals(stackedXVals.get(stackedXVals.size() - 1))) {
-                        stackedYVals.add(new BarEntry(new float[]{numOfNormal, numOfWarning, numOfCritical}, stackedXVals.size() - 1));
+                        stackedYVals.add(new BarEntry(new float[]{numOfOff, numOfNormal, numOfWarning, numOfCritical}, stackedXVals.size() - 1));
+                        numOfOff = 0;
                         numOfNormal = 0;
                         numOfWarning = 0;
                         numOfCritical = 0;
-                        try {
-                            stackedXVals.add(recordDateString);
-                        } catch (Exception e) {
-                            stackedXVals.add(currentRecord[0]);
-                        }
+                        stackedXVals.add(recordDateString);
                     }
 
                     // determine state of machine
@@ -592,19 +625,27 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
                         numOfCritical++;
                     else if (velValue >= Float.parseFloat(veloWarningValue) || tempValue >= Float.parseFloat(veloWarningValue))
                         numOfWarning++;
-                    else
+                    else if(velValue > 0 || tempValue > 0)
                         numOfNormal++;
+                    else
+                        numOfOff++;
 
+                    if(velValue == 0)           // check if current row indicates machine is off
+                        opHours = 0;
+                    else
+                        opHours++;
                     i++;
                 }
-                stackedYVals.add(new BarEntry(new float[] { numOfNormal, numOfWarning, numOfCritical }, stackedXVals.size()-1));
+                stackedYVals.add(new BarEntry(new float[] { numOfOff, numOfNormal, numOfWarning, numOfCritical }, stackedXVals.size()-1));
+                tvDHour.setText(Integer.toString(opHours));
             }
             else {      // no records found for machine
-                progressDialog.dismiss();
                 lineChart.setNoDataText("No records found");
                 stackedChart.setNoDataText("No records found");
             }
         } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
             e.printStackTrace();
         }
     }
@@ -665,7 +706,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
         xAxis = lineChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setAvoidFirstLastClipping(true);
-        xAxis.setDrawGridLines(false);
+        xAxis.setDrawGridLines(true);
 
         //xAxis.setLabelsToSkip(6);
         leftAxis = lineChart.getAxisLeft();
@@ -673,7 +714,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
         leftAxis.setAxisMinValue(0f);
         leftAxis.enableGridDashedLine(10f, 10f, 0f);
         leftAxis.setDrawZeroLine(false);
-        leftAxis.setValueFormatter(new TempValueFormatter());
+        leftAxis.setValueFormatter(new TempYAxisValueFormatter());
         leftAxis.setDrawGridLines(false);
         leftAxis.setTextColor(Color.parseColor("#2c3e50"));
         leftAxis.setSpaceTop(50);
@@ -683,11 +724,11 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
         rightAxis.setAxisMinValue(0f);
         rightAxis.enableGridDashedLine(10f, 10f, 0f);
         rightAxis.setDrawZeroLine(false);
-        rightAxis.setValueFormatter(new VelValueFormatter());
+        rightAxis.setValueFormatter(new VelYAxisValueFormatter());
         rightAxis.setTextColor(Color.parseColor("#3498db"));
         rightAxis.setDrawGridLines(false);
 
-        MyMarkerView mv = new MyMarkerView(this.getContext(), R.layout.custom_marker_view);
+        mv = new MyMarkerView(this.getContext(), R.layout.custom_marker_view);
 
         // set the marker to the chart
         lineChart.setMarkerView(mv);
@@ -695,6 +736,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
         Legend l = lineChart.getLegend();
         l.setForm(Legend.LegendForm.SQUARE);
 
+        lineChart.setOnChartValueSelectedListener(this);
         insertLineData();
     }
 
@@ -714,6 +756,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
         tempSet.setDrawCircleHole(false);
         tempSet.setValueTextSize(9f);
         tempSet.setDrawFilled(false);
+
 
         veloSet = new LineDataSet(veloYVals, "VELOCITY");
         veloSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
@@ -737,14 +780,13 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
 
         // create a data object with the datasets
         LineData data = new LineData(lineXVals, dataSets);
-
+        //
         // set data
         lineChart.setData(data);
 
         // set viewport
-        if(lineXVals.size() > 30)
-            lineChart.zoom(8, 0, lineXVals.size()-1, tempYVals.size()-1);
-        lineChart.moveViewToX(lineXVals.size()-1);
+        lineChart.zoom((lineXVals.size() / 10), 0, lineXVals.size()-1, tempYVals.size()-1);
+        lineChart.moveViewToX(lineXVals.size() - 1);
     }
 
     // set up stacked chart with preferred settings
@@ -754,7 +796,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
         //stackedChart.setOnChartValueSelectedListener(this);
 
         stackedChart.setNoDataText("Loading graph...");
-
+        stackedChart.setDescription("");
         // scaling can now only be done on x- and y-axis separately
         stackedChart.setScaleXEnabled(true);
         stackedChart.setScaleYEnabled(false);
@@ -784,7 +826,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
 
         set1 = new BarDataSet(stackedYVals, "| Machine States Count / Day");
         set1.setColors(getColors());
-        set1.setStackLabels(new String[]{"Safe", "Warning", "Critical"});
+        set1.setStackLabels(new String[]{"Off", "Safe", "Warning", "Critical"});
 
         ArrayList<IBarDataSet> dataSets = new ArrayList<>();
         dataSets.add(set1);
@@ -802,14 +844,15 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
     // set up colours for stacked chart
     private int[] getColors() {
 
-        int stacksize = 3;
+        int stacksize = 4;
 
         // have as many colors as stack-values per entry
         int[] colors = new int[stacksize];
 
-        colors[0] = getResources().getColor(R.color.colorNormal);
-        colors[1] = getResources().getColor(R.color.colorWarning);
-        colors[2] = getResources().getColor(R.color.colorCritical);
+        colors[0] = getResources().getColor(R.color.colorPrimary);
+        colors[1] = getResources().getColor(R.color.colorNormal);
+        colors[2] = getResources().getColor(R.color.colorWarning);
+        colors[3] = getResources().getColor(R.color.colorCritical);
 
         return colors;
     }
@@ -823,6 +866,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
             {
                 lineChart.setVisibility(View.VISIBLE);
                 tvNoData.setVisibility(View.INVISIBLE);
+                cbLines.setEnabled(true);
             }
             if(datasetSelected.equals("TEMPERATURE"))
             {
@@ -866,9 +910,51 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
             {
                 lineChart.setVisibility(View.INVISIBLE);
                 tvNoData.setVisibility(View.VISIBLE);
+                cbLines.setEnabled(false);
             }
         }
         lineChart.notifyDataSetChanged();
         lineChart.invalidate();
+    }
+
+    // when an entry is selected, pass the full datetime and correct unit to markerview to display
+    @Override
+    public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
+
+        ArrayList<ILineDataSet> dataSets = (ArrayList) lineChart.getData().getDataSets();
+        if(dataSets.get(dataSetIndex).getLabel().equals("TEMPERATURE"))
+            mv.setUnit("°C");
+        else
+            mv.setUnit("mm/s");
+
+        // get date+time of selected entry
+        SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
+        int currentIndex = h.getXIndex();
+        Date currentDate;
+        try {
+            currentDate = dateTimeFormatter.parse(lineXVals.get(currentIndex)); // x-label is a valid datetime
+            mv.setDate(dateTimeFormatter.format(currentDate));
+            return;
+        } catch (ParseException ex) {
+            //ex.printStackTrace();
+        }
+        // x-label is not a valid datetime (only have time don't have date)
+        // iterate through previous values to get the date of current entry
+        int newIndex = currentIndex;
+        while(true) {
+            newIndex--;
+            try {
+                currentDate = dateFormatter.parse(lineXVals.get(newIndex));
+                mv.setDate(dateFormatter.format(currentDate) +" " +lineXVals.get(currentIndex));
+                return;
+            } catch (ParseException ex) {
+                //ex.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onNothingSelected() {
     }
 }

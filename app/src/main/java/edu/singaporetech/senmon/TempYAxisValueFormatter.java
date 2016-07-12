@@ -11,17 +11,15 @@ import java.text.DecimalFormat;
 /**
  * Created by Meixi on 1/7/2016.
  */
-public class TempValueFormatter implements YAxisValueFormatter {
+public class TempYAxisValueFormatter implements YAxisValueFormatter {
     private DecimalFormat mFormat;
 
-    public TempValueFormatter () {
-        mFormat = new DecimalFormat("###,###,##0.0#"); // use one decimal
+    public TempYAxisValueFormatter () {
+        mFormat = new DecimalFormat("########0.0"); // use one decimal
     }
 
     @Override
     public String getFormattedValue(float value, YAxis yAxis) {
-        // write your logic here
-        // access the YAxis object to get more information
-        return mFormat.format(value) + "°C"; // e.g. append a dollar-sign
+        return mFormat.format(value) + "°C"; // append temperature unit to value
     }
 }
