@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
@@ -63,6 +64,10 @@ public class BackgroundService extends Service{
             Log.d("LOG", "BACKGROUND IS RUNNING");
             sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 //            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+            //send a broadcast when the notification activates
+            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent("data_changed"));
+
             //Declare variables
 
             int noOfCrit = sharedPreferences.getInt(NumberOfCritical, 0);

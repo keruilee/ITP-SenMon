@@ -2,7 +2,10 @@ package edu.singaporetech.senmon;
 
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -11,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -252,6 +256,10 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        //register the receiver
+        IntentFilter inF = new IntentFilter("data_changed");
+        LocalBroadcastManager.getInstance(context).registerReceiver(dataChangeReceiver, inF);
+
         return v;
     }
 
@@ -381,6 +389,17 @@ public class HomeFragment extends Fragment {
             e.printStackTrace();
         }
     }
+
+    //what to do when it receives the broadcast from the backgroundservice
+    private BroadcastReceiver dataChangeReceiver= new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // update your listview
+            Log.d("BROADCAST RECEIVED", "YES!");
+            //get the data again from the csvdata()
+            getCSVData();
+        }
+    };
 
     //Computation of machines in each state
     private void computeMachine() {
