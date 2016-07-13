@@ -155,7 +155,7 @@ public class RangeFragment extends Fragment {
                     }
                     //dont meet range criteria
                     else {
-                        Toast.makeText(getActivity(), "Invalid input value range", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "Invalid input value range. (0-50 only)", Toast.LENGTH_SHORT).show();
                     }
                     //null input value
                 } else {
@@ -183,7 +183,7 @@ public class RangeFragment extends Fragment {
                     }
                     //dont meet range criteria
                     else {
-                        Toast.makeText(getActivity(), "Invalid input value range", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "Invalid input value range. (0-50 only)", Toast.LENGTH_SHORT).show();
                     }
                     //null input value
                 } else {
@@ -211,7 +211,7 @@ public class RangeFragment extends Fragment {
                     }
                     //dont meet range criteria
                     else {
-                        Toast.makeText(getActivity(), "Invalid input value range", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "Invalid input value range. (0-10 only)", Toast.LENGTH_SHORT).show();
                     }
                     //null input value
                 } else {
@@ -239,7 +239,7 @@ public class RangeFragment extends Fragment {
                     }
                     //dont meet range criteria
                     else {
-                        Toast.makeText(getActivity(), "Invalid input value range", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "Invalid input value range. (0-10 only)", Toast.LENGTH_SHORT).show();
                     }
                     //null input value
                 } else {
