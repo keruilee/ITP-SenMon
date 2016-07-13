@@ -63,20 +63,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class DetailsFragment extends Fragment implements View.OnClickListener, OnChartValueSelectedListener {
-
-    Context context;
-
-    //test computation of datetime
-    String startDate = "04/18/2012 09:29:58";
-    String endDate = "04/20/2012 15:42:41";
-    String time = "";
 
     //Declare variables
     String TAG = "Details Fragment";
@@ -85,6 +77,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     String machineID = "";
     String tempValue, veloValue;
     View v;
+    Context context;
     String tempWarningValue, tempCriticalValue, veloWarningValue, veloCriticalValue;
     SharedPreferences RangeSharedPreferences;
     public static final String MyRangePREFERENCES = "MyRangePrefs";
@@ -92,9 +85,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     public static final String CriticalTemperature = "critTempKey";
     public static final String WarningVelocity = "warnVeloKey";
     public static final String CriticalVelocity = "critVeloKey";
-   // private FavouriteDatabaseHelper databaseHelper;
 
-    private DatabaseHelper testDatabasehelper;
+    private DatabaseHelper favDatabasehelper;
 
     View content;
 
@@ -161,7 +153,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         }
 
         // test for the new database helper
-        testDatabasehelper = new DatabaseHelper((getContext()));
+        favDatabasehelper = new DatabaseHelper((getContext()));
 
         //retrieve range values
         RangeSharedPreferences = getContext().getSharedPreferences(MyRangePREFERENCES, Context.MODE_PRIVATE);
@@ -172,8 +164,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         veloWarningValue = RangeSharedPreferences.getString(WarningVelocity, String.valueOf(Double.parseDouble(getString(R.string.velo_warning_value))));
         veloCriticalValue = RangeSharedPreferences.getString(CriticalVelocity, String.valueOf(Double.parseDouble(getString(R.string.velo_critical_value))));
 
-        //call compute time
-        //time = computeTime(startDate,endDate);
 
         String check = checkEventForDataBaseHelperFavourite(machineID);
 
@@ -190,10 +180,10 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
             Log.i("status no found?", checkEventForDataBaseHelperFavourite(machineID));
 
             ContentValues values = new ContentValues();
-            SQLiteDatabase testDb = testDatabasehelper.getWritableDatabase();
-            values.put(testDatabasehelper.MACHINEID, machineID); // KR do take note might need to change as update
-            values.put(testDatabasehelper.MACHINEFAVOURITESTATUS, "no");
-            testDb.insert(testDatabasehelper.TABLE_NAME, null, values);
+            SQLiteDatabase testDb = favDatabasehelper.getWritableDatabase();
+            values.put(favDatabasehelper.MACHINEID, machineID); // KR do take note might need to change as update
+            values.put(favDatabasehelper.MACHINEFAVOURITESTATUS, "no");
+            testDb.insert(favDatabasehelper.TABLE_NAME, null, values);
         }
 
         // set on click listeners for all clickable items
@@ -269,7 +259,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
             case R.id.btnfavourite:
                 if (checkEventForDataBaseHelperFavourite(machineID).equalsIgnoreCase("yes"))          // machine id exists in fav, remove from fav
                 {
-                    SQLiteDatabase testDb = testDatabasehelper.getWritableDatabase();
+                    SQLiteDatabase testDb = favDatabasehelper.getWritableDatabase();
                     // KR do take note might need to change as update
                     testDb.execSQL("UPDATE DatabaseTable SET machineFavouriteStatus = NULL WHERE machineID = '" + machineID + "'");
                     checkEventForDataBaseHelperFavourite(machineID);
@@ -279,7 +269,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                 else                                // machine id not in fav, add to fav
                 {
                     ContentValues values = new ContentValues();
-                    SQLiteDatabase testDb = testDatabasehelper.getWritableDatabase();
+                    SQLiteDatabase testDb = favDatabasehelper.getWritableDatabase();
                     // KR do take note might need to change as update
                     testDb.execSQL("UPDATE DatabaseTable SET machineFavouriteStatus = 'yes' WHERE machineID = '" + machineID + "'");
                     checkEventForDataBaseHelperFavourite(machineID);
@@ -355,30 +345,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     //Set detail color
     private void detailColor() {
         //check temperature value range color
-//        if (Double.parseDouble(tempValue) < Double.parseDouble(tempWarningValue)) {
-//            //Normal state text color
-//            tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
-//        } else if ((Double.parseDouble(tempValue) >= Double.parseDouble(tempWarningValue)
-//                && Double.parseDouble(tempValue) < Double.parseDouble(tempCriticalValue))) {
-//            //Warning state text color
-//            tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
-//        } else {
-//            //Critical state text color
-//            tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
-//        }
-//
-//        //check velocity value range color
-//        if (Double.parseDouble(veloValue) < Double.parseDouble(veloWarningValue)) {
-//            //Normal state text color
-//            tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
-//        } else if (Double.parseDouble(veloValue) >= Double.parseDouble(veloWarningValue)
-//                && Double.parseDouble(veloValue) < Double.parseDouble(veloCriticalValue)) {
-//            //Warning state text color
-//            tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
-//        } else {
-//            //Critical state text color
-//            tvDVelocity.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
-//        }
         if (Double.parseDouble(tempValue) < Double.parseDouble(tempWarningValue)) {
             //Normal state text color
             tvDTemperature.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
@@ -403,49 +369,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         }
     }
 
-    //Calculate time differences of machine
-    private String computeTime(String startDate, String endDate) {
-
-        //Declare variables
-        String timediff = "";
-        long diff = 0L, diffSeconds = 0L, diffMinutes = 0L, diffHours = 0L, diffDays = 0L;
-
-        //HH converts hour in 24 hours format (0-23), day calculation
-        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-
-        java.util.Date d1 = null;
-        java.util.Date d2 = null;
-
-        try {
-            d1 = format.parse(startDate);
-            d2 = format.parse(endDate);
-
-            //in milliseconds
-            diff = d2.getTime() - d1.getTime();
-
-            diffSeconds = diff / 1000 % 60;
-            diffMinutes = diff / (60 * 1000) % 60;
-            diffHours = diff / (60 * 60 * 1000) % 24;
-            diffDays = diff / (24 * 60 * 60 * 1000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        timediff = Long.toString(diffDays) + " Day " + Long.toString(diffHours) + " Hours " + Long.toString(diffMinutes)
-                + " Min " + Long.toString(diffSeconds) + " Sec ";
-
-        Log.i(TAG + " Day ", String.valueOf(Long.toString(diffDays)));
-        Log.i(TAG + " Hour ", String.valueOf(Long.toString(diffHours)));
-        Log.i(TAG + " Minute ", String.valueOf(Long.toString(diffMinutes)));
-        Log.i(TAG + " Second ", String.valueOf(Long.toString(diffSeconds)));
-        Log.i(TAG + " Total ", String.valueOf(Long.toString(diffDays) + " " + Long.toString(diffHours) + " " + Long.toString(diffMinutes)
-                + " " + Long.toString(diffSeconds)));
-
-        return timediff;
-    }
-
     public String checkEventForDataBaseHelperFavourite(String machineID) {
-        SQLiteDatabase db = testDatabasehelper.getWritableDatabase();
+        SQLiteDatabase db = favDatabasehelper.getWritableDatabase();
         String statusForFavo;
         int index;
 

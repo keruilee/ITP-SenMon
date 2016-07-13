@@ -23,17 +23,8 @@
         android:src="@drawable/ic_menu_unfavourite"
         android:visibility="visible"
         android:layout_below="@+id/tvMachineName"
-        android:layout_toStartOf="@+id/downloadBtn"
-        android:contentDescription="favourite"/>
-
-    <ImageView
-        android:id="@+id/downloadBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_download"
-        android:layout_alignBottom="@+id/line"
         android:layout_toStartOf="@+id/shareBtn"
-        android:contentDescription="download"/>
+        android:contentDescription="favourite"/>
 
     <ImageView
         android:id="@+id/shareBtn"

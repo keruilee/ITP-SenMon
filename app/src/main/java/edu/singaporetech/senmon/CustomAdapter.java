@@ -78,13 +78,11 @@ public class CustomAdapter extends ArrayAdapter<Machine> {
             textViewTemp.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
         }
         //temp warning state
-//        else if ((tempvalue >= Double.parseDouble(tempWarningValue)) && (tempvalue < Double.parseDouble(tempCriticalValue)))
         else if(tempvalue < Double.parseDouble(tempCriticalValue))
         {
             textViewTemp.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
         }
         //temp critical state
-//        else if (tempvalue >= Double.parseDouble(tempCriticalValue))
         else
         {
             textViewTemp.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));
@@ -97,13 +95,11 @@ public class CustomAdapter extends ArrayAdapter<Machine> {
             textViewVelo.setTextColor(ContextCompat.getColor(context, R.color.colorNormal));
         }
         //velo warning state
-//        else if ((velovalue >= Double.parseDouble(veloWarningValue)) && (velovalue < Double.parseDouble(veloCriticalValue)))
         else if(velovalue < Double.parseDouble(veloCriticalValue))
         {
             textViewVelo.setTextColor(ContextCompat.getColor(context, R.color.colorWarning));
         }
         //velo critical state
-//        else if (velovalue >= Double.parseDouble(veloCriticalValue))
         else
         {
             textViewVelo.setTextColor(ContextCompat.getColor(context, R.color.colorCritical));

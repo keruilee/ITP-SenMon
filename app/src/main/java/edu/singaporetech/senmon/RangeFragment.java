@@ -88,8 +88,8 @@ public class RangeFragment extends Fragment {
             seekBarTemp.setSelectedCriticalValue(Double.parseDouble(getString(R.string.temp_critical_value)));
             warnTempEdit.setText(seekBarTemp.getSelectedWarningValue().toString());
             critTempEdit.setText(seekBarTemp.getSelectedCriticalValue().toString());
-            Log.e("tempwarn", seekBarTemp.getSelectedWarningValue().toString());
-            Log.e("tempcrit", seekBarTemp.getSelectedCriticalValue().toString());
+            Log.d("tempwarn", seekBarTemp.getSelectedWarningValue().toString());
+            Log.d("tempcrit", seekBarTemp.getSelectedCriticalValue().toString());
         }
 
         //Set selected range on the velo rangeseekbar
@@ -104,8 +104,8 @@ public class RangeFragment extends Fragment {
             seekBarVelo.setSelectedCriticalValue(Double.parseDouble(getString(R.string.velo_critical_value)));
             warnVeloEdit.setText(seekBarVelo.getSelectedWarningValue().toString());
             critVeloEdit.setText(seekBarVelo.getSelectedCriticalValue().toString());
-            Log.e("velowarn", seekBarVelo.getSelectedWarningValue().toString());
-            Log.e("velocrit", seekBarVelo.getSelectedCriticalValue().toString());
+            Log.d("velowarn", seekBarVelo.getSelectedWarningValue().toString());
+            Log.d("velocrit", seekBarVelo.getSelectedCriticalValue().toString());
         }
 
         //Set default range for rangeseekbar
@@ -117,7 +117,7 @@ public class RangeFragment extends Fragment {
         seekBarTemp.setOnRangeSeekBarChangeListener(new TempRangeSeekBar.OnRangeSeekBarChangeListener<Double>() {
 
             public void onRangeSeekBarValuesChanged(TempRangeSeekBar<?> bar, Double warnValue, Double critValue) {
-                Log.e("tempvalue", warnValue + "  " + critValue);
+                Log.d("tempvalue", warnValue + "  " + critValue);
                 warnTempEdit.setText(seekBarTemp.getSelectedWarningValue().toString());
                 critTempEdit.setText(seekBarTemp.getSelectedCriticalValue().toString());
             }
@@ -128,7 +128,7 @@ public class RangeFragment extends Fragment {
         seekBarTemp.setOnRangeSeekBarChangeListener(new TempRangeSeekBar.OnRangeSeekBarChangeListener<Double>() {
 
             public void onRangeSeekBarValuesChanged(TempRangeSeekBar<?> bar, Double warnValue, Double critValue) {
-                Log.e("tempvalue", warnValue + "  " + critValue);
+                Log.d("tempvalue", warnValue + "  " + critValue);
                 warnTempEdit.setText(seekBarTemp.getSelectedWarningValue().toString());
                 critTempEdit.setText(seekBarTemp.getSelectedCriticalValue().toString());
             }
@@ -138,7 +138,7 @@ public class RangeFragment extends Fragment {
         seekBarVelo.setOnRangeSeekBarChangeListener(new VeloRangeSeekBar.OnRangeSeekBarChangeListener<Double>() {
 
             public void onRangeSeekBarValuesChanged(VeloRangeSeekBar<?> bar, Double warnValue, Double critValue) {
-                Log.e("velovalue", warnValue + "  " + critValue);
+                Log.d("velovalue", warnValue + "  " + critValue);
                 warnVeloEdit.setText(seekBarVelo.getSelectedWarningValue().toString());
                 critVeloEdit.setText(seekBarVelo.getSelectedCriticalValue().toString());
             }

@@ -80,10 +80,6 @@ public class HomeFragment extends Fragment {
     public Context context;
     View v;
 
-
-    //for testing
-    final ArrayList<Machine> myDatabaseList = new ArrayList<Machine>();
-
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -328,12 +324,6 @@ public class HomeFragment extends Fragment {
                 //check priority method
                 hmachineID = checkPriority();
 
-
-                //For testing
-                checkDatabaseRecord();
-                seeValue();
-
-
                 progressDialog.dismiss();
             }
         }
@@ -363,14 +353,14 @@ public class HomeFragment extends Fragment {
                 latestRecords = record.split(",");
 
                 Machine machine = new Machine(latestRecords[10].replace(".csv",""),latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],
-                        latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],"22","","");
+                        latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],latestRecords[9],"","");
 
                 myMachineList.add(machine);
 
                 //Change database
                 DbHelper.changeDatabase(latestRecords[10].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
-                        latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], "22");
-                DbHelper.updateMachineDateTime(latestRecords[9].replace(".csv", ""), DateFormat.getDateTimeInstance().format(new Date()));
+                        latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9]);
+                DbHelper.updateMachineDateTime(latestRecords[10].replace(".csv", ""), DateFormat.getDateTimeInstance().format(new Date()));
 
                 Log.d("cleanupLatestRecords: ", DbHelper.toString());
             }
@@ -415,55 +405,6 @@ public class HomeFragment extends Fragment {
 
         for(Machine machine : myMachineList)
         {
-//            number of normal machine
-//            if (Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempWarningValue)
-//                    | (Double.parseDouble(machine.getmachineVelo()) < Double.parseDouble(veloWarningValue))) {
-//
-//                //update normal state on the row
-//                DbHelper.updateMachineState(machine.getMachineID(), NORMAL);
-//                noOfNorm++;
-//
-//            }
-//            //number of warning machine
-//            if ((Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempWarningValue)
-//                    & Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempCriticalValue))
-//                    | (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(veloWarningValue)
-//                    & Double.parseDouble(machine.getmachineVelo()) <= Double.parseDouble(veloCriticalValue))) {
-//
-//
-//                ///check whether particular machine have normal state
-//                if (DbHelper.checkMachineState(machine.getMachineID(), NORMAL) == true)
-//                {
-//                    noOfNorm--;
-//                }
-//
-//                //update warning state on the row
-//                DbHelper.updateMachineState(machine.getMachineID(), WARNING);
-//                noOfWarn++;
-//            }
-//            //number of critical machine
-//            if (Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempCriticalValue)
-//                    | (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(veloCriticalValue))) {
-//
-//                ///check whether particular machine have normal state
-//                if (DbHelper.checkMachineState(machine.getMachineID(), NORMAL) == true)
-//                {
-//                    noOfNorm--;
-//                }
-//
-//                ///check whether particular machine have warning state
-//                if (DbHelper.checkMachineState(machine.getMachineID(), WARNING) == true)
-//                {
-//                    noOfWarn--;
-//                }
-//
-//
-//                //update critical state on the row
-//                DbHelper.updateMachineState(machine.getMachineID(), CRITICAL);
-//                noOfCrit++;
-//            }
-
-            // added in 
             machineTemp = Double.parseDouble(machine.getmachineTemp());
             machineVelo = Double.parseDouble(machine.getmachineVelo());
             tempWarning = Double.parseDouble(tempWarningValue);
@@ -605,49 +546,4 @@ public class HomeFragment extends Fragment {
             allBtn.getBackground().setColorFilter(getResources().getColor(R.color.colorLighterAll), PorterDuff.Mode.SRC_ATOP);
         }
     }
-
-    //For testing
-    private void checkDatabaseRecord()
-    {
-        if (!(myDatabaseList.isEmpty()))
-        {
-            myDatabaseList.clear();
-        }
-        // Select All Query
-        String selectQuery = "SELECT * FROM " + DbHelper.TABLE_NAME;
-        SQLiteDatabase db = DbHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
-        // looping through all rows and adding to mydatabaselist
-        if (cursor.moveToFirst()) {
-            do {
-                Machine dbMachine = new Machine(cursor.getString(1),cursor.getString(2),cursor.getString(3),
-                        cursor.getString(4),cursor.getString(5),cursor.getString(6),cursor.getString(7),cursor.getString(8),
-                        cursor.getString(9),cursor.getString(10),cursor.getString(11),cursor.getString(12),cursor.getString(13));
-                myDatabaseList.add(dbMachine);
-            } while (cursor.moveToNext());
-        }
-    }
-
-    private void seeValue() {
-        int i = 1;
-        int j = 1;
-        for(Machine seeMachine : myMachineList){
-
-            Log.i("Server Array", String.valueOf(i) + " " + seeMachine.getMachineID() + " " + seeMachine.getmachineTemp() + " " + seeMachine.getmachineVelo() + " " + seeMachine.getMachineHour());
-            i++;
-
-        }
-
-        for(Machine seedbMachine :  myDatabaseList){
-
-            Log.i("Database Array", String.valueOf(j) + " " + seedbMachine.getMachineID() + " " + seedbMachine.getmachineTemp() + " " + seedbMachine.getmachineVelo() + " " + seedbMachine.getMachineStatus());
-            j++;
-
-
-        }
-        Log.d("Number of row in db ", String.valueOf(DbHelper.getRowsCount()));
-
-    }
-
-
 }

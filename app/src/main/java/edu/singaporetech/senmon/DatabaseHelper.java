@@ -276,6 +276,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return value;
     }
 
+    // Insert/update database //
     public void changeDatabase(String changemachineID, String changemachineDate, String changemachineTime,
                                String changemachineVx, String changemachineVy, String changemachineVz,
                                String changemachineVelo, String changemachineTemp, String changemachineTS,
@@ -333,7 +334,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    // Find machine in a particular state in database //
+    // Find machine that is favourite //
     public ArrayList <Machine> returnFavourite() {
         Log.d("TEST FAV", "enter");
         SQLiteDatabase db = this.getReadableDatabase();
@@ -359,7 +360,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-
+    // Find all machine in the database //
     public ArrayList <Machine> returnStringMachineAllString() {
         ArrayList <Machine> machineString = new ArrayList<Machine>();
 

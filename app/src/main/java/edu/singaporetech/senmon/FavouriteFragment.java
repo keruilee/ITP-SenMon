@@ -262,14 +262,14 @@ public class FavouriteFragment extends Fragment {
             for (String record : allCSVRecords) {
                 latestRecords = record.split(",");
 
-                Machine machine = new Machine(latestRecords[9].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
-                        latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], "22", "", "");
+                Machine machine = new Machine(latestRecords[10].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
+                        latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9], "", "");
 
                 myTempoMachineList.add(machine);
                 //Change database
-                mydatabaseHelper.changeDatabase(latestRecords[9].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
-                        latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], "22");
-                mydatabaseHelper.updateMachineDateTime(latestRecords[9].replace(".csv", ""), DateFormat.getDateTimeInstance().format(new Date()));
+                mydatabaseHelper.changeDatabase(latestRecords[10].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
+                        latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9]);
+                mydatabaseHelper.updateMachineDateTime(latestRecords[10].replace(".csv", ""), DateFormat.getDateTimeInstance().format(new Date()));
 
 
             }
