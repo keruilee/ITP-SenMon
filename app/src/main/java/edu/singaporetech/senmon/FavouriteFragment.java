@@ -153,7 +153,7 @@ public class FavouriteFragment extends Fragment {
             }
         });
 
-        numberOfFavInAlert = mydatabaseHelper.checkNumberOfFavouriteMachineInAlert();
+
         return rootView;
         // / return inflater.inflate(R.layout.fragment_list, container, false);
     }
@@ -288,8 +288,6 @@ public class FavouriteFragment extends Fragment {
         myFavouriteMachineList.clear();
         Cursor c = FavouriteList();
         String statusForFavo;
-//        int numOfFav = 0;
-//        Log.d("NUMBER OF FAVOURITES", "ZER0");
 
         editor = DateTimeSharedPreferences.edit();
         editor.putString("DT_PREFS_KEY", DateFormat.getDateTimeInstance().format(new Date()));
@@ -308,7 +306,7 @@ public class FavouriteFragment extends Fragment {
                             c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
                             c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
                     myFavouriteMachineList.add(machineFavourite);
-//                    numOfFav++;
+//
 
                 }
             } while (c.moveToNext());

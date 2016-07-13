@@ -80,12 +80,16 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     Context context;
     String tempWarningValue, tempCriticalValue, veloWarningValue, veloCriticalValue;
     SharedPreferences RangeSharedPreferences;
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
+    public static final String MyPREFERENCES = "MyPrefs" ;
     public static final String MyRangePREFERENCES = "MyRangePrefs";
     public static final String WarningTemperature = "warnTempKey";
     public static final String CriticalTemperature = "critTempKey";
     public static final String WarningVelocity = "warnVeloKey";
     public static final String CriticalVelocity = "critVeloKey";
-
+    public static final String NumberOfFavourite = "numOfFav";
+    int count = 0;
     private DatabaseHelper favDatabasehelper;
 
     View content;
@@ -94,6 +98,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     private static final String TAG_RESULTS = "result";
 
     private TabLayout tabLayout;
+
     private RelativeLayout lineChartLayout;
     private CheckBox cbTemp, cbVelo, cbLines;
     private LineChart lineChart ;
@@ -142,6 +147,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         cbVelo = (CheckBox) v.findViewById(R.id.checkbox_velo);
         cbLines = (CheckBox) v.findViewById(R.id.checkbox_lines);
 
+
+
         //retrieving data using bundle
         Bundle bundle = getArguments();
 
@@ -184,6 +191,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
             values.put(favDatabasehelper.MACHINEID, machineID); // KR do take note might need to change as update
             values.put(favDatabasehelper.MACHINEFAVOURITESTATUS, "no");
             testDb.insert(favDatabasehelper.TABLE_NAME, null, values);
+
+
         }
 
         // set on click listeners for all clickable items
@@ -264,6 +273,12 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                     testDb.execSQL("UPDATE DatabaseTable SET machineFavouriteStatus = NULL WHERE machineID = '" + machineID + "'");
                     checkEventForDataBaseHelperFavourite(machineID);
                     tvDFavourite.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_menu_unfavourite));
+                    int count = favDatabasehelper.checkNumberOfFavouriteMachineInAlert();
+                    sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                    editor = sharedPreferences.edit();
+                    editor.putInt(NumberOfFavourite, count);
+                    editor.apply();
+                    Log.d("FAAVOURITE COUNT", count + "");
                     Toast.makeText(getActivity(), "Removed from Favourite List", Toast.LENGTH_SHORT).show();
                 }
                 else                                // machine id not in fav, add to fav
@@ -275,6 +290,14 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                     checkEventForDataBaseHelperFavourite(machineID);
                     //tvDFavourite.setText("Click to unfavourite");
                     tvDFavourite.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_menu_favourite));
+
+
+                    count = favDatabasehelper.checkNumberOfFavouriteMachineInAlert();
+                    sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                    editor = sharedPreferences.edit();
+                    editor.putInt(NumberOfFavourite, count);
+                    editor.apply();
+                    Log.d("FAAVOURITE COUNT", count + "");
                     Toast.makeText(getActivity(), "Added into Favourite List", Toast.LENGTH_SHORT).show();
 
                 }

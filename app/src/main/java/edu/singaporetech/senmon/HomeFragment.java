@@ -64,6 +64,7 @@ public class HomeFragment extends Fragment {
     public static final String CriticalVelocity = "critVeloKey";
     public static final String NumberOfCritical = "numOfCrit";
     public static final String NumberOfWarning = "numOfWarn";
+    public static final String NumberOfFavourite = "numOfFav";
 
     ProgressDialog progressDialog;
     JSONArray serverCSVrecords = null;
@@ -387,6 +388,7 @@ public class HomeFragment extends Fragment {
             // update your listview
             Log.d("BROADCAST RECEIVED", "YES!");
             //get the data again from the csvdata()
+
             getCSVData();
         }
     };

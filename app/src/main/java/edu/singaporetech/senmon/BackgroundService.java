@@ -42,8 +42,10 @@ public class BackgroundService extends Service{
     NotificationManager notificationManager;
     int WarnNotificID = 111;
     int CritNotificID = 222;
+    int FavNotificID = 333;
     boolean isWarnNotificActive = false;
     boolean isCritNotificActive = false;
+    boolean isFavNotificActive = false;
 
     @Override
     public IBinder onBind(Intent intent){
@@ -66,20 +68,23 @@ public class BackgroundService extends Service{
             sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 //            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-            //send a broadcast when the notification activates
+
 
 
             //Declare variables
 
             int noOfCrit = sharedPreferences.getInt(NumberOfCritical, 0);
             int noOfWarn = sharedPreferences.getInt(NumberOfWarning, 0);
+            int noOfFav = sharedPreferences.getInt(NumberOfFavourite, 0);
 
             //if there is any machines in the warning state
 
             Log.d("NUMBER OF CRITICALS", "" + noOfCrit);
             Log.d("NUMBER OF WARNINGS", "" + noOfWarn);
             if (sharedPreferences.getBoolean(NotificationsEnabled, true)) {
+                //send a broadcast when the notification activates
                 LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent("data_changed"));
+                //if there are any machine in warning state
                 if (noOfWarn > 0) {
                     Log.d("LOL", "SERVICE RECEIVED THE VARIABLE");
                     if (sharedPreferences.getBoolean(WarningEnabled, true)) {
@@ -88,7 +93,7 @@ public class BackgroundService extends Service{
 
                     }
                 }
-
+                //if there are machines in critical states
                 if (noOfCrit > 0) {
                     //notifications for critical states
 ////            //TODO build notifications for critical machines
@@ -98,10 +103,18 @@ public class BackgroundService extends Service{
 
                     }
                 }
+
+                //if there are machines in the favourite that are in warning or critical state
+                if (noOfFav > 0){
+                    //TODO build notifications for favourite machines
+                    if(sharedPreferences.getBoolean(FavNtfnOnly, true)){
+                        Log.d("SHARED", "fAVOURITE RECEIVED");
+                        callFavNotification("ATTENTION!", noOfFav, R.drawable.ic_grade_24dp);
+
+                    }
+                }
             }
-            if(sharedPreferences.getBoolean(FavNtfnOnly,true)){
-                Log.d("Favourite Notific", "ENABLED");
-            }
+
         }
     };
 
@@ -122,13 +135,15 @@ public class BackgroundService extends Service{
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-            //TODO fire off the critical notification
+
             NotificBuilder.setContentIntent(pendingIntent);
+
+        //TODO fire off the critical notification
             if(state == "critical"){
                 notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 notificationManager.notify(CritNotificID, NotificBuilder.build());
                 Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-                v.vibrate(1000);
+                v.vibrate(800);
 
                 try {
                     Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -142,6 +157,7 @@ public class BackgroundService extends Service{
                 //call the destroy method
                 stopSelf();
             }
+        //TODO fire of the warning notifications
             if(state == "warning"){
                 notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 notificationManager.notify(WarnNotificID, NotificBuilder.build());
@@ -161,8 +177,49 @@ public class BackgroundService extends Service{
                 stopSelf();
             }
 
+
+
     }
 
+    public void callFavNotification(String contentTitle, int noOfMachine, int icon){
+        //TODO Build notifications from the parameters retreived
+        NotificationCompat.Builder NotificBuilder = (NotificationCompat.Builder) new
+                NotificationCompat.Builder(context).setContentTitle(contentTitle)
+                .setContentText( noOfMachine + " of the Machine(s) that you have noted needs attention")
+                .setSmallIcon(icon)
+                .setAutoCancel(true);
+        Intent openIntent = new Intent(context, MainActivity.class);
+
+        TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(context);
+        taskStackBuilder.addParentStack(MainActivity.class);
+        taskStackBuilder.addNextIntent(openIntent);
+
+        PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(0,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+
+        NotificBuilder.setContentIntent(pendingIntent);
+
+            notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(FavNotificID, NotificBuilder.build());
+            Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+            v.vibrate(800);
+
+            try {
+                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
+                r.play();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            isFavNotificActive = true;
+
+            //call the destroy method
+            stopSelf();
+
+
+    }
     //if is not running then destroy
     @Override
     public void onDestroy(){

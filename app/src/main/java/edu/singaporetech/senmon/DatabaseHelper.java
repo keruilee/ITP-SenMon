@@ -359,6 +359,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
+    public boolean favouriteExist(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "SELECT * FROM " + TABLE_NAME + " WHERE machineFavouriteStatus == 'yes' ";
+        Cursor c = db.rawQuery(selectQuery, null);
+        Log.d("FAVOURITE EXIST FUNCTION", c.getCount()+" FAVOURITE");
+        if (c.getCount() > 0){
+            return true;
+        }else
+            return false;
+    }
+
 
     // Find all machine in the database //
     public ArrayList <Machine> returnStringMachineAllString() {
@@ -381,18 +392,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int checkNumberOfFavouriteMachineInAlert (){
-        int totalMachine = 0;
+
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_NAME, columns,
-                MACHINEFAVOURITESTATUS + " = ? AND " + MACHINESTATUS + " = ? OR " + MACHINESTATUS + " = ? ",
-                new String[]{"yes", "Critical", "Warning"}, null, null, null);
+                MACHINEFAVOURITESTATUS + " = ? AND " + MACHINESTATUS + " != ?",
+                new String[]{"yes", "Normal"}, null, null, null);
 
-        if(cursor.moveToFirst()){
-            do{
-                totalMachine++;
-            }while(cursor.moveToNext());
+        Log.d("CHECK FAV FUNCTION", cursor.getCount()+" FAVOURITE");
+        int totalMachine = cursor.getCount();
 
-        }
         return totalMachine;
 
     }

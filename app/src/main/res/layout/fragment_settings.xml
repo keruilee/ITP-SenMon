@@ -51,7 +51,7 @@
         android:id="@+id/ntfnFavSw"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Alert machines in favourite list only"
+        android:text="Alert machines in favourite list"
         android:padding="10dp"
         android:checked="false"
         android:layout_below="@id/ntfnCriticalSw"/>

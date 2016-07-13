@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity
         if(isAlarmRunning == false){
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this.context, 0 , alarm, 0);
             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
             alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), 15000, pendingIntent);
 
         }

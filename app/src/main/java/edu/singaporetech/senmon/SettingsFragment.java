@@ -75,8 +75,7 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
         ntfnFavSw.setOnCheckedChangeListener(SettingsFragment.this);
 
         sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-//        int noOfFave = sharedPreferences.getInt(NumberOfFavourite,0);
-//        Log.d("SHARED NUMBER OF FAV", ""+noOfFave);
+
         favExists = favouriteExists();
         if(!favExists)                      // by default fav notifications switch is enabled
             ntfnFavSw.setEnabled(false);
@@ -176,17 +175,13 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
 
     public boolean favouriteExists() {
         // to return all records in the form of a Cursor object
-        FavouriteDatabaseHelper favDatabase = new FavouriteDatabaseHelper(getActivity());
-        int count = (int) favDatabase.getRowsCount();
-        if(count == 0) {            // no fav machine
-            Log.d("FAAVOURITE COUNT", count+"");
-            editor = sharedPreferences.edit();
-            editor.putBoolean(FavNtfnOnly, false);          // update shared preference to disable alert fav only
-            editor.commit();
-            return false;
+        DatabaseHelper db = new DatabaseHelper(getActivity());
+
+        if(db.favouriteExist()) {            //fav machine exists
+
+            return true;
         }
-        Log.d("FAAVOURITE COUNT", count+"");
-        return true;
+        return false;
     }
 
     public void loadSavedPrefs() {
@@ -199,8 +194,8 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
             }
             else            // notifications enabled, set all to saved settings
             {
-                //ntfnWarningSw.setChecked(sharedPreferences.getBoolean(WarningEnabled, true));
-                //ntfnCriticalSw.setChecked(sharedPreferences.getBoolean(CriticalEnabled, true));
+                ntfnWarningSw.setChecked(sharedPreferences.getBoolean(WarningEnabled, true));
+                ntfnCriticalSw.setChecked(sharedPreferences.getBoolean(CriticalEnabled, true));
                 if(favExists)
                     ntfnFavSw.setChecked(sharedPreferences.getBoolean(FavNtfnOnly, false));
             }
