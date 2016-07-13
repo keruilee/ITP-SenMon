@@ -380,6 +380,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return machineString;
     }
 
+    public int checkNumberOfFavouriteMachineInAlert (){
+        int totalMachine = 0;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, columns,
+                MACHINEFAVOURITESTATUS + " = ? AND " + MACHINESTATUS + " = ? OR " + MACHINESTATUS + " = ? ",
+                new String[]{"yes", "Critical", "Warning"}, null, null, null);
+
+        if(cursor.moveToFirst()){
+            do{
+                totalMachine++;
+            }while(cursor.moveToNext());
+
+        }
+        return totalMachine;
+
+    }
+
     // Get column
     public static String[] getColumns()
     { return columns;}

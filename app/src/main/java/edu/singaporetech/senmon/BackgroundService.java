@@ -67,7 +67,7 @@ public class BackgroundService extends Service{
 //            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
             //send a broadcast when the notification activates
-            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent("data_changed"));
+
 
             //Declare variables
 
@@ -79,6 +79,7 @@ public class BackgroundService extends Service{
             Log.d("NUMBER OF CRITICALS", "" + noOfCrit);
             Log.d("NUMBER OF WARNINGS", "" + noOfWarn);
             if (sharedPreferences.getBoolean(NotificationsEnabled, true)) {
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent("data_changed"));
                 if (noOfWarn > 0) {
                     Log.d("LOL", "SERVICE RECEIVED THE VARIABLE");
                     if (sharedPreferences.getBoolean(WarningEnabled, true)) {

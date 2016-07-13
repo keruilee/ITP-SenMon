@@ -54,6 +54,7 @@ public class FavouriteFragment extends Fragment {
     SharedPreferences.Editor editor;
     SharedPreferences sharedPreferences;
     String dateTime;
+    int numberOfFavInAlert = 0;
 
     public static final String MyPREFERENCES = "MyPrefs" ;
 
@@ -151,6 +152,8 @@ public class FavouriteFragment extends Fragment {
 
             }
         });
+
+        numberOfFavInAlert = mydatabaseHelper.checkNumberOfFavouriteMachineInAlert();
         return rootView;
         // / return inflater.inflate(R.layout.fragment_list, container, false);
     }
