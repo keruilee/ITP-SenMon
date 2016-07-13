@@ -362,13 +362,13 @@ public class HomeFragment extends Fragment {
             {
                 latestRecords = record.split(",");
 
-                Machine machine = new Machine(latestRecords[9].replace(".csv",""),latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],
+                Machine machine = new Machine(latestRecords[10].replace(".csv",""),latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],
                         latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],"22","","");
 
                 myMachineList.add(machine);
 
                 //Change database
-                DbHelper.changeDatabase(latestRecords[9].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
+                DbHelper.changeDatabase(latestRecords[10].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
                         latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], "22");
                 DbHelper.updateMachineDateTime(latestRecords[9].replace(".csv", ""), DateFormat.getDateTimeInstance().format(new Date()));
 
