@@ -24,7 +24,11 @@ import org.florescu.android.rangeseekbar.VeloRangeSeekBar;
  */
 public class RangeFragment extends Fragment {
 
-    //Declare variables
+    //Declare variables\
+    Boolean validateWarnTemp = true;
+    Boolean validateCritTemp = true;
+    Boolean validateWarnVelo = true;
+    Boolean validateCritVelo = true;
     View v;
     TempRangeSeekBar seekBarTemp;
     VeloRangeSeekBar seekBarVelo;
@@ -152,10 +156,12 @@ public class RangeFragment extends Fragment {
                     //met the range criteria
                     if ((Double.valueOf(s.toString()) >= Double.parseDouble(getString(R.string.default_temp_min_range))) && (Double.valueOf(s.toString()) <= Double.parseDouble(getString(R.string.default_temp_max_range)))) {
                         seekBarTemp.setSelectedWarningValue(Double.valueOf(s.toString()));
+                        validateWarnTemp = true;
                     }
                     //dont meet range criteria
                     else {
                         Toast.makeText(getActivity(), "Invalid input value range. (0-50 only)", Toast.LENGTH_SHORT).show();
+                        validateWarnTemp = false;
                     }
                     //null input value
                 } else {
@@ -180,10 +186,12 @@ public class RangeFragment extends Fragment {
                     //met the range criteria
                     if ((Double.valueOf(s.toString()) >= Double.parseDouble(getString(R.string.default_temp_min_range))) && (Double.valueOf(s.toString()) <= Double.parseDouble(getString(R.string.default_temp_max_range)))) {
                         seekBarTemp.setSelectedCriticalValue(Double.valueOf(s.toString()));
+                        validateCritTemp = true;
                     }
                     //dont meet range criteria
                     else {
                         Toast.makeText(getActivity(), "Invalid input value range. (0-50 only)", Toast.LENGTH_SHORT).show();
+                        validateCritTemp = false;
                     }
                     //null input value
                 } else {
@@ -208,10 +216,12 @@ public class RangeFragment extends Fragment {
                     //met the range criteria
                     if ((Double.valueOf(s.toString()) >= Double.parseDouble(getString(R.string.default_velo_min_range))) && (Double.valueOf(s.toString()) <= Double.parseDouble(getString(R.string.default_velo_max_range)))) {
                         seekBarVelo.setSelectedWarningValue(Double.valueOf(s.toString()));
+                        validateWarnVelo = true;
                     }
                     //dont meet range criteria
                     else {
                         Toast.makeText(getActivity(), "Invalid input value range. (0-10 only)", Toast.LENGTH_SHORT).show();
+                        validateWarnVelo = false;
                     }
                     //null input value
                 } else {
@@ -236,10 +246,12 @@ public class RangeFragment extends Fragment {
                     //met the range criteria
                     if ((Double.valueOf(s.toString()) >= Double.parseDouble(getString(R.string.default_velo_min_range))) && (Double.valueOf(s.toString()) <= Double.parseDouble(getString(R.string.default_velo_max_range)))) {
                         seekBarVelo.setSelectedCriticalValue(Double.valueOf(s.toString()));
+                        validateCritVelo = true;
                     }
                     //dont meet range criteria
                     else {
                         Toast.makeText(getActivity(), "Invalid input value range. (0-10 only)", Toast.LENGTH_SHORT).show();
+                        validateCritVelo = false;
                     }
                     //null input value
                 } else {
@@ -259,25 +271,51 @@ public class RangeFragment extends Fragment {
         //save button
         save.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                //Call the method and Store the number into a variable
-                String warningTemp = seekBarTemp.getSelectedWarningValue().toString();
-                String criticalTemp = seekBarTemp.getSelectedCriticalValue().toString();
-                String warningVelo = seekBarVelo.getSelectedWarningValue().toString();
-                String criticalVelo = seekBarVelo.getSelectedCriticalValue().toString();
 
-                SharedPreferences.Editor rangeEditor = RangeSharedPreferences.edit();
+                //validate for empty inputs
+                if ((validateEmpty(warnTempEdit) == true) && (validateEmpty(critTempEdit) == true)
+                        && (validateEmpty(warnVeloEdit) == true) && (validateEmpty(critVeloEdit) == true)) {
 
-                //store to warning and critical temperature,velocity
-                rangeEditor.putString(WarningTemperature, warningTemp);
-                rangeEditor.putString(CriticalTemperature, criticalTemp);
-                rangeEditor.putString(WarningVelocity, warningVelo);
-                rangeEditor.putString(CriticalVelocity, criticalVelo);
-                rangeEditor.commit();
-                Toast.makeText(getActivity(), "Changes Saved", Toast.LENGTH_SHORT).show();
+                    //Check for invalid range input
+                    if  ((validateWarnTemp == true) && (validateCritTemp == true) &&
+                            (validateWarnVelo == true) && (validateCritVelo == true))
+                    {
+                        //No empty input or invalid input
+                        //Call the method and Store the number into a variable
+                        String warningTemp = seekBarTemp.getSelectedWarningValue().toString();
+                        String criticalTemp = seekBarTemp.getSelectedCriticalValue().toString();
+                        String warningVelo = seekBarVelo.getSelectedWarningValue().toString();
+                        String criticalVelo = seekBarVelo.getSelectedCriticalValue().toString();
+
+                        SharedPreferences.Editor rangeEditor = RangeSharedPreferences.edit();
+
+                        //store to warning and critical temperature,velocity
+                        rangeEditor.putString(WarningTemperature, warningTemp);
+                        rangeEditor.putString(CriticalTemperature, criticalTemp);
+                        rangeEditor.putString(WarningVelocity, warningVelo);
+                        rangeEditor.putString(CriticalVelocity, criticalVelo);
+                        rangeEditor.commit();
+                        Toast.makeText(getActivity(), "Range Saved Successfully", Toast.LENGTH_SHORT).show();
+
+                    }
+                    else {
+                        Toast.makeText(getActivity(), "Invalid input range!", Toast.LENGTH_SHORT).show();
+                    }
+                }
             }
         });
 
         return v;
+    }
+
+    public boolean validateEmpty(EditText editText) {
+        if (editText.getText().toString().isEmpty()) {
+            Toast.makeText(getActivity(), "You cannot leave a blank input value", Toast.LENGTH_SHORT).show();
+            return false;
+
+        } else {
+            return true;
+        }
     }
 
 
