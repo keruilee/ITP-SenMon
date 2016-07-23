@@ -14,7 +14,7 @@
 
     <color name="colorLighterCritical">#FFB3B3</color>
     <color name="colorLighterWarning">#FFE5B3</color>
-    <color name="colorLighterNormal">#99B691</color>
+    <color name="colorLighterNormal">#C1E8B3</color>
     <color name="colorLighterAll">#CDCDCD</color>
 
     <color name="colorFeedback">#b27e7e</color>

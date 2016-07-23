@@ -528,24 +528,28 @@ public class HomeFragment extends Fragment {
         {
             critBtn.setEnabled(false);
             critBtn.getBackground().setColorFilter(getResources().getColor(R.color.colorLighterCritical), PorterDuff.Mode.SRC_ATOP);
+            critBtn.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_menu_critical_disabled, 0, 0);
         }
         //warning button disabled
         if (warnNum == 0)
         {
             warnBtn.setEnabled(false);
             warnBtn.getBackground().setColorFilter(getResources().getColor(R.color.colorLighterWarning), PorterDuff.Mode.SRC_ATOP);
+            warnBtn.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_menu_warning_disabled, 0, 0);
         }
         //normal button disabled
         if (normNum == 0)
         {
             normBtn.setEnabled(false);
             normBtn.getBackground().setColorFilter(getResources().getColor(R.color.colorLighterNormal), PorterDuff.Mode.SRC_ATOP);
+            normBtn.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_menu_normal_disabled, 0, 0);
         }
         //all button disabled
         if (totalNum == 0)
         {
             allBtn.setEnabled(false);
             allBtn.getBackground().setColorFilter(getResources().getColor(R.color.colorLighterAll), PorterDuff.Mode.SRC_ATOP);
+            allBtn.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_menu_all_disabled, 0, 0);
         }
     }
 }
