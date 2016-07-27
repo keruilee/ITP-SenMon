@@ -530,7 +530,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                 // load other records for graph
                 while (i < serverCSVrecords.length()) {
                     object = serverCSVrecords.get(i).toString();
-                    object = object.replace("\r", "").replace("\n", "").replace("\"","");
+                    object = object.replace("\r", "").replace("\n", "").replace("\"","").replace("\\","");
                     currentRecord = object.split(",");
                     recordDate = dateFormatter.parse(currentRecord[1]);
                     recordTime = timeFormatter.parse(currentRecord[2]);
