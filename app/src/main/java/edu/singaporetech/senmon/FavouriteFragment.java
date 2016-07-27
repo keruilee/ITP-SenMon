@@ -1,12 +1,16 @@
 package edu.singaporetech.senmon;
 
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -66,10 +70,10 @@ public class FavouriteFragment extends Fragment {
     ArrayList<Machine> myTempoMachineList = new ArrayList<Machine>();
     private static final String TAG_RESULTS="result";
     ProgressDialog progressDialog;
-    JSONArray serverCSVrecords = null;
+    JSONArray serverSQLRecords = null;
 
     public String[] latestRecords;
-    public String[] allCSVRecords;
+    public String[] allSQLRecords;
 
     // for swipe
     public SwipeRefreshLayout mSwipeRefreshLayout = null;
@@ -148,7 +152,23 @@ public class FavouriteFragment extends Fragment {
                         Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
                         progressDialog = new ProgressDialog(getActivity());
                         myFavouriteMachineList.clear();
-                        getCSVData();
+                        if(isNetworkEnabled()){
+                            getSQLData();
+                        }
+                        else{
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            // Use the Builder class for convenient dialog construction
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setTitle("Network Connectivity");
+                            builder.setMessage("No network detected! Data will not be updated!");
+                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    // You don't have to do anything here if you just want it dismissed when clicked
+                                }
+                            });
+                            AlertDialog networkDialog = builder.create();
+                            networkDialog.show();
+                        }
 
             }
         });
@@ -183,13 +203,13 @@ public class FavouriteFragment extends Fragment {
 
     ////////////////////////update the list///////////////////////////
 
-    public void getCSVData(){
-        class GetCSVDataJSON extends AsyncTask<Void, Void, JSONObject> {
+    public void getSQLData() {
+        class GetSQLDataJSON extends AsyncTask<Void, Void, JSONObject> {
 
             URL encodedUrl;
             HttpURLConnection urlConnection = null;
 
-            String url = "http://itpsenmon.net23.net/readFromCSV.php";
+            String url = "http://itpsenmon.net23.net/readFromSQL.php";
 
             JSONObject responseObj;
 
@@ -237,7 +257,7 @@ public class FavouriteFragment extends Fragment {
             @Override
             protected void onPostExecute(JSONObject result){
                 super.onPostExecute(result);
-                getCSVRecords(result);
+                getSQLRecords(result);
                                // display list with sorted values
                 progressDialog.dismiss();
 
@@ -246,39 +266,39 @@ public class FavouriteFragment extends Fragment {
                 // display the date time
             }
         }
-        GetCSVDataJSON g = new GetCSVDataJSON();
+        GetSQLDataJSON g = new GetSQLDataJSON();
         g.execute();
     }
 
     //Get the server CSV records
-    public void getCSVRecords(JSONObject jsonObj) {
+    public void getSQLRecords(JSONObject jsonObj) {
         try {
-            serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);
+            serverSQLRecords = jsonObj.getJSONArray(TAG_RESULTS);
             myFavouriteMachineList.clear();
 
             String cleanupLatestRecords;
             //remove all unwanted symbols and text
-            cleanupLatestRecords = serverCSVrecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"", "").replace("]", "");
+            cleanupLatestRecords = serverSQLRecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"", "").replace("]", "");
             //split different csv records, the ending of each csv record list is machineID.csv
-            allCSVRecords = cleanupLatestRecords.split(".csv,");
+            allSQLRecords = cleanupLatestRecords.split(".csv,");
             //loop through each csv and get the latest records and split each field
-            for (String record : allCSVRecords) {
+            for (String record : allSQLRecords) {
                 latestRecords = record.split(",");
 
-                Machine machine = new Machine(latestRecords[10].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
-                        latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9], "", "");
+                Machine machine = new Machine(latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],latestRecords[5],
+                        latestRecords[6],latestRecords[7],latestRecords[8],latestRecords[9],"0","","");
 
                 myTempoMachineList.add(machine);
                 //Change database
-                mydatabaseHelper.changeDatabase(latestRecords[10].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
-                        latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9]);
-                mydatabaseHelper.updateMachineDateTime(latestRecords[10].replace(".csv", ""), DateFormat.getDateTimeInstance().format(new Date()));
+                mydatabaseHelper.changeDatabase(latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4], latestRecords[5],
+                        latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9], "0");
+                mydatabaseHelper.updateMachineDateTime(latestRecords[0], DateFormat.getDateTimeInstance().format(new Date()));
 
 
             }
 
             Log.d("cleanupLatestRecords: ", cleanupLatestRecords);
-            Log.d("CSVRecords2: ", allCSVRecords[1]);
+            Log.d("CSVRecords2: ", allSQLRecords[1]);
             Log.d("LatestRecords: ", latestRecords[0]);
 
         } catch (JSONException e) {
@@ -328,5 +348,17 @@ public class FavouriteFragment extends Fragment {
 
         return cursor;
 
+    }
+
+    public boolean isNetworkEnabled(){
+        ConnectivityManager cm = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED){
+            //Network available
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

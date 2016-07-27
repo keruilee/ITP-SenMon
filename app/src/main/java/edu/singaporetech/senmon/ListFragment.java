@@ -1,8 +1,10 @@
 package edu.singaporetech.senmon;
 
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
@@ -10,6 +12,8 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
@@ -90,10 +94,10 @@ public class ListFragment extends Fragment {
     public String status = "";
 
     ProgressDialog progressDialog;
-    JSONArray serverCSVrecords = null;
+    JSONArray serverSQLRecords = null;
 
     public String[] latestRecords;
-    public String[] allCSVRecords;
+    public String[] allSQLRecords;
 
     private int selectedTab = 0;
 
@@ -108,6 +112,8 @@ public class ListFragment extends Fragment {
 
     // for database helper
     public DatabaseHelper mydatabaseHelper;
+
+//    public WebService webService;
 
     public ListFragment() {
     }
@@ -131,6 +137,9 @@ public class ListFragment extends Fragment {
         // Retrieve the SwipeRefreshLayout and ListView instances
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefresh);
         updateDateTime = (TextView) rootView.findViewById(R.id.textViewUpdateDateTime);
+
+        //Call webservice
+//        webService = new WebService(getActivity());
 
 
         //retrieving data using bundle
@@ -191,7 +200,42 @@ public class ListFragment extends Fragment {
                 Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
                 Log.i("REFRESH", "what bundle?" + status);
                 progressDialog = new ProgressDialog(getActivity());
-                getCSVData();
+                //If there is network connection
+                if(isNetworkEnabled()){
+                    getSQLData();
+                }
+                else{
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    // Use the Builder class for convenient dialog construction
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("Network Connectivity");
+                    builder.setMessage("No network detected! Data will not be updated!");
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // You don't have to do anything here if you just want it dismissed when clicked
+                            mydatabaseHelper = new DatabaseHelper(getActivity());
+                            myMachineList.clear();
+                            if (status.equalsIgnoreCase("all")) {
+                                Log.d("LF All", "all");
+                                myMachineList = mydatabaseHelper.returnStringMachineAllString();
+                            } else {
+                                Log.d("All", "not all");
+                                myMachineList = mydatabaseHelper.returnStringMachineStateString(status);
+                            }
+
+                            if (myMachineList.isEmpty())
+                            {
+                                updateDateTime.setText("No machine found in the list!");
+                            }
+                            else
+                            {
+                                updateDateTime.setText("Updated on "+dateTime);
+                            }
+                        }
+                    });
+                    AlertDialog networkDialog = builder.create();
+                    networkDialog.show();
+                }
                 Log.i("REFRESH", "what bundle? After" + status);
 
             }
@@ -287,13 +331,13 @@ public class ListFragment extends Fragment {
 
     ////////////////////////update the list///////////////////////////
 
-    public void getCSVData() {
-        class GetCSVDataJSON extends AsyncTask<Void, Void, JSONObject> {
+    public void getSQLData() {
+        class GetSQLDataJSON extends AsyncTask<Void, Void, JSONObject> {
 
             URL encodedUrl;
             HttpURLConnection urlConnection = null;
 
-            String url = "http://itpsenmon.net23.net/readFromCSV.php";
+            String url = "http://itpsenmon.net23.net/readFromSQL.php";
 
             JSONObject responseObj;
 
@@ -342,7 +386,7 @@ public class ListFragment extends Fragment {
             @Override
             protected void onPostExecute(JSONObject result) {
                 super.onPostExecute(result);
-                getCSVRecords(result);
+                getSQLRecords(result);
                 computeMachineState();
                 updateList();                   // display list with sorted values
                 progressDialog.dismiss();
@@ -352,41 +396,42 @@ public class ListFragment extends Fragment {
                 // display the date time
             }
         }
-        GetCSVDataJSON g = new GetCSVDataJSON();
+        GetSQLDataJSON g = new GetSQLDataJSON();
         g.execute();
     }
 
     //Get the server CSV records
-    public void getCSVRecords(JSONObject jsonObj) {
+    public void getSQLRecords(JSONObject jsonObj) {
         try {
-            serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);
+            serverSQLRecords = jsonObj.getJSONArray(TAG_RESULTS);
             myTempoMachineList.clear();
 
 
             String cleanupLatestRecords;
             //remove all unwanted symbols and text
-            cleanupLatestRecords = serverCSVrecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"", "").replace("]", "");
+            cleanupLatestRecords = serverSQLRecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"", "").replace("]", "");
             //split different csv records, the ending of each csv record list is machineID.csv
-            allCSVRecords = cleanupLatestRecords.split(".csv,");
+            allSQLRecords = cleanupLatestRecords.split("split,");
             //loop through each csv and get the latest records and split each field
-            for (String record : allCSVRecords) {
+            for (String record : allSQLRecords) {
                 latestRecords = record.split(",");
                 //Change database
-                Machine machine = new Machine(latestRecords[10].replace(".csv",""),latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],
-                        latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],latestRecords[9],"","");
+                //last 3rd is work hours!!! remember to add in KR
+                Machine machine = new Machine(latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],latestRecords[5],
+                        latestRecords[6],latestRecords[7],latestRecords[8],latestRecords[9],"0","","");
 
                 myTempoMachineList.add(machine);
-                mydatabaseHelper.changeDatabase(latestRecords[10].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
-                        latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9]);
+                mydatabaseHelper.changeDatabase(latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4], latestRecords[5],
+                        latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9], "0");
 
                 Log.i("VELO",latestRecords[8]);
                 Log.i("TEMP" , latestRecords[7]);
-                mydatabaseHelper.updateMachineDateTime(latestRecords[10].replace(".csv", ""), DateFormat.getDateTimeInstance().format(new Date()));
+                mydatabaseHelper.updateMachineDateTime(latestRecords[0], DateFormat.getDateTimeInstance().format(new Date()));
 
             }
             Log.i("REFRESH", "kr bundle?" + status);
             Log.d("cleanupLatestRecords: ", cleanupLatestRecords);
-            Log.d("CSVRecords2: ", allCSVRecords[1]);
+            Log.d("CSVRecords2: ", allSQLRecords[1]);
             Log.d("LatestRecords: ", latestRecords[0]);
 
         } catch (JSONException e) {
@@ -394,6 +439,7 @@ public class ListFragment extends Fragment {
         }
 
     }
+
 
     //Computation of machines in each state
     private void computeMachineState() {
@@ -407,29 +453,40 @@ public class ListFragment extends Fragment {
         Log.d(" computeMachine", "testing");
         for(Machine machine : myTempoMachineList)
         {
-        //normal machine
-        if (Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempWarningValue)) {
-            if (Double.parseDouble(machine.getmachineVelo()) < Double.parseDouble(veloWarningValue)) {
-                mydatabaseHelper.updateMachineState(machine.getMachineID(), "Normal");
+            //normal machine
+            if (Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempWarningValue)) {
+                if (Double.parseDouble(machine.getmachineVelo()) < Double.parseDouble(veloWarningValue)) {
+                    mydatabaseHelper.updateMachineState(machine.getMachineID(), "Normal");
+                }
+                else if (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(veloCriticalValue)) {
+                    mydatabaseHelper.updateMachineState(machine.getMachineID(), "Critical");
+                }
+                else {
+                    mydatabaseHelper.updateMachineState(machine.getMachineID(), "Warning");
+                }
             }
-            else if (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(veloCriticalValue)) {
+            else if (Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempWarningValue) & Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempCriticalValue)) {
+                if (Double.parseDouble(machine.getmachineVelo()) < Double.parseDouble(veloCriticalValue)) {
+                    mydatabaseHelper.updateMachineState(machine.getMachineID(), "Critical");
+                }
+                else if (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(veloCriticalValue)) {
+                    mydatabaseHelper.updateMachineState(machine.getMachineID(), "Warning");
+                }
+            }
+            else if (Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempCriticalValue)){
                 mydatabaseHelper.updateMachineState(machine.getMachineID(), "Critical");
-            }
-            else {
-                mydatabaseHelper.updateMachineState(machine.getMachineID(), "Warning");
-            }
-        }
-        else if (Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempWarningValue) & Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempCriticalValue)) {
-            if (Double.parseDouble(machine.getmachineVelo()) < Double.parseDouble(veloCriticalValue)) {
-                mydatabaseHelper.updateMachineState(machine.getMachineID(), "Critical");
-            }
-            else if (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(veloCriticalValue)) {
-                mydatabaseHelper.updateMachineState(machine.getMachineID(), "Warning");
-            }
-        }
-        else if (Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempCriticalValue)){
-            mydatabaseHelper.updateMachineState(machine.getMachineID(), "Critical");
 
-    }
+            }
         }}
+    public boolean isNetworkEnabled(){
+        ConnectivityManager cm = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED){
+            //Network available
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 }

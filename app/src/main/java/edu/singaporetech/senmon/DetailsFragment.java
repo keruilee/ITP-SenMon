@@ -63,6 +63,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.StringTokenizer;
 
 
 /**
@@ -426,7 +427,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
             URL encodedUrl;
             HttpURLConnection urlConnection = null;
 
-            String url = "http://itpsenmon.net23.net/readAllRecords.php";
+            String url = "http://itpsenmon.net23.net/readAllSQLRecords.php";
 
             JSONObject responseObj;
 
@@ -511,10 +512,10 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
             if(serverCSVrecords.length() > 0) {
                 // load last record first
                 String object = serverCSVrecords.get(numOfRecords - 1).toString();
-                object = object.replace("\r", "").replace("\n", "");
+                object = object.replace("\r", "").replace("\n", "").replace("\"","");
                 currentRecord = object.split(",");
-                tempValue = currentRecord[6];
-                veloValue = currentRecord[5];
+                tempValue = currentRecord[7];
+                veloValue = currentRecord[6];
                 tvDTemperature.setText(tempValue);
                 tvDVelocity.setText(veloValue);
                 detailColor();
@@ -529,10 +530,10 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                 // load other records for graph
                 while (i < serverCSVrecords.length()) {
                     object = serverCSVrecords.get(i).toString();
-                    object = object.replace("\r", "").replace("\n", "");
+                    object = object.replace("\r", "").replace("\n", "").replace("\"","");
                     currentRecord = object.split(",");
-                    recordDate = dateFormatter.parse(currentRecord[0]);
-                    recordTime = timeFormatter.parse(currentRecord[1]);
+                    recordDate = dateFormatter.parse(currentRecord[1]);
+                    recordTime = timeFormatter.parse(currentRecord[2]);
                     recordDateString = dateFormatter.format(recordDate);
                     recordTimeString = timeFormatter.format(recordTime);
 
@@ -567,13 +568,13 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
 
                     // for line charts
                     try {
-                        recordDate = dateTimeFormatter.parse(currentRecord[0] + " " + currentRecord[1]);
+                        recordDate = dateTimeFormatter.parse(currentRecord[1] + " " + currentRecord[2]);
                     } catch (Exception e) {
                         continue;   // date in wrong format; skip current record
                     }
                     recordDateString = dateTimeFormatter.format(recordDate);
-                    tempValue = Float.parseFloat(currentRecord[6]);
-                    velValue = Float.parseFloat(currentRecord[5]);
+                    tempValue = Float.parseFloat(currentRecord[7]);
+                    velValue = Float.parseFloat(currentRecord[6]);
                     tempYVals.add(new Entry(tempValue, i));
                     veloYVals.add(new Entry(velValue, i));
 

@@ -1,15 +1,19 @@
 package edu.singaporetech.senmon;
 
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PorterDuff;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -67,13 +71,14 @@ public class HomeFragment extends Fragment {
     public static final String NumberOfFavourite = "numOfFav";
 
     ProgressDialog progressDialog;
-    JSONArray serverCSVrecords = null;
+    JSONArray serverSQLRecords = null;
     private static final String TAG_RESULTS="result";
     public String[] latestRecords;
-    public String[] allCSVRecords;
+    public String[] allSQLRecords;
 
     ArrayList<Machine> myMachineList = new ArrayList<Machine>();
     private DatabaseHelper DbHelper;
+//    public WebService webService;
 
     private TextView tvCrit, tvWarn, tvNorm, tvAll;
     private TextView tvCritLbl, tvWarnLbl, tvNormLbl, critBtn, warnBtn, normBtn, allBtn;
@@ -107,6 +112,7 @@ public class HomeFragment extends Fragment {
         swipeContainer = (SwipeRefreshLayout) v.findViewById(R.id.swipeContainer);
 
         DbHelper = new DatabaseHelper(this.getActivity());
+//        webService = new WebService(getActivity());
         progressDialog = new ProgressDialog(this.getActivity());
 
         //retrieve range values
@@ -135,8 +141,22 @@ public class HomeFragment extends Fragment {
         }
 
         //retrieve data
-        getCSVData();
-
+        if(isNetworkEnabled()){
+            getSQLData();
+        }
+        else{
+            // Use the Builder class for convenient dialog construction
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Network Connectivity");
+            builder.setMessage("No network detected! Data will not be updated!");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // You don't have to do anything here if you just want it dismissed when clicked
+                }
+            });
+            AlertDialog networkDialog = builder.create();
+            networkDialog.show();
+        }
 
         //Button onClick to redirect to info fragment
         tvCritLbl.setOnClickListener(new View.OnClickListener() {
@@ -246,8 +266,22 @@ public class HomeFragment extends Fragment {
             @Override
             public void onRefresh() {
                 //retrieve data
-                getCSVData();
-
+                if(isNetworkEnabled()){
+                    getSQLData();
+                }
+                else{
+                    // Use the Builder class for convenient dialog construction
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("Network Connectivity");
+                    builder.setMessage("No network detected! Data will not be updated!");
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // You don't have to do anything here if you just want it dismissed when clicked
+                        }
+                    });
+                    AlertDialog networkDialog = builder.create();
+                    networkDialog.show();
+                }
                 swipeContainer.setRefreshing(false);
 
             }
@@ -260,13 +294,13 @@ public class HomeFragment extends Fragment {
         return v;
     }
 
-    public void getCSVData(){
-        class GetCSVDataJSON extends AsyncTask<Void, Void, JSONObject> {
+    public void getSQLData(){
+        class GetSQLDataJSON extends AsyncTask<Void, Void, JSONObject> {
 
             URL encodedUrl;
             HttpURLConnection urlConnection = null;
 
-            String url = "http://itpsenmon.net23.net/readFromCSV.php";
+            String url = "http://itpsenmon.net23.net/readFromSQL.php";
 
             JSONObject responseObj;
 
@@ -317,7 +351,7 @@ public class HomeFragment extends Fragment {
             protected void onPostExecute(JSONObject result){
                 super.onPostExecute(result);
 
-                getCSVRecords(result);
+                getSQLRecords(result);
 
                 //call compute machine method
                 computeMachine();
@@ -328,40 +362,42 @@ public class HomeFragment extends Fragment {
                 progressDialog.dismiss();
             }
         }
-        GetCSVDataJSON g = new GetCSVDataJSON();
+        GetSQLDataJSON g = new GetSQLDataJSON();
         g.execute();
     }
 
     //Get the server CSV records
-    public void getCSVRecords(JSONObject jsonObj)
+    public void getSQLRecords(JSONObject jsonObj)
     {
         try {
-            serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);
+            serverSQLRecords = jsonObj.getJSONArray(TAG_RESULTS);
 
             if (!(myMachineList.isEmpty())) {
                 myMachineList.clear();
             }
 
+            Log.d("homefragment: ", serverSQLRecords.toString());
+
             String cleanupLatestRecords;
 
             //remove all unwanted symbols and text
-            cleanupLatestRecords = serverCSVrecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"","").replace("]","");
+            cleanupLatestRecords = serverSQLRecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"","").replace("]","");
             //split different csv records, the ending of each csv record list is machineID.csv
-            allCSVRecords = cleanupLatestRecords.split(".csv,");
+            allSQLRecords = cleanupLatestRecords.split("split,");
             //loop through each csv and get the latest records and split each field
-            for(String record : allCSVRecords)
+            for(String record : allSQLRecords)
             {
                 latestRecords = record.split(",");
 
-                Machine machine = new Machine(latestRecords[10].replace(".csv",""),latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],
-                        latestRecords[5],latestRecords[6],latestRecords[7],latestRecords[8],latestRecords[9],"","");
+                Machine machine = new Machine(latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],latestRecords[5],
+                        latestRecords[6],latestRecords[7],latestRecords[8],latestRecords[9],"0","","");
 
                 myMachineList.add(machine);
 
                 //Change database
-                DbHelper.changeDatabase(latestRecords[10].replace(".csv", ""), latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4],
-                        latestRecords[5], latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9]);
-                DbHelper.updateMachineDateTime(latestRecords[10].replace(".csv", ""), DateFormat.getDateTimeInstance().format(new Date()));
+                DbHelper.changeDatabase(latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4], latestRecords[5],
+                        latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9], "0");
+                DbHelper.updateMachineDateTime(latestRecords[0], DateFormat.getDateTimeInstance().format(new Date()));
 
                 Log.d("cleanupLatestRecords: ", DbHelper.toString());
             }
@@ -373,7 +409,7 @@ public class HomeFragment extends Fragment {
 
 
             Log.d("cleanupLatestRecords: ", cleanupLatestRecords);
-            Log.d("CSVRecords2: ", allCSVRecords[1]);
+            Log.d("SQLRecords2: ", allSQLRecords[1]);
             Log.d("LatestRecords: ", latestRecords[0]);
 
         } catch (JSONException e) {
@@ -381,15 +417,30 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    //what to do when it receives the broadcast from the backgroundservice
+
+        //what to do when it receives the broadcast from the backgroundservice
     private BroadcastReceiver dataChangeReceiver= new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             // update your listview
             Log.d("BROADCAST RECEIVED", "YES!");
             //get the data again from the csvdata()
-
-            getCSVData();
+            if(isNetworkEnabled()){
+                getSQLData();
+            }
+            else{
+                // Use the Builder class for convenient dialog construction
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Network Connectivity");
+                builder.setMessage("No network detected! Data will not be updated!");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // You don't have to do anything here if you just want it dismissed when clicked
+                    }
+                });
+                AlertDialog networkDialog = builder.create();
+                networkDialog.show();
+            }
         }
     };
 
@@ -550,6 +601,19 @@ public class HomeFragment extends Fragment {
             allBtn.setEnabled(false);
             allBtn.getBackground().setColorFilter(getResources().getColor(R.color.colorLighterAll), PorterDuff.Mode.SRC_ATOP);
             allBtn.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_menu_all_disabled, 0, 0);
+        }
+
+    }
+
+    public boolean isNetworkEnabled(){
+        ConnectivityManager cm = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED){
+            //Network available
+            return true;
+        }
+        else {
+            return false;
         }
     }
 }
