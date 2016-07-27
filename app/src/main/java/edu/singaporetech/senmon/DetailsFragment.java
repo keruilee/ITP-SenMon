@@ -1,8 +1,10 @@
 package edu.singaporetech.senmon;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -10,6 +12,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -233,9 +237,32 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         // Give the TabLayout the ViewPage
         tabLayout = (TabLayout) v.findViewById(R.id.graph_tabs);
 
-        //retrieve data
-        getCSVData();
-
+        if(isNetworkEnabled()){
+            getSQLData();
+        } else {
+            // Use the Builder class for convenient dialog construction
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Network Connectivity");
+            builder.setMessage("No network detected! Data will not be updated!");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // You don't have to do anything here if you just want it dismissed when clicked
+                }
+            });
+            AlertDialog networkDialog = builder.create();
+            networkDialog.show();
+            
+            Machine currentMachine = favDatabasehelper.getMachineDetails(machineID);
+            tempValue = currentMachine.getmachineTemp();
+            veloValue = currentMachine.getmachineVelo();
+            displayTempAndVelo();
+            tvDHour.setText(currentMachine.getMachineHour());
+            lineChart.setNoDataText("Graph cannot be loaded without internet connection.");
+            stackedChart.setNoDataText("Graph cannot be loaded without internet connection.");
+            cbLines.setEnabled(false);
+            cbVelo.setEnabled(false);
+            cbTemp.setEnabled(false);
+        }
         return v;
     }
 
@@ -367,7 +394,10 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     }
 
     //Set detail color
-    private void detailColor() {
+    private void displayTempAndVelo() {
+        tvDTemperature.setText(tempValue);
+        tvDVelocity.setText(veloValue);
+
         //check temperature value range color
         if (Double.parseDouble(tempValue) < Double.parseDouble(tempWarningValue)) {
             //Normal state text color
@@ -420,7 +450,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     }
 
     //Added by Kerui
-    public void getCSVData() {
+    public void getSQLData() {
         class GetCSVDataJSON extends AsyncTask<Void, Void, JSONObject> {
 
             String data;
@@ -516,9 +546,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                 currentRecord = object.split(",");
                 tempValue = currentRecord[7];
                 veloValue = currentRecord[6];
-                tvDTemperature.setText(tempValue);
-                tvDVelocity.setText(veloValue);
-                detailColor();
+                displayTempAndVelo();
 
                 SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("MM/dd/yyyy HH:mm");
                 SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
@@ -927,5 +955,17 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
 
     @Override
     public void onNothingSelected() {
+    }
+
+    public boolean isNetworkEnabled(){
+        ConnectivityManager cm = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED){
+            //Network available
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
