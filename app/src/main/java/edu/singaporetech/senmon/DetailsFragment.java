@@ -251,7 +251,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
             });
             AlertDialog networkDialog = builder.create();
             networkDialog.show();
-            
+
             Machine currentMachine = favDatabasehelper.getMachineDetails(machineID);
             tempValue = currentMachine.getmachineTemp();
             veloValue = currentMachine.getmachineVelo();
@@ -532,7 +532,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     {
         try {
             JSONArray serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);
-            int i = 0, numOfOff = 0, numOfNormal = 0, numOfWarning = 0, numOfCritical = 0, opHours = 0;
+            int i = 0, numOfNormal = 0, numOfWarning = 0, numOfCritical = 0, opHours = 0;
             String[] currentRecord;
             int numOfRecords = serverCSVrecords.length();
             boolean withDate = false, beforeNoon = false;
@@ -611,8 +611,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
 
                     // new date = new x label; add date to x-axis and reset states variable to zero
                     if (!recordDateString.equals(stackedXVals.get(stackedXVals.size() - 1))) {
-                        stackedYVals.add(new BarEntry(new float[]{numOfOff, numOfNormal, numOfWarning, numOfCritical}, stackedXVals.size() - 1));
-                        numOfOff = 0;
+                        stackedYVals.add(new BarEntry(new float[]{numOfNormal, numOfWarning, numOfCritical}, stackedXVals.size() - 1));
                         numOfNormal = 0;
                         numOfWarning = 0;
                         numOfCritical = 0;
@@ -626,8 +625,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                         numOfWarning++;
                     else if(velValue > 0 || tempValue > 0)
                         numOfNormal++;
-                    else
-                        numOfOff++;
 
                     if(velValue == 0)           // check if current row indicates machine is off
                         opHours = 0;
@@ -635,7 +632,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                         opHours++;
                     i++;
                 }
-                stackedYVals.add(new BarEntry(new float[] { numOfOff, numOfNormal, numOfWarning, numOfCritical }, stackedXVals.size()-1));
+                stackedYVals.add(new BarEntry(new float[] {numOfNormal, numOfWarning, numOfCritical }, stackedXVals.size()-1));
                 tvDHour.setText(Integer.toString(opHours));
             }
             else {      // no records found for machine
@@ -825,7 +822,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
 
         set1 = new BarDataSet(stackedYVals, "| Machine States Count / Day");
         set1.setColors(getColors());
-        set1.setStackLabels(new String[]{"Off", "Safe", "Warning", "Critical"});
+        set1.setStackLabels(new String[]{"Safe", "Warning", "Critical"});
 
         ArrayList<IBarDataSet> dataSets = new ArrayList<>();
         dataSets.add(set1);
@@ -843,15 +840,14 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     // set up colours for stacked chart
     private int[] getColors() {
 
-        int stacksize = 4;
+        int stacksize = 3;
 
         // have as many colors as stack-values per entry
         int[] colors = new int[stacksize];
 
-        colors[0] = getResources().getColor(R.color.colorPrimary);
-        colors[1] = getResources().getColor(R.color.colorNormal);
-        colors[2] = getResources().getColor(R.color.colorWarning);
-        colors[3] = getResources().getColor(R.color.colorCritical);
+        colors[0] = getResources().getColor(R.color.colorNormal);
+        colors[1] = getResources().getColor(R.color.colorWarning);
+        colors[2] = getResources().getColor(R.color.colorCritical);
 
         return colors;
     }
