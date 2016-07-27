@@ -487,7 +487,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
             @Override
             protected void onPostExecute(JSONObject result){
                 super.onPostExecute(result);
-                getCSVRecords(result);
+                getSQLRecords(result);
                 progressDialog.dismiss();
                 setupLineChart();
                 setupStackedChart();
@@ -498,7 +498,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     }
 
     //Get the server CSV records
-    public void getCSVRecords(JSONObject jsonObj)
+    public void getSQLRecords(JSONObject jsonObj)
     {
         try {
             JSONArray serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);

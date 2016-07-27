@@ -65,7 +65,7 @@ import static java.lang.String.CASE_INSENSITIVE_ORDER;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ListFragment extends Fragment {
+public class ListFragment extends Fragment implements WebService.OnAsyncRequestComplete{
 
     String TAG = "List Fragment";
     Context context;
@@ -128,6 +128,8 @@ public class ListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        context = getContext();
+
         View rootView = inflater.inflate(R.layout.fragment_list, container, false);
 
         // Give the TabLayout the ViewPage
@@ -154,7 +156,7 @@ public class ListFragment extends Fragment {
 
 
         /////////////////retrieve range values ////////////
-        RangeSharedPreferences = getContext().getSharedPreferences(MyRangePREFERENCES, Context.MODE_PRIVATE);
+        RangeSharedPreferences = context.getSharedPreferences(MyRangePREFERENCES, Context.MODE_PRIVATE);
 
         //reload the value from the shared preferences and display it
         tempWarningValue = RangeSharedPreferences.getString(WarningTemperature, String.valueOf(Double.parseDouble(getString(R.string.temp_warning_value))));
@@ -164,7 +166,7 @@ public class ListFragment extends Fragment {
 
         ////////////////////////Retrived datatime sharef pref///////////////////////
 
-        DateTimeSharedPreferences = getContext().getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
+        DateTimeSharedPreferences = context.getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
         dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
 
 
@@ -332,72 +334,25 @@ public class ListFragment extends Fragment {
     ////////////////////////update the list///////////////////////////
 
     public void getSQLData() {
-        class GetSQLDataJSON extends AsyncTask<Void, Void, JSONObject> {
+        WebService webServiceTask = new WebService(context, this);
+        webServiceTask.execute();
+    }
 
-            URL encodedUrl;
-            HttpURLConnection urlConnection = null;
+    // async task of getting SQL records from server completed
+    @Override
+    public void asyncResponse(JSONObject response) {
 
-            String url = "http://itpsenmon.net23.net/readFromSQL.php";
+        getSQLRecords(response);
+        computeMachineState();
+        updateList();                   // display list with sorted values
 
-            JSONObject responseObj;
-
-            @Override
-            protected void onPreExecute() {
-                progressDialog.setMessage("Loading Records...");
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                progressDialog.setIndeterminate(false);
-                progressDialog.show();
-            }
-
-            @Override
-            protected JSONObject doInBackground(Void... params) {
-                try {
-                    encodedUrl = new URL(url);
-                    urlConnection = (HttpURLConnection) encodedUrl.openConnection();
-                    urlConnection.setDoInput(true);
-                    urlConnection.setDoOutput(true);
-                    urlConnection.setUseCaches(false);
-                    urlConnection.setRequestProperty("Content-Type", "application/json");
-                    urlConnection.connect();
-
-                    InputStream input = urlConnection.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-                    StringBuilder result = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        result.append(line);
-                    }
-                    Log.d("doInBackground(Resp)", result.toString());
-                    responseObj = new JSONObject(result.toString());
-
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } finally {
-                    urlConnection.disconnect();
-                }
-                return responseObj;
-            }
-
-            @Override
-            protected void onPostExecute(JSONObject result) {
-                super.onPostExecute(result);
-                getSQLRecords(result);
-                computeMachineState();
-                updateList();                   // display list with sorted values
-                progressDialog.dismiss();
-
-                // for swipe refresh to dismiss the loading icon
-                mSwipeRefreshLayout.setRefreshing(false);
-                // display the date time
-            }
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
         }
-        GetSQLDataJSON g = new GetSQLDataJSON();
-        g.execute();
+
+        // for swipe refresh to dismiss the loading icon
+        mSwipeRefreshLayout.setRefreshing(false);
+        // display the date time
     }
 
     //Get the server CSV records
@@ -440,7 +395,6 @@ public class ListFragment extends Fragment {
 
     }
 
-
     //Computation of machines in each state
     private void computeMachineState() {
         editor = DateTimeSharedPreferences.edit();
@@ -465,7 +419,7 @@ public class ListFragment extends Fragment {
                     mydatabaseHelper.updateMachineState(machine.getMachineID(), "Warning");
                 }
             }
-            else if (Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempWarningValue) & Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempCriticalValue)) {
+            else if (Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempWarningValue) && Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempCriticalValue)) {
                 if (Double.parseDouble(machine.getmachineVelo()) < Double.parseDouble(veloCriticalValue)) {
                     mydatabaseHelper.updateMachineState(machine.getMachineID(), "Critical");
                 }

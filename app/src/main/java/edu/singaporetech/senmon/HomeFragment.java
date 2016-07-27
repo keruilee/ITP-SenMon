@@ -45,7 +45,7 @@ import java.util.Date;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements WebService.OnAsyncRequestComplete {
 
     //Declare variables
     final String TAG = "Home Fragment";
@@ -295,75 +295,24 @@ public class HomeFragment extends Fragment {
     }
 
     public void getSQLData(){
-        class GetSQLDataJSON extends AsyncTask<Void, Void, JSONObject> {
+        WebService webServiceTask = new WebService(context, this);
+        webServiceTask.execute();
+    }
 
-            URL encodedUrl;
-            HttpURLConnection urlConnection = null;
+    // async task of getting SQL records from server completed
+    @Override
+    public void asyncResponse(JSONObject response) {
 
-            String url = "http://itpsenmon.net23.net/readFromSQL.php";
+        getSQLRecords(response);
+        //call compute machine method
+        computeMachine();
 
-            JSONObject responseObj;
+        //check priority method
+        hmachineID = checkPriority();
 
-            @Override
-            protected void onPreExecute() {
-                progressDialog.setMessage("Loading Records...");
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                progressDialog.setIndeterminate(false);
-                progressDialog.show();
-            }
-
-            @Override
-            protected JSONObject doInBackground(Void... params) {
-                try {
-                    encodedUrl = new URL(url);
-                    urlConnection = (HttpURLConnection) encodedUrl.openConnection();
-                    urlConnection.setDoInput(true);
-                    urlConnection.setDoOutput(true);
-                    urlConnection.setUseCaches(false);
-                    urlConnection.setRequestProperty("Content-Type", "application/json");
-                    urlConnection.connect();
-
-                    InputStream input = urlConnection.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-                    StringBuilder result = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        result.append(line);
-                    }
-                    Log.d("doInBackground(Resp)", result.toString());
-                    responseObj = new JSONObject(result.toString());
-
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }finally {
-                    urlConnection.disconnect();
-                }
-
-                return responseObj;
-            }
-
-            @Override
-            protected void onPostExecute(JSONObject result){
-                super.onPostExecute(result);
-
-                getSQLRecords(result);
-
-                //call compute machine method
-                computeMachine();
-
-                //check priority method
-                hmachineID = checkPriority();
-
-                progressDialog.dismiss();
-            }
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
         }
-        GetSQLDataJSON g = new GetSQLDataJSON();
-        g.execute();
     }
 
     //Get the server CSV records

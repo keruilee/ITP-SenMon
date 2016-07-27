@@ -48,7 +48,7 @@ import javax.crypto.Mac;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FavouriteFragment extends Fragment {
+public class FavouriteFragment extends Fragment implements WebService.OnAsyncRequestComplete {
     ListView listViewListing ;
     private FavouriteDatabaseHelper databaseHelper;
     public DatabaseHelper mydatabaseHelper ;
@@ -108,7 +108,7 @@ public class FavouriteFragment extends Fragment {
         myFavouriteMachineList = mydatabaseHelper.returnFavourite();
 
 
-        DateTimeSharedPreferences = getContext().getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
+        DateTimeSharedPreferences = context.getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
         dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
         if (myFavouriteMachineList.isEmpty())
         {
@@ -204,70 +204,21 @@ public class FavouriteFragment extends Fragment {
     ////////////////////////update the list///////////////////////////
 
     public void getSQLData() {
-        class GetSQLDataJSON extends AsyncTask<Void, Void, JSONObject> {
+        WebService webServiceTask = new WebService(context, this);
+        webServiceTask.execute();
+    }
 
-            URL encodedUrl;
-            HttpURLConnection urlConnection = null;
+    // async task of getting SQL records from server completed
+    @Override
+    public void asyncResponse(JSONObject response) {
 
-            String url = "http://itpsenmon.net23.net/readFromSQL.php";
+        getSQLRecords(response);
+        // display list with sorted values
+        progressDialog.dismiss();
 
-            JSONObject responseObj;
-
-            @Override
-            protected void onPreExecute() {
-                progressDialog.setMessage("Loading Records...");
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                progressDialog.setIndeterminate(false);
-                progressDialog.show();
-            }
-
-            @Override
-            protected JSONObject doInBackground(Void... params) {
-                try {
-                    encodedUrl = new URL(url);
-                    urlConnection = (HttpURLConnection) encodedUrl.openConnection();
-                    urlConnection.setDoInput(true);
-                    urlConnection.setDoOutput(true);
-                    urlConnection.setUseCaches(false);
-                    urlConnection.setRequestProperty("Content-Type", "application/json");
-                    urlConnection.connect();
-
-                    InputStream input = urlConnection.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-                    StringBuilder result = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        result.append(line);
-                    }
-                    Log.d("doInBackground(Resp)", result.toString());
-                    responseObj = new JSONObject(result.toString());
-
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }finally {
-                    urlConnection.disconnect();
-                }
-                return responseObj;
-            }
-            @Override
-            protected void onPostExecute(JSONObject result){
-                super.onPostExecute(result);
-                getSQLRecords(result);
-                               // display list with sorted values
-                progressDialog.dismiss();
-
-                // for swipe refresh to dismiss the loading icon
-                mSwipeRefreshLayout.setRefreshing(false);
-                // display the date time
-            }
-        }
-        GetSQLDataJSON g = new GetSQLDataJSON();
-        g.execute();
+        // for swipe refresh to dismiss the loading icon
+        mSwipeRefreshLayout.setRefreshing(false);
+        // display the date time
     }
 
     //Get the server CSV records
@@ -280,11 +231,11 @@ public class FavouriteFragment extends Fragment {
             //remove all unwanted symbols and text
             cleanupLatestRecords = serverSQLRecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"", "").replace("]", "");
             //split different csv records, the ending of each csv record list is machineID.csv
-            allSQLRecords = cleanupLatestRecords.split(".csv,");
+            allSQLRecords = cleanupLatestRecords.split("split,");
             //loop through each csv and get the latest records and split each field
             for (String record : allSQLRecords) {
                 latestRecords = record.split(",");
-
+                Log.e("latestRecords", record);
                 Machine machine = new Machine(latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],latestRecords[5],
                         latestRecords[6],latestRecords[7],latestRecords[8],latestRecords[9],"0","","");
 
