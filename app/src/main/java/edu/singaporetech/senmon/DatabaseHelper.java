@@ -60,7 +60,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             columns[8] + " STRING, " +
             columns[9] + " STRING, " +
             columns[10] + " STRING, " +
-            columns[11] + " STRING, " +
+            columns[11] + " STRING DEFAULT '0', " +         // set default of machine hours to 0
             columns[12] + " STRING, " +
             columns[13] + " STRING, " +
             columns[14] + " STRING )";
@@ -96,7 +96,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void addmachine(String addmachineID, String addmachineDate, String addmachineTime,
                            String addmachineVx, String addmachineVy, String addmachineVz,
                            String addmachineVelo, String addmachineTemp, String addmachineTS,
-                           String addmachineHud, String addmachineHour)
+                           String addmachineHud)
     {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -111,9 +111,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(MACHINETEMP, addmachineTemp);
         values.put(MACHINETS, addmachineTS);
         values.put(MACHINEHUD, addmachineHud);
-        values.put(MACHINEHOUR, addmachineHour);
-
-
+        // machine hour has default of 0
         db.insert(TABLE_NAME, null, values);
         db.close(); // Closing database connection
     }
@@ -144,7 +142,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void updateMachineDetail(String addmachineID, String addmachineDate, String addmachineTime,
                                     String addmachineVx, String addmachineVy, String addmachineVz,
                                     String addmachineVelo, String addmachineTemp, String addmachineTS,
-                                    String addmachineHud, String addmachineHour)
+                                    String addmachineHud)
     {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -157,9 +155,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(MACHINETEMP, addmachineTemp);
         values.put(MACHINETS, addmachineTS);
         values.put(MACHINEHUD, addmachineHud);
-        values.put(MACHINEHOUR, addmachineHour);
         values.put(MACHINESTATUS, "");
         db.update(TABLE_NAME, values, MACHINEID + "= ?", new String[] {addmachineID});
+        db.close();
+    }
+
+    // Update machine detail in database //
+    public void updateOpHours(String machineID, String opHours)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(MACHINEHOUR, opHours);
+        values.put(MACHINESTATUS, "");
+        db.update(TABLE_NAME, values, MACHINEID + "= ?", new String[] {machineID});
         db.close();
     }
 
@@ -298,7 +306,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void changeDatabase(String changemachineID, String changemachineDate, String changemachineTime,
                                String changemachineVx, String changemachineVy, String changemachineVz,
                                String changemachineVelo, String changemachineTemp, String changemachineTS,
-                               String changemachineHud, String changemachineHour){
+                               String changemachineHud){
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, null);
 
@@ -310,13 +318,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             if (findMachine(changemachineID) == true)
             {
                 updateMachineDetail(changemachineID,changemachineDate,changemachineTime,changemachineVx,changemachineVy,changemachineVz,
-                        changemachineVelo,changemachineTemp,changemachineTS,changemachineHud,changemachineHour);
+                        changemachineVelo,changemachineTemp,changemachineTS,changemachineHud);
             }
             else
             {
                 //Machine dont exist in database
                 addmachine(changemachineID,changemachineDate,changemachineTime,changemachineVx,changemachineVy,changemachineVz,
-                        changemachineVelo,changemachineTemp,changemachineTS,changemachineHud,changemachineHour);
+                        changemachineVelo,changemachineTemp,changemachineTS,changemachineHud);
             }
         }
         //Database is empty
@@ -324,7 +332,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         {
             Log.d(TAG, "Database empty");
             addmachine(changemachineID,changemachineDate,changemachineTime,changemachineVx,changemachineVy,changemachineVz,
-                    changemachineVelo,changemachineTemp,changemachineTS,changemachineHud,changemachineHour);
+                    changemachineVelo,changemachineTemp,changemachineTS,changemachineHud);
         }
     }
 

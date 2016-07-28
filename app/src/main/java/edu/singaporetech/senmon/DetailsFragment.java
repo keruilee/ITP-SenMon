@@ -237,9 +237,9 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         // Give the TabLayout the ViewPage
         tabLayout = (TabLayout) v.findViewById(R.id.graph_tabs);
 
-        if(isNetworkEnabled()){
+        if(isNetworkEnabled()){             // has internet connection; get data from server
             getSQLData();
-        } else {
+        } else {                            // no internet connection, get data from database
             // Use the Builder class for convenient dialog construction
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle("Network Connectivity");
@@ -633,6 +633,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                     i++;
                 }
                 stackedYVals.add(new BarEntry(new float[] {numOfNormal, numOfWarning, numOfCritical }, stackedXVals.size()-1));
+                favDatabasehelper.updateOpHours(machineID, Integer.toString(opHours));
                 tvDHour.setText(Integer.toString(opHours));
             }
             else {      // no records found for machine

@@ -82,7 +82,6 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
     public static final String WarningVelocity = "warnVeloKey";
     public static final String CriticalVelocity = "critVeloKey";
 
-
     private static final String TAG_RESULTS = "result";
 
     ListView listViewListing;
@@ -377,7 +376,7 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
 
                 myTempoMachineList.add(machine);
                 mydatabaseHelper.changeDatabase(latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4], latestRecords[5],
-                        latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9], "0");
+                        latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9]);
 
                 Log.i("VELO",latestRecords[8]);
                 Log.i("TEMP" , latestRecords[7]);

@@ -242,7 +242,7 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
                 myTempoMachineList.add(machine);
                 //Change database
                 mydatabaseHelper.changeDatabase(latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4], latestRecords[5],
-                        latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9], "0");
+                        latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9]);
                 mydatabaseHelper.updateMachineDateTime(latestRecords[0], DateFormat.getDateTimeInstance().format(new Date()));
 
 

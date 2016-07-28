@@ -345,7 +345,7 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
 
                 //Change database
                 DbHelper.changeDatabase(latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4], latestRecords[5],
-                        latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9], "0");
+                        latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9]);
                 DbHelper.updateMachineDateTime(latestRecords[0], DateFormat.getDateTimeInstance().format(new Date()));
 
                 Log.d("cleanupLatestRecords: ", DbHelper.toString());
