@@ -14,10 +14,21 @@ import java.text.DecimalFormat;
 public class WholeNumValueFormatter implements ValueFormatter {
     private DecimalFormat mFormat;
 
+    /**
+     * determine the format to display values
+     */
     public WholeNumValueFormatter() {
         mFormat = new DecimalFormat("#########0"); // only whole numbers, no decimal
     }
 
+    /**
+     * return the values in the selected format
+     * @param value
+     * @param entry
+     * @param dataSetIndex
+     * @param viewPortHandler
+     * @return
+     */
     @Override
     public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
         if(value == 0)

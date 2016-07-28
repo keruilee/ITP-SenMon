@@ -402,35 +402,30 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
         editor.commit();
         dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
         //updateDateTime.setText("Updated on :"+dateTime);
-
+        double machineTemp, machineVelo;
         Log.d(" computeMachine", "testing");
         for(Machine machine : myTempoMachineList)
         {
+            machineTemp = Double.parseDouble(machine.getmachineTemp());
+            machineVelo = Double.parseDouble(machine.getmachineVelo());
             //normal machine
-            if (Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempWarningValue)) {
-                if (Double.parseDouble(machine.getmachineVelo()) < Double.parseDouble(veloWarningValue)) {
-                    mydatabaseHelper.updateMachineState(machine.getMachineID(), "Normal");
-                }
-                else if (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(veloCriticalValue)) {
-                    mydatabaseHelper.updateMachineState(machine.getMachineID(), "Critical");
-                }
-                else {
-                    mydatabaseHelper.updateMachineState(machine.getMachineID(), "Warning");
-                }
+            if(machineTemp < Double.parseDouble(tempWarningValue) && machineVelo < Double.parseDouble(veloWarningValue))
+            {
+                // both temp and velo is less than warning value = machine is in normal status
+                mydatabaseHelper.updateMachineState(machine.getMachineID(), getString(R.string.status_normal));
             }
-            else if (Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempWarningValue) && Double.parseDouble(machine.getmachineTemp()) < Double.parseDouble(tempCriticalValue)) {
-                if (Double.parseDouble(machine.getmachineVelo()) < Double.parseDouble(veloCriticalValue)) {
-                    mydatabaseHelper.updateMachineState(machine.getMachineID(), "Critical");
-                }
-                else if (Double.parseDouble(machine.getmachineVelo()) >= Double.parseDouble(veloCriticalValue)) {
-                    mydatabaseHelper.updateMachineState(machine.getMachineID(), "Warning");
-                }
+            else if (machineTemp >= Double.parseDouble(tempCriticalValue) || machineVelo >= Double.parseDouble(veloCriticalValue))
+            {
+                // either temp/velo is in critical range = machine is in critical status
+                mydatabaseHelper.updateMachineState(machine.getMachineID(), getString(R.string.status_critical));
             }
-            else if (Double.parseDouble(machine.getmachineTemp()) >= Double.parseDouble(tempCriticalValue)){
-                mydatabaseHelper.updateMachineState(machine.getMachineID(), "Critical");
-
+            else
+            {
+                // machine is not in normal or critical status, so machine is in warning status
+                mydatabaseHelper.updateMachineState(machine.getMachineID(), getString(R.string.status_warning));
             }
-        }}
+        }
+    }
     public boolean isNetworkEnabled(){
         ConnectivityManager cm = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         if(cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||

@@ -17,11 +17,21 @@ public class VelYAxisValueFormatter implements YAxisValueFormatter {
     private DecimalFormat mFormat;
     private Context context;
 
+    /**
+     * determine the format to display values
+     * @param c
+     */
     public VelYAxisValueFormatter (Context c) {
         mFormat = new DecimalFormat("########0.0"); // use one decimal
         context = c;
     }
 
+    /**
+     * return the values in the selected format
+     * @param value - value to be displayed
+     * @param yAxis
+     * @return
+     */
     @Override
     public String getFormattedValue(float value, YAxis yAxis) {
         return mFormat.format(value) + context.getString(R.string.velo_unit); // append velocity unit to value

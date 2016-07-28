@@ -19,4 +19,7 @@
 
     <color name="colorFeedback">#b27e7e</color>
 
+    <color name="colorGraph1">@color/colorAccent</color>
+    <color name="colorGraph2">#3498db</color>
+
 </resources>

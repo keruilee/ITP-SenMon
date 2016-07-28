@@ -11,7 +11,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -67,7 +66,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.StringTokenizer;
 
 
 /**
@@ -76,7 +74,6 @@ import java.util.StringTokenizer;
 public class DetailsFragment extends Fragment implements View.OnClickListener, OnChartValueSelectedListener {
 
     //Declare variables
-    String TAG = "Details Fragment";
     private TextView tvDMachineID, tvDTemperature, tvDVelocity, tvDHour, tvNoData;
     private ImageView tvDFavourite, tvDShare;
     String machineID = "";
@@ -290,6 +287,10 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
 //        return rootView.getDrawingCache();
     }
 
+    /**
+     * functions to be done when a button or checkbox is clicked
+     * @param v
+     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -311,7 +312,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                 }
                 else                                // machine id not in fav, add to fav
                 {
-                    ContentValues values = new ContentValues();
                     SQLiteDatabase testDb = favDatabasehelper.getWritableDatabase();
                     // KR do take note might need to change as update
                     testDb.execSQL("UPDATE DatabaseTable SET machineFavouriteStatus = 'yes' WHERE machineID = '" + machineID + "'");
@@ -393,7 +393,9 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         return file;
     }
 
-    //Set detail color
+    /**
+     * display temp and velocity values in either green, orange or red depending on its status
+     */
     private void displayTempAndVelo() {
         tvDTemperature.setText(tempValue);
         tvDVelocity.setText(veloValue);
@@ -426,7 +428,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     public String checkEventForDataBaseHelperFavourite(String machineID) {
         SQLiteDatabase db = favDatabasehelper.getWritableDatabase();
         String statusForFavo;
-        int index;
 
         String queryString = "SELECT * FROM DatabaseTable WHERE machineID = '" + machineID + "' ";
         Cursor c = db.rawQuery(queryString, null);
@@ -438,18 +439,24 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
             Log.i("c.getCount", c.getCount() + "");
             if (statusForFavo == null || statusForFavo.isEmpty()) {
                 Log.i("dbHelper null?", statusForFavo + "");
+                c.close();
                 return "no";
             } else {
+                c.close();
                 return "yes";
             }
 
         } else {
             Log.i("checkDataBaseHelper", "false, not found in the database");
+            c.close();
             return "not found";
         }
     }
 
     //Added by Kerui
+    /**
+     * send request to server to get all records from server's SQL database
+     */
     public void getSQLData() {
         class GetCSVDataJSON extends AsyncTask<Void, Void, JSONObject> {
 
@@ -474,6 +481,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                 }
                 catch(Exception e)
                 {
+                    e.printStackTrace();
                 }
                 lineChart.setNoDataText("Loading graph...");
                 stackedChart.setNoDataText("Loading graph...");
@@ -527,7 +535,11 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         g.execute();
     }
 
-    //Get the server CSV records
+    /**
+     * this function splits up the json object
+     * and goes through each record retrieved from the server's SQL database
+     * @param jsonObj - The JSON object that is passed from server script to here
+     */
     public void getSQLRecords(JSONObject jsonObj)
     {
         try {
@@ -537,10 +549,9 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
             int numOfRecords = serverCSVrecords.length();
             boolean withDate = false, beforeNoon = false;
 
-
-            // got at least 1 record
+            // at least 1 record exist, go through and format the record to display in graph
             if(serverCSVrecords.length() > 0) {
-                // load last record first
+                // load last record first to display temp and velo values first
                 String object = serverCSVrecords.get(numOfRecords - 1).toString();
                 object = object.replace("\r", "").replace("\n", "").replace("\"","");
                 currentRecord = object.split(",");
@@ -572,7 +583,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                             beforeNoon = true;
                     }
                     // determine whether to add x-label as date+time or time only
-                    // first time after 12am and 12pm will be the label with full date+time
+                    // first label after 12am and 12pm will be the label with full date+time
                     // the other labels in between will only have time
                     if(!withDate && beforeNoon && recordTime.before(timeFormatter.parse("12:00")))          // first label after 12am, date+time
                     {
@@ -595,12 +606,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                     float tempValue, velValue;
 
                     // for line charts
-                    try {
-                        recordDate = dateTimeFormatter.parse(currentRecord[1] + " " + currentRecord[2]);
-                    } catch (Exception e) {
-                        continue;   // date in wrong format; skip current record
-                    }
-                    recordDateString = dateTimeFormatter.format(recordDate);
+                    recordDate = dateTimeFormatter.parse(currentRecord[1] + " " + currentRecord[2]);
+
                     tempValue = Float.parseFloat(currentRecord[7]);
                     velValue = Float.parseFloat(currentRecord[6]);
                     tempYVals.add(new Entry(tempValue, i));
@@ -626,7 +633,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                     else if(velValue > 0 || tempValue > 0)
                         numOfNormal++;
 
-                    if(velValue == 0)           // check if current row indicates machine is off
+                    if(velValue == 0)           // machine state is off, reset operating hours
                         opHours = 0;
                     else
                         opHours++;
@@ -634,7 +641,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                 }
                 stackedYVals.add(new BarEntry(new float[] {numOfNormal, numOfWarning, numOfCritical }, stackedXVals.size()-1));
                 favDatabasehelper.updateOpHours(machineID, Integer.toString(opHours));
-                tvDHour.setText(Integer.toString(opHours));
+                tvDHour.setText(String.format("%d", opHours));
             }
             else {      // no records found for machine
                 lineChart.setNoDataText("No records found");
@@ -647,7 +654,17 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         }
     }
 
-    // set up line chart with preferred settings
+    /**
+     * set up line chart with preferred settings
+     * 2 lines will be plotted on the graph to display temperature and velocity data
+     * left y-axis is for temperature, right y-axis is for velocity
+     * x-axis is to display date time of each data
+     * can only scale horizontally
+     * 4 limit lines will be used to display:
+     * 1) temperature critical value 2) temperature warning value
+     * 3) velocity critical value 4) velocity warning value
+     * a message box (marker) will be displayed when a point is selected to display its date time and value
+     */
     private void setupLineChart() {
         lineChart.setDrawGridBackground(false);
         lineChart.setDrawBorders(false);
@@ -658,7 +675,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         // enable touch gestures
         lineChart.setTouchEnabled(true);
 
-        // enable scaling and dragging
+        // enable dragging. scaling only for x-axis
         lineChart.setDragEnabled(true);
         lineChart.setScaleXEnabled(true);
         lineChart.setScaleYEnabled(false);
@@ -666,38 +683,38 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         // if disabled, scaling can be done on x- and y-axis separately
         lineChart.setPinchZoom(true);
 
-        //         limit lines
-        tempCritLine = new LimitLine(Float.parseFloat(tempCriticalValue), "Critical");
+        // limit lines
+        tempCritLine = new LimitLine(Float.parseFloat(tempCriticalValue), getString(R.string.status_critical));
         tempCritLine.setLineWidth(1f);
         tempCritLine.enableDashedLine(10f, 15f, 0f);
         tempCritLine.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_TOP);
-        tempCritLine.setLineColor(Color.parseColor("#2c3e50"));
+        tempCritLine.setLineColor(ContextCompat.getColor(context, R.color.colorAccent));
         tempCritLine.setTextSize(10f);
-        tempCritLine.setTextColor(Color.parseColor("#2c3e50"));
+        tempCritLine.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
 
-        tempWarningLine = new LimitLine(Float.parseFloat(tempWarningValue), "Warning");
+        tempWarningLine = new LimitLine(Float.parseFloat(tempWarningValue), getString(R.string.status_warning));
         tempWarningLine.setLineWidth(1f);
         tempWarningLine.enableDashedLine(10f, 15f, 0f);
         tempWarningLine.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_BOTTOM);
-        tempWarningLine.setLineColor(Color.parseColor("#2c3e50"));
+        tempWarningLine.setLineColor(ContextCompat.getColor(context, R.color.colorAccent));
         tempWarningLine.setTextSize(10f);
-        tempWarningLine.setTextColor(Color.parseColor("#2c3e50"));
+        tempWarningLine.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
 
-        veloCriticalLine = new LimitLine(Float.parseFloat(veloCriticalValue), "Critical");
+        veloCriticalLine = new LimitLine(Float.parseFloat(veloCriticalValue), getString(R.string.status_warning));
         veloCriticalLine.setLineWidth(1f);
         veloCriticalLine.enableDashedLine(10f, 15f, 0f);
         veloCriticalLine.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
-        veloCriticalLine.setLineColor(Color.parseColor("#3498db"));
+        veloCriticalLine.setLineColor(ContextCompat.getColor(context, R.color.colorGraph2));
         veloCriticalLine.setTextSize(10f);
-        veloCriticalLine.setTextColor(Color.parseColor("#3498db"));
+        veloCriticalLine.setTextColor(ContextCompat.getColor(context, R.color.colorGraph2));
 
-        veloWarningLine = new LimitLine(Float.parseFloat(veloWarningValue), "Warning");
+        veloWarningLine = new LimitLine(Float.parseFloat(veloWarningValue), getString(R.string.status_warning));
         veloWarningLine.setLineWidth(1f);
         veloWarningLine.enableDashedLine(10f, 15f, 0f);
         veloWarningLine.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
-        veloWarningLine.setLineColor(Color.parseColor("#3498db"));
+        veloWarningLine.setLineColor(ContextCompat.getColor(context, R.color.colorGraph2));
         veloWarningLine.setTextSize(10f);
-        veloWarningLine.setTextColor(Color.parseColor("#3498db"));
+        veloWarningLine.setTextColor(ContextCompat.getColor(context, R.color.colorGraph2));
 
         // axes
         xAxis = lineChart.getXAxis();
@@ -713,7 +730,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         leftAxis.setDrawZeroLine(false);
         leftAxis.setValueFormatter(new TempYAxisValueFormatter(context));
         leftAxis.setDrawGridLines(false);
-        leftAxis.setTextColor(Color.parseColor("#2c3e50"));
+        leftAxis.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
         leftAxis.setSpaceTop(50);
 
         rightAxis = lineChart.getAxisRight();
@@ -722,7 +739,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         rightAxis.enableGridDashedLine(10f, 10f, 0f);
         rightAxis.setDrawZeroLine(false);
         rightAxis.setValueFormatter(new VelYAxisValueFormatter(context));
-        rightAxis.setTextColor(Color.parseColor("#3498db"));
+        rightAxis.setTextColor(ContextCompat.getColor(context, R.color.colorGraph2));
         rightAxis.setDrawGridLines(false);
 
         mv = new MyMarkerView(this.getContext(), R.layout.custom_marker_view);
@@ -737,7 +754,10 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         insertLineData();
     }
 
-    // put data into line chart
+    /**
+     * insert line data into line chart to display
+     * 2 data sets in total - temperature and velocity
+     */
     private void insertLineData() {
         // create a dataset and give it a type
         tempSet = new LineDataSet(tempYVals, TEMP_NAME);
@@ -746,8 +766,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         tempSet.setDrawValues(false);
         tempSet.enableDashedHighlightLine(10f, 5f, 0f);
         tempSet.setHighlightLineWidth(1f);
-        tempSet.setColor(Color.parseColor("#2c3e50"));
-        tempSet.setCircleColor(Color.parseColor("#2c3e50"));
+        tempSet.setColor(ContextCompat.getColor(context, R.color.colorAccent));
+        tempSet.setCircleColor(ContextCompat.getColor(context, R.color.colorAccent));
         tempSet.setLineWidth(1f);
         tempSet.setCircleRadius(3f);
         tempSet.setDrawCircleHole(false);
@@ -761,8 +781,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         veloSet.setDrawValues(false);
         veloSet.enableDashedHighlightLine(10f, 5f, 0f);
         veloSet.setHighlightLineWidth(1f);
-        veloSet.setColor(Color.parseColor("#3498db"));
-        veloSet.setCircleColor(Color.parseColor("#3498db"));
+        veloSet.setColor(ContextCompat.getColor(context, R.color.colorGraph2));
+        veloSet.setCircleColor(ContextCompat.getColor(context, R.color.colorGraph2));
         veloSet.setLineWidth(1f);
         veloSet.setCircleRadius(3f);
         veloSet.setDrawCircleHole(false);
@@ -786,7 +806,11 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         lineChart.moveViewToX(lineXVals.size() - 1);
     }
 
-    // set up stacked chart with preferred settings
+    /**
+     * set up stacked chart with preferred settings
+     * y-axis to display the number of times machine entered each status in a day
+     * x-axis to display date
+     */
     private void setupStackedChart() {
         insertStackedData();
 
@@ -817,13 +841,16 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         l.setXEntrySpace(6f);
     }
 
-    // put data into stacked chart
+    /**
+     * insert stacked data into stacked chart
+     * each day will have at most 3 status: safe, warning and critical
+     */
     private void insertStackedData() {
         BarDataSet set1;
 
         set1 = new BarDataSet(stackedYVals, "| Machine States Count / Day");
         set1.setColors(getColors());
-        set1.setStackLabels(new String[]{"Safe", "Warning", "Critical"});
+        set1.setStackLabels(new String[]{getString(R.string.status_normal), getString(R.string.status_warning), getString(R.string.status_critical)});
 
         ArrayList<IBarDataSet> dataSets = new ArrayList<>();
         dataSets.add(set1);
@@ -838,7 +865,10 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         stackedChart.invalidate();
     }
 
-    // set up colours for stacked chart
+    /**
+     * set up colours for stacked chart
+     * @return - the colors to be used for the stacked chart
+     */
     private int[] getColors() {
 
         int stacksize = 3;
@@ -846,14 +876,18 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         // have as many colors as stack-values per entry
         int[] colors = new int[stacksize];
 
-        colors[0] = getResources().getColor(R.color.colorNormal);
-        colors[1] = getResources().getColor(R.color.colorWarning);
-        colors[2] = getResources().getColor(R.color.colorCritical);
+        colors[0] = ContextCompat.getColor(context, R.color.colorNormal);
+        colors[1] = ContextCompat.getColor(context, R.color.colorWarning);
+        colors[2] = ContextCompat.getColor(context, R.color.colorCritical);
 
         return colors;
     }
 
-    // update line chart when checkboxes are pressed
+    /**
+     * update line chart when checkboxes are pressed to either show or hide a dataset
+     * @param datasetSelected - whether temperature or velocity dataset
+     * @param added - whether it is to show or hide dataset. added = to show
+     */
     private void updateLineChart(String datasetSelected, boolean added)
     {
         LineData data = lineChart.getData();
@@ -878,6 +912,11 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
             else
             {
                 data.addDataSet(veloSet);
+                if(data.contains(tempSet))
+                {
+                    data.removeDataSet(tempSet);
+                    data.addDataSet(tempSet);
+                }
                 rightAxis.setDrawLabels(true);
                 rightAxis.setEnabled(true);
                 if(cbLines.isChecked())
@@ -913,7 +952,12 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         lineChart.invalidate();
     }
 
-    // when an entry is selected, pass the full datetime and correct unit to markerview to display
+    /**
+     * when an entry is selected, pass the full datetime and correct unit to markerview to display
+     * @param e - the selected entry
+     * @param dataSetIndex - the selected dataset, either temperature or velocity
+     * @param h
+     */
     @Override
     public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
 

@@ -5,10 +5,8 @@ import android.content.Context;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.components.MarkerView;
-import com.github.mikephil.charting.data.CandleEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.utils.Utils;
 
 /**
  * Custom implementation of the MarkerView.
@@ -32,7 +30,7 @@ public class MyMarkerView extends MarkerView {
     @Override
     public void refreshContent(Entry e, Highlight highlight) {
         tvDate.setText(date);
-        tvContent.setText("" +e.getVal() +unit);
+        tvContent.setText(e.getVal() +unit);
     }
 
     @Override
@@ -47,10 +45,20 @@ public class MyMarkerView extends MarkerView {
         return -getHeight();
     }
 
+    /**
+     * set the date to display in the marker
+     * @param selectedDate - date of selected point
+     */
     public void setDate(String selectedDate) {
         date = selectedDate;
     }
 
+    /**
+     * set the unit to display in the marker
+     * °C for temperature
+     * mm/s for velocity
+     * @param selectedUnit - unit of selected point depending on whether its temperature or velocity data
+     */
     public void setUnit(String selectedUnit) {
         unit = selectedUnit;
     }
