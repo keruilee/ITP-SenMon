@@ -117,6 +117,8 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
 
 //    public WebService webService;
 
+    IntentFilter inF = new IntentFilter("data_changed");
+
     public ListFragment() {
     }
 
@@ -170,8 +172,6 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
 
         DateTimeSharedPreferences = context.getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
         dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
-
-
 
         /////////////////// take out the data from databasehelper///////////////////////
         mydatabaseHelper = new DatabaseHelper(getActivity());
@@ -241,7 +241,6 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
                     networkDialog.show();
                 }
                 Log.i("REFRESH", "what bundle? After" + status);
-
             }
         });
 
@@ -287,44 +286,11 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
             }
         });
 
-        //register the receiver
-        IntentFilter inF = new IntentFilter("data_changed");
-        LocalBroadcastManager.getInstance(context).registerReceiver(dataChangeReceiver, inF);
+
 
         return rootView;
     }
 
-    private BroadcastReceiver dataChangeReceiver= new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // update your listview
-            Log.d("BROADCAST RECEIVED", "YES!");
-            //get the data again from the csvdata()
-            if (isNetworkEnabled()) {
-                DateTimeSharedPreferences = context.getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
-                editor = DateTimeSharedPreferences.edit();
-                editor.putString("DT_PREFS_KEY", DateFormat.getDateTimeInstance().format(new Date()));
-                Log.d("DATE IN LSIT FRAGMENT", DateFormat.getDateTimeInstance().format(new Date()) + "");
-                editor.commit();
-                dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
-                updateDateTime.setText("Updated on :"+dateTime);
-
-            } else {
-                // Use the Builder class for convenient dialog construction
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Network Connectivity");
-                builder.setMessage("No network detected! Data will not be updated!");
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // You don't have to do anything here if you just want it dismissed when clicked
-                        
-                    }
-                });
-                AlertDialog networkDialog = builder.create();
-                networkDialog.show();
-            }
-        }
-    };
     ///////// To update the tab when the user select///////////////
     public void updateList() {
         switch (selectedTab) {
@@ -475,4 +441,36 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
             return false;
         }
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        //unregister the receiver
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(dataChangeReceiver);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //register the receiver
+        LocalBroadcastManager.getInstance(context).registerReceiver(dataChangeReceiver, inF);
+    }
+
+    private BroadcastReceiver dataChangeReceiver= new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // update your listview
+            Log.d("BROADCAST RECEIVED", "YES!");
+            //get the data again from the csvdata()
+            if (isNetworkEnabled()) {
+                DateTimeSharedPreferences = context.getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
+                editor = DateTimeSharedPreferences.edit();
+                editor.putString("DT_PREFS_KEY", DateFormat.getDateTimeInstance().format(new Date()));
+                Log.d("DATE IN LSIT FRAGMENT", DateFormat.getDateTimeInstance().format(new Date()) + "");
+                editor.commit();
+                dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
+                updateDateTime.setText("Updated on :"+dateTime);
+            }
+        }
+    };
 }

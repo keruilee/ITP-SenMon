@@ -382,31 +382,6 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
             if(isNetworkEnabled()){
                 getSQLData();
             }
-            else{
-
-                retrieveDatabaseRecord();
-
-                if (!(myMachineList.isEmpty()))
-                {
-                    //call compute machine method
-                    computeMachine();
-
-                    //check priority method
-                    hmachineID = checkPriority();
-                }
-
-                // Use the Builder class for convenient dialog construction
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Network Connectivity");
-                builder.setMessage("No network detected! Data will not be updated??!");
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // You don't have to do anything here if you just want it dismissed when clicked
-                    }
-                });
-                AlertDialog networkDialog = builder.create();
-                networkDialog.show();
-            }
         }
     };
 

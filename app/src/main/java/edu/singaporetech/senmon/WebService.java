@@ -98,11 +98,15 @@ public class WebService extends AsyncTask<Void, Void, JSONObject> {
     }
 
     public void onPreExecute() {
-        progressDialog = new ProgressDialog(mContext);
-        progressDialog.setMessage("Loading Records...");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setIndeterminate(false);
-        progressDialog.show();
+        if(progressDialog == null) {
+            progressDialog = new ProgressDialog(mContext);
+            progressDialog.setMessage("Loading Records...");
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setIndeterminate(false);
+        }
+        if(!progressDialog.isShowing()) {
+            progressDialog.show();
+        }
     }
 
     public void onProgressUpdate(Integer... progress) {
