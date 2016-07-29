@@ -280,22 +280,27 @@ public class RangeFragment extends Fragment {
                     if  ((validateWarnTemp == true) && (validateCritTemp == true) &&
                             (validateWarnVelo == true) && (validateCritVelo == true))
                     {
-                        //No empty input or invalid input
-                        //Call the method and Store the number into a variable
-                        String warningTemp = seekBarTemp.getSelectedWarningValue().toString();
-                        String criticalTemp = seekBarTemp.getSelectedCriticalValue().toString();
-                        String warningVelo = seekBarVelo.getSelectedWarningValue().toString();
-                        String criticalVelo = seekBarVelo.getSelectedCriticalValue().toString();
+                        //Check for not logical warning/critical input
+                        if ((validateLogical(warnTempEdit,critTempEdit) == true) &&
+                                (validateLogical(warnVeloEdit,critVeloEdit) == true))
+                        {
+                            //No empty input or invalid input
+                            //Call the method and Store the number into a variable
+                            String warningTemp = seekBarTemp.getSelectedWarningValue().toString();
+                            String criticalTemp = seekBarTemp.getSelectedCriticalValue().toString();
+                            String warningVelo = seekBarVelo.getSelectedWarningValue().toString();
+                            String criticalVelo = seekBarVelo.getSelectedCriticalValue().toString();
 
-                        SharedPreferences.Editor rangeEditor = RangeSharedPreferences.edit();
+                            SharedPreferences.Editor rangeEditor = RangeSharedPreferences.edit();
 
-                        //store to warning and critical temperature,velocity
-                        rangeEditor.putString(WarningTemperature, warningTemp);
-                        rangeEditor.putString(CriticalTemperature, criticalTemp);
-                        rangeEditor.putString(WarningVelocity, warningVelo);
-                        rangeEditor.putString(CriticalVelocity, criticalVelo);
-                        rangeEditor.commit();
-                        Toast.makeText(getActivity(), "Range Saved Successfully", Toast.LENGTH_SHORT).show();
+                            //store to warning and critical temperature,velocity
+                            rangeEditor.putString(WarningTemperature, warningTemp);
+                            rangeEditor.putString(CriticalTemperature, criticalTemp);
+                            rangeEditor.putString(WarningVelocity, warningVelo);
+                            rangeEditor.putString(CriticalVelocity, criticalVelo);
+                            rangeEditor.commit();
+                            Toast.makeText(getActivity(), "Range Saved Successfully", Toast.LENGTH_SHORT).show();
+                        }
 
                     }
                     else {
@@ -314,6 +319,17 @@ public class RangeFragment extends Fragment {
             return false;
 
         } else {
+            return true;
+        }
+    }
+
+    public boolean validateLogical(EditText editTextW, EditText editTextC) {
+        if (Double.valueOf(editTextW.getText().toString()) >= Double.valueOf(editTextC.getText().toString())) {
+            Toast.makeText(getActivity(), "warning value must be lower than critical value", Toast.LENGTH_SHORT).show();
+            return false;
+
+        }
+        else{
             return true;
         }
     }
