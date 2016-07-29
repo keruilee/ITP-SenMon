@@ -218,7 +218,7 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
                         public void onClick(DialogInterface dialog, int id) {
                             // You don't have to do anything here if you just want it dismissed when clicked
                             mydatabaseHelper = new DatabaseHelper(getActivity());
-                            myMachineList.clear();
+                            //myMachineList.clear();
                             if (status.equalsIgnoreCase("all")) {
                                 Log.d("LF All", "all");
                                 myMachineList = mydatabaseHelper.returnStringMachineAllString();

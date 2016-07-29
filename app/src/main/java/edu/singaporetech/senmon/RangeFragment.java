@@ -18,6 +18,8 @@ import android.widget.Toast;
 import org.florescu.android.rangeseekbar.TempRangeSeekBar;
 import org.florescu.android.rangeseekbar.VeloRangeSeekBar;
 
+import java.util.ArrayList;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,7 +43,12 @@ public class RangeFragment extends Fragment {
     public static final String CriticalTemperature = "critTempKey";
     public static final String WarningVelocity = "warnVeloKey";
     public static final String CriticalVelocity = "critVeloKey";
-
+    String warningTemp ;
+    String criticalTemp ;
+    String warningVelo ;
+    String criticalVelo;
+    public ArrayList<Machine> myMachineList = new ArrayList<Machine>();
+    public DatabaseHelper mydatabaseHelper;
 
     public RangeFragment() {
         // Required empty public constructor
@@ -286,10 +293,10 @@ public class RangeFragment extends Fragment {
                         {
                             //No empty input or invalid input
                             //Call the method and Store the number into a variable
-                            String warningTemp = seekBarTemp.getSelectedWarningValue().toString();
-                            String criticalTemp = seekBarTemp.getSelectedCriticalValue().toString();
-                            String warningVelo = seekBarVelo.getSelectedWarningValue().toString();
-                            String criticalVelo = seekBarVelo.getSelectedCriticalValue().toString();
+                             warningTemp = seekBarTemp.getSelectedWarningValue().toString();
+                             criticalTemp = seekBarTemp.getSelectedCriticalValue().toString();
+                             warningVelo = seekBarVelo.getSelectedWarningValue().toString();
+                             criticalVelo = seekBarVelo.getSelectedCriticalValue().toString();
 
                             SharedPreferences.Editor rangeEditor = RangeSharedPreferences.edit();
 
@@ -299,6 +306,8 @@ public class RangeFragment extends Fragment {
                             rangeEditor.putString(WarningVelocity, warningVelo);
                             rangeEditor.putString(CriticalVelocity, criticalVelo);
                             rangeEditor.commit();
+
+                            computeMachine();
                             Toast.makeText(getActivity(), "Range Saved Successfully", Toast.LENGTH_SHORT).show();
                         }
 
@@ -334,5 +343,38 @@ public class RangeFragment extends Fragment {
         }
     }
 
+    //Computation of machines in each state
+    private void computeMachine() {
+        mydatabaseHelper = new DatabaseHelper(getActivity());
+        myMachineList.clear();
+        myMachineList = mydatabaseHelper.returnStringMachineAllString();
+        int totalMachine = myMachineList.size();
+        Log.d(" Total Machine ", String.valueOf(totalMachine));
 
+        double machineTemp, machineVelo, tempWarning, tempCritical, veloWarning, veloCritical;
+
+        for (Machine machine : myMachineList) {
+            machineTemp = Double.parseDouble(machine.getmachineTemp());
+            machineVelo = Double.parseDouble(machine.getmachineVelo());
+            tempWarning = Double.parseDouble(warningTemp);
+            tempCritical = Double.parseDouble(criticalTemp);
+            veloWarning = Double.parseDouble(warningVelo);
+            veloCritical = Double.parseDouble(criticalVelo);
+
+            // determine states of machine
+            if (machineTemp >= tempCritical || machineVelo >= veloCritical)          // machine in critical state
+            {
+                mydatabaseHelper.updateMachineState(machine.getMachineID(), "Critical");
+               Log.i("RANGE computeMachine",machine.getMachineID() + "C" );
+            } else if (machineTemp >= tempWarning || machineVelo >= veloWarning)       // machine in warning state
+            {
+                mydatabaseHelper.updateMachineState(machine.getMachineID(), "Warning");
+                Log.i("RANGE computeMachine", machine.getMachineID() + "W");
+            } else                                                                    // machine in off/normal state
+            {
+                mydatabaseHelper.updateMachineState(machine.getMachineID(), "Normal");
+                Log.i("RANGE computeMachine", machine.getMachineID() + "N");
+            }
+        }
+    }
 }

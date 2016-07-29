@@ -151,7 +151,7 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
                     public void onRefresh() {
                         Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
                         progressDialog = new ProgressDialog(getActivity());
-                        myFavouriteMachineList.clear();
+
                         if(isNetworkEnabled()){
                             getSQLData();
                         }
@@ -182,24 +182,7 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
     public void onResume() {
         Log.e("DEBUG", "onResume of FAV");
         super.onResume();
-
-
-//        mydatabaseHelper = new DatabaseHelper(getActivity());
-//        myFavouriteMachineList.clear();
-//
-//        myFavouriteMachineList = mydatabaseHelper.returnFavourite();
-//        if (myFavouriteMachineList.isEmpty())
-//        {
-//            updateDateTime.setText("No results found");
-//        }
-//        else
-//        {
-//            updateDateTime.setText("Updated on :"+dateTime);
-//        }
-
     }
-
-
 
     ////////////////////////update the list///////////////////////////
 
@@ -277,19 +260,11 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
                             c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
                             c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
                     myFavouriteMachineList.add(machineFavourite);
-//
 
                 }
             } while (c.moveToNext());
         }
-//        Log.d("NUMBER OF FAVOURITES", "ZER0");
-//        if(numOfFav > 0) {
-//            Log.d("NUMBER OF FAVOURITES", ""+numOfFav);
-//            sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-//            editor = sharedPreferences.edit();
-//            editor.putInt(NumberOfFavourite, numOfFav);
-//            editor.commit();
-//        }
+
     }
 
     public Cursor FavouriteList() {

@@ -25,6 +25,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity
@@ -37,7 +39,10 @@ public class MainActivity extends AppCompatActivity
     public static final String FavNtfnOnly = "favNtfnOnlyKey";
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
+    DatabaseHelper mydatabaseHelper;
     public Context context;
+
+    private DrawerLayout drawer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,13 +62,22 @@ public class MainActivity extends AppCompatActivity
         if(sharedPreferences.getBoolean(NotificationsEnabled, true)){
             Log.d("msg", "notification is true");
         };
+
+
         //start nav drawer
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+                {
+                    @Override
+                    public void onDrawerOpened(View drawerView) {
+                        computeMachine();
+                        super.onDrawerOpened(drawerView);
+                    }
+                };
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
@@ -89,7 +103,6 @@ public class MainActivity extends AppCompatActivity
 
         }
 
-
     }
 
     @Override
@@ -102,13 +115,24 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+ /*   @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        computeMachine();
+
+        Log.i("drawer","compute");
+    }*/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         //https://guides.codepath.com/android/Using-the-App-ToolBar
 
+
+
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
+        //testing menu item
 
         SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView search = (SearchView) menu.findItem(R.id.action_search).getActionView();
@@ -119,16 +143,9 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public boolean onQueryTextSubmit(String s) {
-
-/*
-                Intent intent = new Intent(getApplicationContext(), Search_Result.class);
-                intent.putExtra("SearchQuery", s);
-
-                MainActivity.this.startActivity(intent);
-*/
-                SearchFragment searchfragment = new  SearchFragment();
+                SearchFragment searchfragment = new SearchFragment();
                 Bundle bundle = new Bundle();
-                bundle.putString("SearchQuery",s);
+                bundle.putString("SearchQuery", s);
                 searchfragment.setArguments(bundle); //data being send to MachineListFragment
                 FragmentManager manager = getSupportFragmentManager();
                 manager.beginTransaction().replace(R.id.relativelayoutfor_fragment, searchfragment).addToBackStack(null).commit();
@@ -166,8 +183,8 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        //link to home
         if (id == R.id.nav_home) {
+
             HomeFragment homeFragment = new HomeFragment();
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.relativelayoutfor_fragment, homeFragment).addToBackStack(null).commit();
@@ -243,4 +260,27 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-}
+
+    private void computeMachine() {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        Menu nav_Menu = navigationView.getMenu();
+
+        mydatabaseHelper = new DatabaseHelper(this);
+        if (mydatabaseHelper.getRowsCount() != 0) {
+
+            if (mydatabaseHelper.returnStringMachineStateString("Warning").isEmpty())
+            {nav_Menu.findItem(R.id.nav_warning).setEnabled(false);}
+            else
+            {nav_Menu.findItem(R.id.nav_warning).setEnabled(true);}
+
+            if (mydatabaseHelper.returnStringMachineStateString("Critical").isEmpty())
+            {nav_Menu.findItem(R.id.nav_critical).setEnabled(false);}
+            else
+            {nav_Menu.findItem(R.id.nav_critical).setEnabled(true);}
+
+            if (mydatabaseHelper.returnStringMachineStateString("Normal").isEmpty())
+            {nav_Menu.findItem(R.id.nav_normal).setEnabled(false);}
+            else
+            {nav_Menu.findItem(R.id.nav_normal).setEnabled(true);}
+        }
+    }}

@@ -285,6 +285,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return arrayHour;
     }
 
+
+
+
+
     // Get machine ID based on hour database //
     public String machineUsingHour(String machineState, String machineHour) {
         String value = "";

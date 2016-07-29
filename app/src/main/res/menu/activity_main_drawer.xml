@@ -20,7 +20,8 @@
         <item
             android:id="@+id/nav_critical"
             android:icon="@drawable/ic_menu_critical"
-            android:title="Critical" />
+            android:title="Critical"
+            />
         <item
             android:id="@+id/nav_warning"
             android:icon="@drawable/ic_menu_warning"

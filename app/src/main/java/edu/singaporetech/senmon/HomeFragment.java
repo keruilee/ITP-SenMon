@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PorterDuff;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -58,6 +60,7 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
     public static final String CriticalVelocity = "critVeloKey";
     public static final String NumberOfCritical = "numOfCrit";
     public static final String NumberOfWarning = "numOfWarn";
+    public static final String NumberOfNormal = "numOfNorm";
     public static final String NumberOfFavourite = "numOfFav";
 
     ProgressDialog progressDialog;
@@ -135,6 +138,18 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
             getSQLData();
         }
         else{
+
+            retrieveDatabaseRecord();
+
+            if (!(myMachineList.isEmpty()))
+            {
+                //call compute machine method
+                computeMachine();
+
+                //check priority method
+                hmachineID = checkPriority();
+            }
+
             // Use the Builder class for convenient dialog construction
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle("Network Connectivity");
@@ -368,6 +383,18 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
                 getSQLData();
             }
             else{
+
+                retrieveDatabaseRecord();
+
+                if (!(myMachineList.isEmpty()))
+                {
+                    //call compute machine method
+                    computeMachine();
+
+                    //check priority method
+                    hmachineID = checkPriority();
+                }
+
                 // Use the Builder class for convenient dialog construction
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle("Network Connectivity");
@@ -430,10 +457,11 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
         tvNorm.setText(noOfNorm + "/" + totalMachine + " " + getString(R.string.machine_name));
         tvAll.setText(totalMachine + " " + getString(R.string.machine_name));
 
-        //put number of crit and warning into shared preference
+        //put number of crit and warning and normal into shared preference
         editor = sharedPreferences.edit();
         editor.putInt(NumberOfCritical, noOfCrit);
         editor.putInt(NumberOfWarning, noOfWarn);
+        editor.putInt(NumberOfNormal, noOfNorm);
         editor.commit();
 
         //Set disabled of button
@@ -553,6 +581,28 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
         }
         else {
             return false;
+        }
+    }
+
+    //Retrieve all database records
+    private void retrieveDatabaseRecord()
+    {
+        if (!(myMachineList.isEmpty()))
+        {
+            myMachineList.clear();
+        }
+        // Select All Query
+        String selectQuery = "SELECT * FROM " + DbHelper.TABLE_NAME;
+        SQLiteDatabase db = DbHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        // looping through all rows and adding to mydatabaselist
+        if (cursor.moveToFirst()) {
+            do {
+                Machine dbMachine = new Machine(cursor.getString(1),cursor.getString(2),cursor.getString(3),
+                        cursor.getString(4),cursor.getString(5),cursor.getString(6),cursor.getString(7),cursor.getString(8),
+                        cursor.getString(9),cursor.getString(10),cursor.getString(11),cursor.getString(12),cursor.getString(13));
+                myMachineList.add(dbMachine);
+            } while (cursor.moveToNext());
         }
     }
 }
