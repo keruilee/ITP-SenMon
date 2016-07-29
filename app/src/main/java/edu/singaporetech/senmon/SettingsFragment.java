@@ -37,6 +37,9 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
     public static final String CriticalEnabled = "criticalEnabledKey";
     public static final String FavNtfnOnly = "favNtfnOnlyKey";
     public static final String NumberOfFavourite = "numOfFav";
+
+    public static final String RANGE_FRAG_TAG = "RANGE_FRAGMENT";
+
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
 
@@ -88,8 +91,8 @@ public class SettingsFragment extends Fragment implements android.widget.Compoun
 
                 RangeFragment range = new RangeFragment();
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.relativelayoutfor_fragment, range);
-                transaction.addToBackStack(null);
+                transaction.replace(R.id.relativelayoutfor_fragment, range, RANGE_FRAG_TAG);
+                transaction.addToBackStack(RANGE_FRAG_TAG);
                 transaction.commit();
             }
         });

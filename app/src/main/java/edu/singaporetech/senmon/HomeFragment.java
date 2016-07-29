@@ -147,11 +147,11 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
 
             retrieveDatabaseRecord();
 
+            //call compute machine method
+            computeMachine();
+
             if (!(myMachineList.isEmpty()))
             {
-                //call compute machine method
-                computeMachine();
-
                 //check priority method
                 hmachineID = checkPriority();
             }

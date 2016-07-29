@@ -64,6 +64,8 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
 
     public static final String NumberOfFavourite = "numOfFav";
 
+    public static final String DETAILS_FRAG_TAG = "DETAILS_FRAGMENT";
+
     CustomAdapter adapter;
 
     ArrayList<Machine> myFavouriteMachineList = new ArrayList<Machine>();
@@ -140,8 +142,8 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
                 //Edited by kerui
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.replace(R.id.relativelayoutfor_fragment, details);
-                transaction.addToBackStack(null);
+                transaction.replace(R.id.relativelayoutfor_fragment, details, DETAILS_FRAG_TAG);
+                transaction.addToBackStack(DETAILS_FRAG_TAG);
                 transaction.commit();
             }
         });
