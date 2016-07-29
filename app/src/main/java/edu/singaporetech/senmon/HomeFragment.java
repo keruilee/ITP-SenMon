@@ -40,7 +40,7 @@ import java.util.Date;
 public class HomeFragment extends Fragment implements WebService.OnAsyncRequestComplete {
 
     //Declare variables
-    final String TAG = "Home Fragment";
+    String TAG = "Home Fragment";
     final String CRITICAL = "Critical";
     final String WARNING = "Warning";
     final String NORMAL = "Normal";
@@ -62,6 +62,12 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
     public static final String NumberOfWarning = "numOfWarn";
     public static final String NumberOfNormal = "numOfNorm";
     public static final String NumberOfFavourite = "numOfFav";
+
+    public static final String LIST_FRAG_CRIT_TAG = "LIST_FRAGMENT_CRITICAL";
+    public static final String LIST_FRAG_WARN_TAG = "LIST_FRAGMENT_WARNING";
+    public static final String LIST_FRAG_NORM_TAG = "LIST_FRAGMENT_NORMAL";
+    public static final String LIST_FRAG_ALL_TAG = "LIST_FRAGMENT_ALL";
+    public static final String DETAILS_FRAG_TAG = "DETAILS_FRAGMENT";
 
     ProgressDialog progressDialog;
     JSONArray serverSQLRecords = null;
@@ -174,8 +180,8 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
                 Bundle bundle = new Bundle();
                 bundle.putString("name", hmachineID);
                 details.setArguments(bundle); //data being send to DetailsFragment
-                transaction.replace(R.id.relativelayoutfor_fragment, details);
-                transaction.addToBackStack(null);
+                transaction.replace(R.id.relativelayoutfor_fragment, details, DETAILS_FRAG_TAG);
+                transaction.addToBackStack(DETAILS_FRAG_TAG);
                 transaction.commit();
             }
 
@@ -191,8 +197,8 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
                 Bundle bundle = new Bundle();
                 bundle.putString("name", hmachineID);
                 details.setArguments(bundle); //data being send to DetailsFragment
-                transaction.replace(R.id.relativelayoutfor_fragment, details);
-                transaction.addToBackStack(null);
+                transaction.replace(R.id.relativelayoutfor_fragment, details, DETAILS_FRAG_TAG);
+                transaction.addToBackStack(DETAILS_FRAG_TAG);
                 transaction.commit();
             }
 
@@ -209,8 +215,8 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
                 Bundle bundle = new Bundle();
                 bundle.putString("name", "Critical");
                 list.setArguments(bundle); //data being send to MachineListFragment
-                transaction.replace(R.id.relativelayoutfor_fragment, list);
-                transaction.addToBackStack(null);
+                transaction.replace(R.id.relativelayoutfor_fragment, list, LIST_FRAG_CRIT_TAG);
+                transaction.addToBackStack(LIST_FRAG_CRIT_TAG);
                 transaction.commit();
             }
 
@@ -226,8 +232,8 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
                 Bundle bundle = new Bundle();
                 bundle.putString("name", "Warning");
                 list.setArguments(bundle); //data being send to MachineListFragment
-                transaction.replace(R.id.relativelayoutfor_fragment, list);
-                transaction.addToBackStack(null);
+                transaction.replace(R.id.relativelayoutfor_fragment, list, LIST_FRAG_WARN_TAG);
+                transaction.addToBackStack(LIST_FRAG_WARN_TAG);
                 transaction.commit();
             }
 
@@ -243,8 +249,8 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
                 Bundle bundle = new Bundle();
                 bundle.putString("name", "Normal");
                 list.setArguments(bundle); //data being send to MachineListFragment
-                transaction.replace(R.id.relativelayoutfor_fragment, list);
-                transaction.addToBackStack(null);
+                transaction.replace(R.id.relativelayoutfor_fragment, list, LIST_FRAG_NORM_TAG);
+                transaction.addToBackStack(LIST_FRAG_NORM_TAG);
                 transaction.commit();
             }
 
@@ -260,8 +266,8 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
                 Bundle bundle = new Bundle();
                 bundle.putString("name", "All");
                 list.setArguments(bundle); //data being send to MachineListFragment
-                transaction.replace(R.id.relativelayoutfor_fragment, list);
-                transaction.addToBackStack(null);
+                transaction.replace(R.id.relativelayoutfor_fragment, list, LIST_FRAG_ALL_TAG);
+                transaction.addToBackStack(LIST_FRAG_ALL_TAG);
                 transaction.commit();
             }
 

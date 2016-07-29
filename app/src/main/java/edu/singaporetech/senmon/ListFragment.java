@@ -85,6 +85,7 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
     public static final String WarningVelocity = "warnVeloKey";
     public static final String CriticalVelocity = "critVeloKey";
 
+    public static final String DETAILS_FRAG_TAG = "DETAILS_FRAGMENT";
     private static final String TAG_RESULTS = "result";
 
     ListView listViewListing;
@@ -109,13 +110,12 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
     // for date time
     TextView updateDateTime;
     String dateTime;
+
     //For the sorting tab
     private TabLayout tabLayout;
 
     // for database helper
     public DatabaseHelper mydatabaseHelper;
-
-//    public WebService webService;
 
     IntentFilter inF = new IntentFilter("data_changed");
 
@@ -261,8 +261,8 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
                 //Edited by kerui
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.replace(R.id.relativelayoutfor_fragment, details);
-                transaction.addToBackStack(null);
+                transaction.replace(R.id.relativelayoutfor_fragment, details, DETAILS_FRAG_TAG);
+                transaction.addToBackStack(DETAILS_FRAG_TAG);
                 transaction.commit();
             }
         });
@@ -307,7 +307,6 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
                 Log.i("SWITCH", "1 , Sort temp");
                 Collections.sort(myMachineList, new Comparator<Machine>() {
                     public int compare(Machine m1, Machine m2) {
-
                         Log.i("SWITCH", "1 , Sort temp m1" + m1.getmachineTemp());
                         Log.i("SWITCH", "1 , Sort temp m2" + m2.getmachineTemp());
                         return Double.compare(Double.parseDouble(m2.getmachineTemp()), Double.parseDouble(m1.getmachineTemp()));
