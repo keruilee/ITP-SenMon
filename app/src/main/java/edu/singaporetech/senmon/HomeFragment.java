@@ -336,7 +336,7 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
                 //Change database
                 DbHelper.changeDatabase(latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4], latestRecords[5],
                         latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9]);
-                DbHelper.updateMachineDateTime(latestRecords[0], DateFormat.getDateTimeInstance().format(new Date()));
+               // DbHelper.updateMachineDateTime(latestRecords[0], DateFormat.getDateTimeInstance().format(new Date()));
 
                 Log.d("cleanupLatestRecords: ", DbHelper.toString());
             }
@@ -371,7 +371,7 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
                 // Use the Builder class for convenient dialog construction
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle("Network Connectivity");
-                builder.setMessage("No network detected! Data will not be updated!");
+                builder.setMessage("No network detected! Data will not be updated??!");
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // You don't have to do anything here if you just want it dismissed when clicked

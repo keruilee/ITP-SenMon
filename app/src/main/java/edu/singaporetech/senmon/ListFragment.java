@@ -3,9 +3,11 @@ package edu.singaporetech.senmon;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
@@ -21,6 +23,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
@@ -284,11 +287,44 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
             }
         });
 
+        //register the receiver
+        IntentFilter inF = new IntentFilter("data_changed");
+        LocalBroadcastManager.getInstance(context).registerReceiver(dataChangeReceiver, inF);
 
         return rootView;
     }
 
+    private BroadcastReceiver dataChangeReceiver= new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // update your listview
+            Log.d("BROADCAST RECEIVED", "YES!");
+            //get the data again from the csvdata()
+            if (isNetworkEnabled()) {
+                DateTimeSharedPreferences = context.getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
+                editor = DateTimeSharedPreferences.edit();
+                editor.putString("DT_PREFS_KEY", DateFormat.getDateTimeInstance().format(new Date()));
+                Log.d("DATE IN LSIT FRAGMENT", DateFormat.getDateTimeInstance().format(new Date()) + "");
+                editor.commit();
+                dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
+                updateDateTime.setText("Updated on :"+dateTime);
 
+            } else {
+                // Use the Builder class for convenient dialog construction
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Network Connectivity");
+                builder.setMessage("No network detected! Data will not be updated!");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // You don't have to do anything here if you just want it dismissed when clicked
+                        
+                    }
+                });
+                AlertDialog networkDialog = builder.create();
+                networkDialog.show();
+            }
+        }
+    };
     ///////// To update the tab when the user select///////////////
     public void updateList() {
         switch (selectedTab) {
@@ -378,9 +414,11 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
                 mydatabaseHelper.changeDatabase(latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4], latestRecords[5],
                         latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9]);
 
+
+
                 Log.i("VELO",latestRecords[8]);
                 Log.i("TEMP" , latestRecords[7]);
-                mydatabaseHelper.updateMachineDateTime(latestRecords[0], DateFormat.getDateTimeInstance().format(new Date()));
+                //mydatabaseHelper.updateMachineDateTime(latestRecords[0], DateFormat.getDateTimeInstance().format(new Date()));
 
             }
             Log.i("REFRESH", "kr bundle?" + status);
@@ -401,7 +439,7 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
 
         editor.commit();
         dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
-        //updateDateTime.setText("Updated on :"+dateTime);
+        updateDateTime.setText("Updated on :"+dateTime);
         double machineTemp, machineVelo;
         Log.d(" computeMachine", "testing");
         for(Machine machine : myTempoMachineList)

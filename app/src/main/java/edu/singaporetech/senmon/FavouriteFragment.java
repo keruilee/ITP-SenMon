@@ -50,7 +50,7 @@ import javax.crypto.Mac;
  */
 public class FavouriteFragment extends Fragment implements WebService.OnAsyncRequestComplete {
     ListView listViewListing ;
-    private FavouriteDatabaseHelper databaseHelper;
+    //private FavouriteDatabaseHelper databaseHelper;
     public DatabaseHelper mydatabaseHelper ;
 
     public Context context;
@@ -243,7 +243,7 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
                 //Change database
                 mydatabaseHelper.changeDatabase(latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4], latestRecords[5],
                         latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9]);
-                mydatabaseHelper.updateMachineDateTime(latestRecords[0], DateFormat.getDateTimeInstance().format(new Date()));
+                //mydatabaseHelper.updateMachineDateTime(latestRecords[0], DateFormat.getDateTimeInstance().format(new Date()));
 
 
             }

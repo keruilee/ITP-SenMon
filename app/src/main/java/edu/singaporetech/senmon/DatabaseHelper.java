@@ -38,14 +38,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     final static String MACHINEHOUR     = "machineHour";
     final static String MACHINESTATUS   = "machineStatus"; // Critical , Warning , Normal , use this as a standard
     final static String MACHINEFAVOURITESTATUS = "machineFavouriteStatus"; // yes, no , use this as a standard
-    final static String MACHINEUPDATEDATETIME = "machineUpdateDateTime"; // yes, no , use this as a standard
+    //final static String MACHINEUPDATEDATETIME = "machineUpdateDateTime"; // yes, no , use this as a standard
 
 
     final static String _ID = "_id";
 
 
     final static String[] columns = {_ID,MACHINEID,MACHINEDATE,MACHINETIME,MACHINEVX,MACHINEVY,MACHINEVZ,MACHINEVELO,
-            MACHINETEMP,MACHINETS,MACHINEHUD,MACHINEHOUR,MACHINESTATUS,MACHINEFAVOURITESTATUS,MACHINEUPDATEDATETIME};
+            MACHINETEMP,MACHINETS,MACHINEHUD,MACHINEHOUR,MACHINESTATUS,MACHINEFAVOURITESTATUS};
 
     final private static String DBNAME = "DBNAME";
     final private static Integer VERSION = 1;
@@ -62,8 +62,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             columns[10] + " STRING, " +
             columns[11] + " STRING DEFAULT '0', " +         // set default of machine hours to 0
             columns[12] + " STRING, " +
-            columns[13] + " STRING, " +
-            columns[14] + " STRING )";
+            columns[13] + " STRING)";
 
     public DatabaseHelper(Context context) {
         // logic to create database
@@ -171,6 +170,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+/*
     // update machine updated date time
     public void updateMachineDateTime(String machineID, String machineUpdateDateTime) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -179,6 +179,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.update(TABLE_NAME, cv, MACHINEID + "= ?", new String[] {machineID});
         db.close();
     }
+*/
 
     // find machine //
     public Machine getMachineDetails (String findMachineID) {
@@ -389,7 +390,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         String selectQuery = "SELECT * FROM " + TABLE_NAME + " WHERE machineFavouriteStatus == 'yes' ";
         Cursor c = db.rawQuery(selectQuery, null);
-        Log.d("FAVOURITE EXIST FUNCTION", c.getCount()+" FAVOURITE");
+        Log.d("FAVOURITE EXIST FUNCT", c.getCount()+" FAVOURITE");
         if (c.getCount() > 0){
             return true;
         }else
@@ -469,7 +470,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     {return MACHINESTATUS;}
     public String getMachineFavouriteStatus()
     {return MACHINEFAVOURITESTATUS;}
-    public String getMachineupdatedatetime()
-    {return MACHINEUPDATEDATETIME;}
+    /*public String getMachineupdatedatetime()
+    {return MACHINEUPDATEDATETIME;}*/
 
 }
