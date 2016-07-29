@@ -774,7 +774,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         tempSet.setValueTextSize(9f);
         tempSet.setDrawFilled(false);
 
-
         veloSet = new LineDataSet(veloYVals, VELO_NAME);
         veloSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
         // set the line to be drawn like this "- - - - - -"
@@ -1008,5 +1007,22 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         else {
             return false;
         }
+    }
+
+    /**
+     * reset all arrays to store data because they are static
+     */
+    public void resetDataArray() {
+        lineXVals.clear();
+        tempYVals.clear();
+        veloYVals.clear();
+        stackedXVals.clear();
+        stackedYVals.clear();
+    }
+
+    @Override
+    public void onResume() {
+        resetDataArray();
+        super.onResume();
     }
 }
