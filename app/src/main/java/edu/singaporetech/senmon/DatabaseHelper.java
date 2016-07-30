@@ -165,7 +165,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(MACHINEHOUR, opHours);
-        values.put(MACHINESTATUS, "");
         db.update(TABLE_NAME, values, MACHINEID + "= ?", new String[] {machineID});
         db.close();
     }

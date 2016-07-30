@@ -59,7 +59,7 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
     SharedPreferences sharedPreferences;
     String dateTime;
     int numberOfFavInAlert = 0;
-    Double machineTemp, machineVelo;
+
     public static final String MyPREFERENCES = "MyPrefs" ;
 
     public static final String NumberOfFavourite = "numOfFav";
@@ -134,7 +134,6 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
         }
         else
         {
-            updateMachineState(myFavouriteMachineList);
             updateDateTime.setText("Updated on :"+dateTime);
         }
         adapter = new CustomAdapter(getActivity(),R.layout.fragment_favourite,myFavouriteMachineList);
@@ -309,6 +308,7 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
 
     }
     public void updateMachineState(ArrayList<Machine> list){
+        Double machineTemp, machineVelo;
         for(Machine machine : list)
         {
             machineTemp = Double.parseDouble(machine.getmachineTemp());

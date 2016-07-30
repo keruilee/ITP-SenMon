@@ -77,7 +77,7 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
     SharedPreferences DateTimeSharedPreferences;
     SharedPreferences.Editor editor;
     TextView title ;
-    Double machineTemp, machineVelo;
+
     public static final String MyPREFERENCES = "MyPrefs";
     public static final String MyRangePREFERENCES = "MyRangePrefs";
     public static final String WarningTemperature = "warnTempKey";
@@ -176,12 +176,10 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
         /////////////////// take out the data from databasehelper///////////////////////
         mydatabaseHelper = new DatabaseHelper(getActivity());
         myMachineList.clear();
-        myMachineList  = mydatabaseHelper.returnStringMachineAllString();
-        updateMachineState(myMachineList);
-
 
         if (status.equalsIgnoreCase("all")) {
             Log.d("LF All", "all");
+            myMachineList  = mydatabaseHelper.returnStringMachineAllString();
         } else {
             Log.d("All", "not all");
             myMachineList = mydatabaseHelper.returnStringMachineStateString(status);
@@ -437,6 +435,7 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
     }
 
     public void updateMachineState(ArrayList<Machine> list){
+        Double machineTemp, machineVelo;
         for(Machine machine : list)
         {
             machineTemp = Double.parseDouble(machine.getmachineTemp());
