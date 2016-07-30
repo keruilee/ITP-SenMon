@@ -110,9 +110,9 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
         allBtn = (TextView) v.findViewById(R.id.allBtn);
         swipeContainer = (SwipeRefreshLayout) v.findViewById(R.id.swipeContainer);
 
-        DbHelper = new DatabaseHelper(this.getActivity());
+        DbHelper = new DatabaseHelper(context);
 //        webService = new WebService(getActivity());
-        progressDialog = new ProgressDialog(this.getActivity());
+        progressDialog = new ProgressDialog(context);
 
         //retrieve range values
         RangeSharedPreferences = getContext().getSharedPreferences(MyRangePREFERENCES, Context.MODE_PRIVATE);
@@ -157,7 +157,7 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
             }
 
             // Use the Builder class for convenient dialog construction
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("Network Connectivity");
             builder.setMessage("No network detected! Data will not be updated!");
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -282,7 +282,7 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
                 }
                 else{
                     // Use the Builder class for convenient dialog construction
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
                     builder.setTitle("Network Connectivity");
                     builder.setMessage("No network detected! Data will not be updated!");
                     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -315,6 +315,10 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
     public void asyncResponse(JSONObject response) {
 
         getSQLRecords(response);
+
+        if(!isAdded())              // check if fragment is attached to activity. if it is not, return..
+            return;
+
         //call compute machine method
         computeMachine();
 
@@ -554,7 +558,7 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
     }
 
     public boolean isNetworkEnabled(){
-        ConnectivityManager cm = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if(cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
                 cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED){
             //Network available
