@@ -77,7 +77,7 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
     SharedPreferences DateTimeSharedPreferences;
     SharedPreferences.Editor editor;
     TextView title ;
-
+    Double machineTemp, machineVelo;
     public static final String MyPREFERENCES = "MyPrefs";
     public static final String MyRangePREFERENCES = "MyRangePrefs";
     public static final String WarningTemperature = "warnTempKey";
@@ -176,9 +176,12 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
         /////////////////// take out the data from databasehelper///////////////////////
         mydatabaseHelper = new DatabaseHelper(getActivity());
         myMachineList.clear();
+        myMachineList  = mydatabaseHelper.returnStringMachineAllString();
+        updateMachineState(myMachineList);
+
+
         if (status.equalsIgnoreCase("all")) {
             Log.d("LF All", "all");
-            myMachineList = mydatabaseHelper.returnStringMachineAllString();
         } else {
             Log.d("All", "not all");
             myMachineList = mydatabaseHelper.returnStringMachineStateString(status);
@@ -192,6 +195,9 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
        {
            updateDateTime.setText("Updated on "+dateTime);
        }
+
+
+
         // set up list with listadapter
         listViewListing = (ListView) rootView.findViewById(R.id.ListView);
         adapter = new CustomAdapter(getActivity(), R.layout.fragment_list, myMachineList);
@@ -201,7 +207,6 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
                 Log.i("REFRESH", "what bundle?" + status);
                 progressDialog = new ProgressDialog(getActivity());
                 //If there is network connection
@@ -379,12 +384,6 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
                 mydatabaseHelper.changeDatabase(latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4], latestRecords[5],
                         latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9]);
 
-
-
-                Log.i("VELO",latestRecords[8]);
-                Log.i("TEMP" , latestRecords[7]);
-                //mydatabaseHelper.updateMachineDateTime(latestRecords[0], DateFormat.getDateTimeInstance().format(new Date()));
-
             }
             Log.i("REFRESH", "kr bundle?" + status);
             Log.d("cleanupLatestRecords: ", cleanupLatestRecords);
@@ -405,9 +404,40 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
         editor.commit();
         dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
         updateDateTime.setText("Updated on :"+dateTime);
-        double machineTemp, machineVelo;
         Log.d(" computeMachine", "testing");
-        for(Machine machine : myTempoMachineList)
+        updateMachineState(myTempoMachineList);
+
+    }
+    public boolean isNetworkEnabled(){
+        ConnectivityManager cm = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED){
+            //Network available
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        //unregister the receiver
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(dataChangeReceiver);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //register the receiver
+
+        LocalBroadcastManager.getInstance(context).registerReceiver(dataChangeReceiver, inF);
+    }
+
+    public void updateMachineState(ArrayList<Machine> list){
+        for(Machine machine : list)
         {
             machineTemp = Double.parseDouble(machine.getmachineTemp());
             machineVelo = Double.parseDouble(machine.getmachineVelo());
@@ -428,31 +458,6 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
                 mydatabaseHelper.updateMachineState(machine.getMachineID(), getString(R.string.status_warning));
             }
         }
-    }
-    public boolean isNetworkEnabled(){
-        ConnectivityManager cm = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        if(cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
-                cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED){
-            //Network available
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        //unregister the receiver
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(dataChangeReceiver);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        //register the receiver
-        LocalBroadcastManager.getInstance(context).registerReceiver(dataChangeReceiver, inF);
     }
 
     private BroadcastReceiver dataChangeReceiver= new BroadcastReceiver() {

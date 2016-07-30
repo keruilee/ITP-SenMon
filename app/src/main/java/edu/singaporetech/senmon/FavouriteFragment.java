@@ -59,7 +59,7 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
     SharedPreferences sharedPreferences;
     String dateTime;
     int numberOfFavInAlert = 0;
-
+    Double machineTemp, machineVelo;
     public static final String MyPREFERENCES = "MyPrefs" ;
 
     public static final String NumberOfFavourite = "numOfFav";
@@ -73,7 +73,13 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
     private static final String TAG_RESULTS="result";
     ProgressDialog progressDialog;
     JSONArray serverSQLRecords = null;
-
+    String tempWarningValue, tempCriticalValue, veloWarningValue, veloCriticalValue;
+    SharedPreferences RangeSharedPreferences;
+    public static final String MyRangePREFERENCES = "MyRangePrefs";
+    public static final String WarningTemperature = "warnTempKey";
+    public static final String CriticalTemperature = "critTempKey";
+    public static final String WarningVelocity = "warnVeloKey";
+    public static final String CriticalVelocity = "critVeloKey";
     public String[] latestRecords;
     public String[] allSQLRecords;
 
@@ -97,13 +103,23 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        myFavouriteMachineList.clear();
+        //myFavouriteMachineList.clear();
         View rootView = inflater.inflate(R.layout.fragment_favourite, container, false);
         context = getContext();
         // Retrieve the SwipeRefreshLayout and ListView instances
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefresh);
         updateDateTime= (TextView) rootView.findViewById(R.id.textViewUpdateDateTime);
         listViewListing = (ListView) rootView.findViewById(R.id.ListView);
+
+
+        /////////////////retrieve range values ////////////
+        RangeSharedPreferences = context.getSharedPreferences(MyRangePREFERENCES, Context.MODE_PRIVATE);
+
+        //reload the value from the shared preferences and display it
+        tempWarningValue = RangeSharedPreferences.getString(WarningTemperature, String.valueOf(Double.parseDouble(getString(R.string.temp_warning_value))));
+        tempCriticalValue = RangeSharedPreferences.getString(CriticalTemperature, String.valueOf(Double.parseDouble(getString(R.string.temp_critical_value))));
+        veloWarningValue = RangeSharedPreferences.getString(WarningVelocity, String.valueOf(Double.parseDouble(getString(R.string.velo_warning_value))));
+        veloCriticalValue = RangeSharedPreferences.getString(CriticalVelocity, String.valueOf(Double.parseDouble(getString(R.string.velo_critical_value))));
 
 
         mydatabaseHelper = new DatabaseHelper(getActivity());
@@ -118,6 +134,7 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
         }
         else
         {
+            updateMachineState(myFavouriteMachineList);
             updateDateTime.setText("Updated on :"+dateTime);
         }
         adapter = new CustomAdapter(getActivity(),R.layout.fragment_favourite,myFavouriteMachineList);
@@ -200,7 +217,7 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
         getSQLRecords(response);
         // display list with sorted values
         progressDialog.dismiss();
-
+        computeMachineState();
         // for swipe refresh to dismiss the loading icon
         mSwipeRefreshLayout.setRefreshing(false);
         // display the date time
@@ -261,12 +278,14 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
                     Machine machineFavourite = new Machine(c.getString(1), c.getString(2), c.getString(3),
                             c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
                             c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
+                    Log.i("FAVOURITE,STATUES" , " " + c.getString(12));
+                    Log.i("FAVOURITE,STATUES" , " " + c.getString(13));
                     myFavouriteMachineList.add(machineFavourite);
 
                 }
             } while (c.moveToNext());
         }
-
+        updateMachineState(myFavouriteMachineList);
     }
 
     public Cursor FavouriteList() {
@@ -277,6 +296,42 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
         return cursor;
 
     }
+    //Computation of machines in each state
+    private void computeMachineState() {
+        editor = DateTimeSharedPreferences.edit();
+        editor.putString("DT_PREFS_KEY", DateFormat.getDateTimeInstance().format(new Date()));
+
+        editor.commit();
+        dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
+        updateDateTime.setText("Updated on :"+dateTime);
+        Log.d(" computeMachine", "testing");
+        updateMachineState(myTempoMachineList);
+
+    }
+    public void updateMachineState(ArrayList<Machine> list){
+        for(Machine machine : list)
+        {
+            machineTemp = Double.parseDouble(machine.getmachineTemp());
+            machineVelo = Double.parseDouble(machine.getmachineVelo());
+            //normal machine
+            if(machineTemp < Double.parseDouble(tempWarningValue) && machineVelo < Double.parseDouble(veloWarningValue))
+            {
+                // both temp and velo is less than warning value = machine is in normal status
+                mydatabaseHelper.updateMachineState(machine.getMachineID(), getString(R.string.status_normal));
+            }
+            else if (machineTemp >= Double.parseDouble(tempCriticalValue) || machineVelo >= Double.parseDouble(veloCriticalValue))
+            {
+                // either temp/velo is in critical range = machine is in critical status
+                mydatabaseHelper.updateMachineState(machine.getMachineID(), getString(R.string.status_critical));
+            }
+            else
+            {
+                // machine is not in normal or critical status, so machine is in warning status
+                mydatabaseHelper.updateMachineState(machine.getMachineID(), getString(R.string.status_warning));
+            }
+        }
+    }
+
 
     public boolean isNetworkEnabled(){
         ConnectivityManager cm = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
