@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -27,7 +26,9 @@ public class SearchFragment extends Fragment {
     TextView textViewResult;
     ListView listView;
     String query = "";
-    ArrayList<String> resultsString = new ArrayList<String>();
+
+    public static final String DETAILS_FRAG_TAG = "DETAILS_FRAGMENT";
+
     public SearchFragment() {
         // Required empty public constructor
     }
@@ -62,7 +63,6 @@ public class SearchFragment extends Fragment {
                     android.R.layout.simple_list_item_1, resultsString);
             listView.setAdapter(adapter);
 
-
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view,
@@ -74,7 +74,6 @@ public class SearchFragment extends Fragment {
                     // ListView Clicked item value
                     String itemValue = (String) listView.getItemAtPosition(position);
 
-
                     Log.i("itemPosition", "itemPosition" + itemPosition);
                     Log.i("itemValue", itemValue);
                     DetailsFragment details = new DetailsFragment();
@@ -85,8 +84,8 @@ public class SearchFragment extends Fragment {
                     //Edited by kerui
                     FragmentManager fragmentManager = getFragmentManager();
                     FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    transaction.replace(R.id.relativelayoutfor_fragment, details);
-                    transaction.addToBackStack(null);
+                    transaction.replace(R.id.relativelayoutfor_fragment, details, DETAILS_FRAG_TAG);
+                    transaction.addToBackStack(DETAILS_FRAG_TAG);
                     transaction.commit();
 
                 }

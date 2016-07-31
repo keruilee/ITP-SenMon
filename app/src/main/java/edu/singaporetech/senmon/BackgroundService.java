@@ -7,13 +7,11 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
@@ -47,6 +45,7 @@ public class BackgroundService extends Service{
     boolean isCritNotificActive = false;
     boolean isFavNotificActive = false;
 
+    private DatabaseHelper dbHelper;
     @Override
     public IBinder onBind(Intent intent){
         return null;
@@ -57,7 +56,7 @@ public class BackgroundService extends Service{
         this.context = this;
         this.isRunning = false;
         this.backgroundThread = new Thread(mTask);
-
+        dbHelper = new DatabaseHelper(context);
     }
 
     private Runnable mTask = new Runnable() {
@@ -68,13 +67,11 @@ public class BackgroundService extends Service{
             sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 //            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-
-
-
             //Declare variables
 
-            int noOfCrit = sharedPreferences.getInt(NumberOfCritical, 0);
-            int noOfWarn = sharedPreferences.getInt(NumberOfWarning, 0);
+            // get number of machines in states from database, number of fav machines from shared pref
+            int noOfCrit = dbHelper.getNumOfMachinesByStatus(getString(R.string.status_critical));
+            int noOfWarn = dbHelper.getNumOfMachinesByStatus(getString(R.string.status_warning));
             int noOfFav = sharedPreferences.getInt(NumberOfFavourite, 0);
 
             //if there is any machines in the warning state

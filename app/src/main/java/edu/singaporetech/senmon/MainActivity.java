@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -22,7 +21,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, FragmentManager.OnBackStackChangedListener {
@@ -206,14 +204,6 @@ public class MainActivity extends AppCompatActivity
         }
         //link to favourite machine
         else if (id == R.id.nav_favourite) {
-
-            Context context = getApplicationContext();
-            CharSequence text = "Favourite List";
-            int duration = Toast.LENGTH_SHORT;
-
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
-
             FavouriteFragment myFavouriteFragment = new FavouriteFragment();
             FragmentManager myManager = getSupportFragmentManager();
             myManager.beginTransaction()

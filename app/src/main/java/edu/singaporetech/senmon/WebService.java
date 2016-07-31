@@ -1,6 +1,5 @@
 package edu.singaporetech.senmon;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -38,22 +37,7 @@ public class WebService extends AsyncTask<Void, Void, JSONObject> {
 
     JSONObject responseObj;
 
-    public WebService(Context a, String m, List<String> p) {
-        caller = (OnAsyncRequestComplete) a;
-        this.mContext = a;
-        method = m;
-        parameters = p;
-    }
-
-    public WebService(Context a, String m) {
-        caller = (OnAsyncRequestComplete) a;
-        this.mContext = a;
-        method = m;
-    }
-
-
     public WebService(Context a, OnAsyncRequestComplete listener) {
-        //caller = (OnAsyncRequestComplete) a;
         this.mContext = a;
         this.caller = listener;
     }

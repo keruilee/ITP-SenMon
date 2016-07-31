@@ -9,14 +9,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PorterDuff;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
@@ -46,22 +45,10 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
     final String NORMAL = "Normal";
     String hmachineID = "";
 
-    String tempWarningValue, tempCriticalValue, veloWarningValue, veloCriticalValue;
-    SharedPreferences RangeSharedPreferences;
     SharedPreferences sharedPreferences;
     SharedPreferences DateTimeSharedPreferences;
 
     SharedPreferences.Editor editor;
-    public static final String MyPREFERENCES = "MyPrefs" ;
-    public static final String MyRangePREFERENCES = "MyRangePrefs" ;
-    public static final String WarningTemperature = "warnTempKey";
-    public static final String CriticalTemperature = "critTempKey";
-    public static final String WarningVelocity = "warnVeloKey";
-    public static final String CriticalVelocity = "critVeloKey";
-    public static final String NumberOfCritical = "numOfCrit";
-    public static final String NumberOfWarning = "numOfWarn";
-    public static final String NumberOfNormal = "numOfNorm";
-    public static final String NumberOfFavourite = "numOfFav";
 
     public static final String LIST_FRAG_CRIT_TAG = "LIST_FRAGMENT_CRITICAL";
     public static final String LIST_FRAG_WARN_TAG = "LIST_FRAGMENT_WARNING";
@@ -75,9 +62,7 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
     public String[] latestRecords;
     public String[] allSQLRecords;
 
-    ArrayList<Machine> myMachineList = new ArrayList<Machine>();
     private DatabaseHelper DbHelper;
-//    public WebService webService;
 
     private TextView tvCrit, tvWarn, tvNorm, tvAll;
     private TextView tvCritLbl, tvWarnLbl, tvNormLbl, critBtn, warnBtn, normBtn, allBtn;
@@ -111,46 +96,17 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
         swipeContainer = (SwipeRefreshLayout) v.findViewById(R.id.swipeContainer);
 
         DbHelper = new DatabaseHelper(context);
-//        webService = new WebService(getActivity());
         progressDialog = new ProgressDialog(context);
-
-        //retrieve range values
-        RangeSharedPreferences = getContext().getSharedPreferences(MyRangePREFERENCES, Context.MODE_PRIVATE);
-
-        //reload the value from the shared preferences and display it
-        tempWarningValue = RangeSharedPreferences.getString(WarningTemperature, String.valueOf(Double.parseDouble(getString(R.string.temp_warning_value))));
-        tempCriticalValue = RangeSharedPreferences.getString(CriticalTemperature, String.valueOf(Double.parseDouble(getString(R.string.temp_critical_value))));
-        veloWarningValue = RangeSharedPreferences.getString(WarningVelocity, String.valueOf(Double.parseDouble(getString(R.string.velo_warning_value))));
-        veloCriticalValue = RangeSharedPreferences.getString(CriticalVelocity, String.valueOf(Double.parseDouble(getString(R.string.velo_critical_value))));
-
-        //checking of range
-        if (tempCriticalValue != null | tempWarningValue != null) {
-            Log.e("result for range: ", tempWarningValue + " " + tempCriticalValue);
-        }
-        else {
-            Log.e("default: ", "21.0 31.0");
-        }
-
-        if (veloCriticalValue != null | veloWarningValue != null) {
-            Log.e("result for range: ", veloWarningValue + " " + veloCriticalValue);
-        }
-        else {
-            Log.e("default: ", "21.0 31.0" + veloWarningValue + " " + veloCriticalValue);
-            Log.e("default: ", "21.0 31.0" + tempWarningValue + " " + tempCriticalValue);
-        }
 
         //retrieve data
         if(isNetworkEnabled()){
             getSQLData();
         }
         else{
-
-            retrieveDatabaseRecord();
-
             //call compute machine method
             computeMachine();
 
-            if (!(myMachineList.isEmpty()))
+            if (DbHelper.getRowsCount() > 0)
             {
                 //check priority method
                 hmachineID = checkPriority();
@@ -305,21 +261,23 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
         return v;
     }
 
+    /**
+     * start async WebService task to retrieve records from server's database
+     */
     public void getSQLData(){
         WebService webServiceTask = new WebService(context, this);
         webServiceTask.execute();
     }
 
-    // async task of getting SQL records from server completed
+    // async task completed
     @Override
     public void asyncResponse(JSONObject response) {
-
         getSQLRecords(response);
 
-        if(!isAdded())              // check if fragment is attached to activity. if it is not, return..
+        //call compute machine method
+        if(!isAdded())          // if fragment is not attached to activity, dont continue
             return;
 
-        //call compute machine method
         computeMachine();
 
         //check priority method
@@ -336,10 +294,6 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
         try {
             serverSQLRecords = jsonObj.getJSONArray(TAG_RESULTS);
 
-            if (!(myMachineList.isEmpty())) {
-                myMachineList.clear();
-            }
-
             Log.d("homefragment: ", serverSQLRecords.toString());
 
             String cleanupLatestRecords;
@@ -353,18 +307,16 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
             {
                 latestRecords = record.split(",");
 
-                Machine machine = new Machine(latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],latestRecords[5],
-                        latestRecords[6],latestRecords[7],latestRecords[8],latestRecords[9],"0","","");
-
-                myMachineList.add(machine);
+                Machine machine = new Machine(context, latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],latestRecords[5],
+                        latestRecords[6],latestRecords[7],latestRecords[8],latestRecords[9], "0");
 
                 //Change database
-                DbHelper.changeDatabase(latestRecords[0], latestRecords[1], latestRecords[2], latestRecords[3], latestRecords[4], latestRecords[5],
-                        latestRecords[6], latestRecords[7], latestRecords[8], latestRecords[9]);
+                DbHelper.updateDatabase(machine);
                // DbHelper.updateMachineDateTime(latestRecords[0], DateFormat.getDateTimeInstance().format(new Date()));
 
                 Log.d("cleanupLatestRecords: ", DbHelper.toString());
-            }
+
+              }
 
             DateTimeSharedPreferences = context.getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
             editor = DateTimeSharedPreferences.edit();
@@ -398,56 +350,19 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
     //Computation of machines in each state
     private void computeMachine() {
         //Declare variables
-        int noOfCrit = 0;
-        int noOfWarn = 0;
-        int noOfNorm = 0;
+        // get num of machines in each state from database
+        int noOfCrit = DbHelper.getNumOfMachinesByStatus(getString(R.string.status_critical));
+        int noOfWarn = DbHelper.getNumOfMachinesByStatus(getString(R.string.status_warning));
+        int noOfNorm = DbHelper.getNumOfMachinesByStatus(getString(R.string.status_normal));
+        long totalMachine = DbHelper.getRowsCount();
 
-        int totalMachine = myMachineList.size();
         Log.d(" Total Machine ", String.valueOf(totalMachine));
 
-        double machineTemp, machineVelo, tempWarning, tempCritical, veloWarning, veloCritical;
-
-        for(Machine machine : myMachineList)
-        {
-            machineTemp = Double.parseDouble(machine.getmachineTemp());
-            machineVelo = Double.parseDouble(machine.getmachineVelo());
-            tempWarning = Double.parseDouble(tempWarningValue);
-            tempCritical = Double.parseDouble(tempCriticalValue);
-            veloWarning = Double.parseDouble(veloWarningValue);
-            veloCritical = Double.parseDouble(veloCriticalValue);
-
-            // determine states of machine
-            if(machineTemp >= tempCritical || machineVelo >= veloCritical)          // machine in critical state
-            {
-                DbHelper.updateMachineState(machine.getMachineID(), CRITICAL);
-                noOfCrit++;
-            }
-            else if(machineTemp >= tempWarning || machineVelo >= veloWarning)       // machine in warning state
-            {
-                DbHelper.updateMachineState(machine.getMachineID(), WARNING);
-                noOfWarn++;
-            }
-            else                                                                    // machine in off/normal state
-            {
-                DbHelper.updateMachineState(machine.getMachineID(), NORMAL);
-                noOfNorm++;
-            }
-        }
-
-
         //Set to display number of machine for each button
-        sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         tvCrit.setText(noOfCrit + "/" + totalMachine + " " + getString(R.string.machine_name));
         tvWarn.setText(noOfWarn + "/" + totalMachine + " " + getString(R.string.machine_name));
         tvNorm.setText(noOfNorm + "/" + totalMachine + " " + getString(R.string.machine_name));
         tvAll.setText(totalMachine + " " + getString(R.string.machine_name));
-
-        //put number of crit and warning and normal into shared preference
-        editor = sharedPreferences.edit();
-        editor.putInt(NumberOfCritical, noOfCrit);
-        editor.putInt(NumberOfWarning, noOfWarn);
-        editor.putInt(NumberOfNormal, noOfNorm);
-        editor.commit();
 
         //Set disabled of button
         disableButton(noOfCrit, noOfWarn, noOfNorm);
@@ -457,40 +372,32 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
     private String checkPriority() {
         //declare variables
         String machineID = "";
-        Double machineHour = 0.00;
-        String state = "";
-        ArrayList<Double> harrayHour = new ArrayList<Double>();
 
         //Display different alert bar depending on state
-        harrayHour = DbHelper.checkMachineInParticularState(CRITICAL);
-        if (harrayHour.isEmpty())
+        ArrayList<Machine> myMachineList = DbHelper.returnStringMachineStateString(getString(R.string.status_critical));
+        if (myMachineList.isEmpty())
         {
             //show normal alert bar
-            harrayHour = DbHelper.checkMachineInParticularState(WARNING);
-            if (harrayHour.isEmpty())
+            myMachineList = DbHelper.returnStringMachineStateString(getString(R.string.status_warning));
+            if (myMachineList.isEmpty())
             {
-                state = NORMAL;
                 tvNormLbl.setVisibility(View.VISIBLE);
             }
             //show warning alert bar
             else
             {
-                state = WARNING;
-                machineHour = computeHour(harrayHour);
-                machineID = DbHelper.machineUsingHour(state, machineHour.toString());
-
-                tvWarnLbl.setText(machineID + " " + getString(R.string.warning_lbl));
+                Machine mostCriticalMachine = getMostCriticalMachine(myMachineList);
+                machineID = mostCriticalMachine.getMachineID();
+                tvWarnLbl.setText(mostCriticalMachine.getMachineID() + " " + getString(R.string.warning_lbl));
                 tvWarnLbl.setVisibility(View.VISIBLE);
             }
         }
         //show critical alert bar
         else
         {
-            state = CRITICAL;
-            machineHour = computeHour(harrayHour);
-            machineID = DbHelper.machineUsingHour(state, machineHour.toString());
-
-            tvCritLbl.setText(machineID + " " + getString(R.string.critical_lbl));
+            Machine mostCriticalMachine = getMostCriticalMachine(myMachineList);
+            machineID = mostCriticalMachine.getMachineID();
+            tvCritLbl.setText(mostCriticalMachine.getMachineID() + " " + getString(R.string.critical_lbl));
             tvCritLbl.setVisibility(View.VISIBLE);
         }
 
@@ -498,28 +405,25 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
         return machineID;
     }
 
-
     //////Compute longest machine hour
-    private Double computeHour(ArrayList<Double> arrayHour) {
-        double hour = 0.00;
-        double highest = arrayHour.get(0);
-        int size = arrayHour.size();
+    private Machine getMostCriticalMachine(ArrayList<Machine> arrayMachines) {
+        double highestOpHour = arrayMachines.get(0).getMachineHourDouble();
+        Machine mostCritMachine = arrayMachines.get(0);
+        int size = arrayMachines.size();
 
-        if (size == 1)
+        if(size > 1)
         {
-            hour = highest;
-        }
-        else {
-            for (int i = 1; i < arrayHour.size(); i++) {
-                if (arrayHour.get(i) > highest)
-                    highest = arrayHour.get(i);
-                hour = highest;
+            for (int i = 1; i < arrayMachines.size(); i++) {
+                if (arrayMachines.get(i).getMachineHourDouble() > highestOpHour)
+                {
+                    mostCritMachine = arrayMachines.get(i);
+                    highestOpHour = arrayMachines.get(i).getMachineHourDouble();
+                }
             }
         }
 
-        return hour;
+        return mostCritMachine;
     }
-
 
     //set disable of button
     private void disableButton(int critNum, int warnNum, int normNum)
@@ -530,28 +434,28 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
         if (critNum == 0)
         {
             critBtn.setEnabled(false);
-            critBtn.getBackground().setColorFilter(getResources().getColor(R.color.colorLighterCritical), PorterDuff.Mode.SRC_ATOP);
+            critBtn.getBackground().setColorFilter(ContextCompat.getColor(context, R.color.colorLighterCritical), PorterDuff.Mode.SRC_ATOP);
             critBtn.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_menu_critical_disabled, 0, 0);
         }
         //warning button disabled
         if (warnNum == 0)
         {
             warnBtn.setEnabled(false);
-            warnBtn.getBackground().setColorFilter(getResources().getColor(R.color.colorLighterWarning), PorterDuff.Mode.SRC_ATOP);
+            warnBtn.getBackground().setColorFilter(ContextCompat.getColor(context, R.color.colorLighterWarning), PorterDuff.Mode.SRC_ATOP);
             warnBtn.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_menu_warning_disabled, 0, 0);
         }
         //normal button disabled
         if (normNum == 0)
         {
             normBtn.setEnabled(false);
-            normBtn.getBackground().setColorFilter(getResources().getColor(R.color.colorLighterNormal), PorterDuff.Mode.SRC_ATOP);
+            normBtn.getBackground().setColorFilter(ContextCompat.getColor(context, R.color.colorLighterNormal), PorterDuff.Mode.SRC_ATOP);
             normBtn.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_menu_normal_disabled, 0, 0);
         }
         //all button disabled
         if (totalNum == 0)
         {
             allBtn.setEnabled(false);
-            allBtn.getBackground().setColorFilter(getResources().getColor(R.color.colorLighterAll), PorterDuff.Mode.SRC_ATOP);
+            allBtn.getBackground().setColorFilter(ContextCompat.getColor(context, R.color.colorLighterAll), PorterDuff.Mode.SRC_ATOP);
             allBtn.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_menu_all_disabled, 0, 0);
         }
 
@@ -566,28 +470,6 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
         }
         else {
             return false;
-        }
-    }
-
-    //Retrieve all database records
-    private void retrieveDatabaseRecord()
-    {
-        if (!(myMachineList.isEmpty()))
-        {
-            myMachineList.clear();
-        }
-        // Select All Query
-        String selectQuery = "SELECT * FROM " + DbHelper.TABLE_NAME;
-        SQLiteDatabase db = DbHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
-        // looping through all rows and adding to mydatabaselist
-        if (cursor.moveToFirst()) {
-            do {
-                Machine dbMachine = new Machine(cursor.getString(1),cursor.getString(2),cursor.getString(3),
-                        cursor.getString(4),cursor.getString(5),cursor.getString(6),cursor.getString(7),cursor.getString(8),
-                        cursor.getString(9),cursor.getString(10),cursor.getString(11),cursor.getString(12),cursor.getString(13));
-                myMachineList.add(dbMachine);
-            } while (cursor.moveToNext());
         }
     }
 }

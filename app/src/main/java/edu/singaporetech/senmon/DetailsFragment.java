@@ -2,13 +2,10 @@ package edu.singaporetech.senmon;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.ConnectivityManager;
@@ -91,7 +88,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     public static final String WarningVelocity = "warnVeloKey";
     public static final String CriticalVelocity = "critVeloKey";
     public static final String NumberOfFavourite = "numOfFav";
-    int count = 0;
+
     private DatabaseHelper favDatabasehelper;
 
     View content;
@@ -149,8 +146,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         cbVelo = (CheckBox) v.findViewById(R.id.checkbox_velo);
         cbLines = (CheckBox) v.findViewById(R.id.checkbox_lines);
 
-
-
         //retrieving data using bundle
         Bundle bundle = getArguments();
 
@@ -173,28 +168,13 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         veloWarningValue = RangeSharedPreferences.getString(WarningVelocity, String.valueOf(Double.parseDouble(getString(R.string.velo_warning_value))));
         veloCriticalValue = RangeSharedPreferences.getString(CriticalVelocity, String.valueOf(Double.parseDouble(getString(R.string.velo_critical_value))));
 
-
-        String check = checkEventForDataBaseHelperFavourite(machineID);
+        boolean isInFavourite = favDatabasehelper.isInFavourite(machineID);
 
         // to checked what is the favourite status , yes or no , if yes , set the star as higlighted
-        if (check.equalsIgnoreCase("yes"))
+        if (isInFavourite)
         {
             //tvDFavourite.setText("Click to unfavourite");
             tvDFavourite.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_menu_favourite));
-            Log.i("status yes?", checkEventForDataBaseHelperFavourite(machineID));
-
-        }
-        else if(check.equalsIgnoreCase("not found"))
-        {
-            Log.i("status no found?", checkEventForDataBaseHelperFavourite(machineID));
-
-            ContentValues values = new ContentValues();
-            SQLiteDatabase testDb = favDatabasehelper.getWritableDatabase();
-            values.put(favDatabasehelper.MACHINEID, machineID); // KR do take note might need to change as update
-            values.put(favDatabasehelper.MACHINEFAVOURITESTATUS, "no");
-            testDb.insert(favDatabasehelper.TABLE_NAME, null, values);
-
-
         }
 
         // set on click listeners for all clickable items
@@ -295,12 +275,9 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnfavourite:
-                if (checkEventForDataBaseHelperFavourite(machineID).equalsIgnoreCase("yes"))          // machine id exists in fav, remove from fav
+                if (favDatabasehelper.isInFavourite(machineID))          // machine id exists in fav, remove from fav
                 {
-                    SQLiteDatabase testDb = favDatabasehelper.getWritableDatabase();
-                    // KR do take note might need to change as update
-                    testDb.execSQL("UPDATE DatabaseTable SET machineFavouriteStatus = NULL WHERE machineID = '" + machineID + "'");
-                    checkEventForDataBaseHelperFavourite(machineID);
+                    favDatabasehelper.removeFromFavourite(machineID);
                     tvDFavourite.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_menu_unfavourite));
                     int count = favDatabasehelper.checkNumberOfFavouriteMachineInAlert();
                     sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
@@ -312,15 +289,12 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                 }
                 else                                // machine id not in fav, add to fav
                 {
-                    SQLiteDatabase testDb = favDatabasehelper.getWritableDatabase();
-                    // KR do take note might need to change as update
-                    testDb.execSQL("UPDATE DatabaseTable SET machineFavouriteStatus = 'yes' WHERE machineID = '" + machineID + "'");
-                    checkEventForDataBaseHelperFavourite(machineID);
+                    favDatabasehelper.addToFavourite(machineID);
                     //tvDFavourite.setText("Click to unfavourite");
                     tvDFavourite.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_menu_favourite));
 
 
-                    count = favDatabasehelper.checkNumberOfFavouriteMachineInAlert();
+                    int count = favDatabasehelper.checkNumberOfFavouriteMachineInAlert();
                     sharedPreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
                     editor = sharedPreferences.edit();
                     editor.putInt(NumberOfFavourite, count);
@@ -425,34 +399,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         }
     }
 
-    public String checkEventForDataBaseHelperFavourite(String machineID) {
-        SQLiteDatabase db = favDatabasehelper.getWritableDatabase();
-        String statusForFavo;
-
-        String queryString = "SELECT * FROM DatabaseTable WHERE machineID = '" + machineID + "' ";
-        Cursor c = db.rawQuery(queryString, null);
-        if (c.getCount() > 0) {
-            c.moveToFirst();
-
-            statusForFavo = c.getString(c.getColumnIndex("machineFavouriteStatus"));
-            Log.i("checkDataBaseHelper", statusForFavo + "");
-            Log.i("c.getCount", c.getCount() + "");
-            if (statusForFavo == null || statusForFavo.isEmpty()) {
-                Log.i("dbHelper null?", statusForFavo + "");
-                c.close();
-                return "no";
-            } else {
-                c.close();
-                return "yes";
-            }
-
-        } else {
-            Log.i("checkDataBaseHelper", "false, not found in the database");
-            c.close();
-            return "not found";
-        }
-    }
-
     //Added by Kerui
     /**
      * send request to server to get all records from server's SQL database
@@ -538,6 +484,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     /**
      * this function splits up the json object
      * and goes through each record retrieved from the server's SQL database
+     * and add them as values to plot on graphs
      * @param jsonObj - The JSON object that is passed from server script to here
      */
     public void getSQLRecords(JSONObject jsonObj)
@@ -571,10 +518,11 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                     object = serverCSVrecords.get(i).toString();
                     object = object.replace("\r", "").replace("\n", "").replace("\"","").replace("\\","");
                     currentRecord = object.split(",");
-                    recordDate = dateFormatter.parse(currentRecord[1]);
-                    recordTime = timeFormatter.parse(currentRecord[2]);
-                    recordDateString = dateFormatter.format(recordDate);
-                    recordTimeString = timeFormatter.format(recordTime);
+
+                    recordDate = dateFormatter.parse(currentRecord[1]);             // date formatted
+                    recordTime = timeFormatter.parse(currentRecord[2]);             // time formatted
+                    recordDateString = dateFormatter.format(recordDate);            // date formatted in string
+                    recordTimeString = timeFormatter.format(recordTime);            // time formatted in string
 
                     if (i == 0)
                     {
@@ -582,6 +530,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                         if(recordTime.before(timeFormatter.parse("12:00")))          // time is past 12 noon (12:00 onwards)
                             beforeNoon = true;
                     }
+
                     // determine whether to add x-label as date+time or time only
                     // first label after 12am and 12pm will be the label with full date+time
                     // the other labels in between will only have time

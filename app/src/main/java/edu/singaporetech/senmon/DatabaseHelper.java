@@ -2,12 +2,6 @@ package edu.singaporetech.senmon;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.DatabaseUtils;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-
-import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
@@ -40,9 +34,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     final static String MACHINEFAVOURITESTATUS = "machineFavouriteStatus"; // yes, no , use this as a standard
     //final static String MACHINEUPDATEDATETIME = "machineUpdateDateTime"; // yes, no , use this as a standard
 
-
     final static String _ID = "_id";
-
 
     final static String[] columns = {_ID,MACHINEID,MACHINEDATE,MACHINETIME,MACHINEVX,MACHINEVY,MACHINEVZ,MACHINEVELO,
             MACHINETEMP,MACHINETS,MACHINEHUD,MACHINEHOUR,MACHINESTATUS,MACHINEFAVOURITESTATUS};
@@ -62,7 +54,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             columns[10] + " STRING, " +
             columns[11] + " STRING DEFAULT '0', " +         // set default of machine hours to 0
             columns[12] + " STRING, " +
-            columns[13] + " STRING)";
+            columns[13] + " STRING DEFAULT 'no')";
 
     public DatabaseHelper(Context context) {
         // logic to create database
@@ -90,31 +82,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         mContext.deleteDatabase(DBNAME);
     }
 
-
-    // Add  data into database //
-    public void addmachine(String addmachineID, String addmachineDate, String addmachineTime,
-                           String addmachineVx, String addmachineVy, String addmachineVz,
-                           String addmachineVelo, String addmachineTemp, String addmachineTS,
-                           String addmachineHud)
-    {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-
-        values.put(MACHINEID, addmachineID);
-        values.put(MACHINEDATE, addmachineDate);
-        values.put(MACHINETIME, addmachineTime);
-        values.put(MACHINEVX, addmachineVx);
-        values.put(MACHINEVY, addmachineVy);
-        values.put(MACHINEVZ, addmachineVz);
-        values.put(MACHINEVELO, addmachineVelo);
-        values.put(MACHINETEMP, addmachineTemp);
-        values.put(MACHINETS, addmachineTS);
-        values.put(MACHINEHUD, addmachineHud);
-        // machine hour has default of 0
-        db.insert(TABLE_NAME, null, values);
-        db.close(); // Closing database connection
-    }
-
     // Clear rows //
     public void clearRows() {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -137,39 +104,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    // Update machine detail in database //
-    public void updateMachineDetail(String addmachineID, String addmachineDate, String addmachineTime,
-                                    String addmachineVx, String addmachineVy, String addmachineVz,
-                                    String addmachineVelo, String addmachineTemp, String addmachineTS,
-                                    String addmachineHud)
-    {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(MACHINEDATE, addmachineDate);
-        values.put(MACHINETIME, addmachineTime);
-        values.put(MACHINEVX, addmachineVx);
-        values.put(MACHINEVY, addmachineVy);
-        values.put(MACHINEVZ, addmachineVz);
-        values.put(MACHINEVELO, addmachineVelo);
-        values.put(MACHINETEMP, addmachineTemp);
-        values.put(MACHINETS, addmachineTS);
-        values.put(MACHINEHUD, addmachineHud);
-        values.put(MACHINESTATUS, "");
-        db.update(TABLE_NAME, values, MACHINEID + "= ?", new String[] {addmachineID});
-        db.close();
-    }
-
-    // Update machine detail in database //
-    public void updateOpHours(String machineID, String opHours)
-    {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(MACHINEHOUR, opHours);
-        db.update(TABLE_NAME, values, MACHINEID + "= ?", new String[] {machineID});
-        db.close();
-    }
-
-
     // find machine //
     public Machine getMachineDetails (String findMachineID) {
 
@@ -180,28 +114,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 new String[] { findMachineID }, null,null,null);
 
         if (c.moveToFirst()) {
-            do {
-                Machine machineStringObj = new Machine(c.getString(1), c.getString(2), c.getString(3),
-                        c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
-                        c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
-                return machineStringObj;
-            } while (c.moveToNext());
+            Machine machineStringObj = new Machine(mContext, c.getString(1), c.getString(2), c.getString(3),
+                    c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
+                    c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
+            return machineStringObj;
         }
         return null;
     }
 
     // find machine //
     public boolean findMachine (String findMachineID) {
-
         SQLiteDatabase db = this.getReadableDatabase();
+
         Cursor cursor = db.query(TABLE_NAME, columns,
                 MACHINEID + " = ?",
                 new String[] { findMachineID }, null,null,null);
 
-        if (cursor.moveToFirst()) {
-            do {
-                return true;
-            } while (cursor.moveToNext());
+        if (cursor.getCount() > 0) {
+            return true;
         }
         return false;
     }
@@ -217,7 +147,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (c.moveToFirst()) {
             do {
                 Log.d(TAG, c.getString(1) + "" + c.getString(12));
-                Machine machineStringObj  = new Machine(c.getString(1), c.getString(2), c.getString(3),
+                Machine machineStringObj  = new Machine(mContext, c.getString(1), c.getString(2), c.getString(3),
                         c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
                         c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
                 resultsString.add(c.getString(1));
@@ -227,16 +157,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         return resultsString;
     }
-
-    // Update machine state in database //
-    public void updateMachineState(String machineID, String machineStatus) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put(MACHINESTATUS, machineStatus);
-        db.update(TABLE_NAME, cv, MACHINEID + "= ?", new String[] {machineID});
-        db.close();
-    }
-
 
     // Check current machine state in database //
     public boolean checkMachineState(String machineID, String machineStatus) {
@@ -256,103 +176,82 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-
-    // Check number of machine in particular state in database //
-    public ArrayList<Double> checkMachineInParticularState (String machineStatus) {
-        ArrayList<Double> arrayHour = new ArrayList<Double>();
-
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, columns,
-                MACHINESTATUS + " = ?",
-                new String[] { machineStatus }, null,null,null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                arrayHour.add(Double.parseDouble(cursor.getString(11)));
-            } while (cursor.moveToNext());
-        }
-        return arrayHour;
-    }
-
-
-
-
-
-    // Get machine ID based on hour database //
-    public String machineUsingHour(String machineState, String machineHour) {
-        String value = "";
-
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, columns,
-                MACHINEHOUR + " = ? AND " + MACHINESTATUS + " = ?",
-                new String[] { machineHour, machineState }, null,null,null);
-        // looping through if exist
-        if (cursor.moveToFirst()) {
-            do {
-                value = cursor.getString(1);
-
-            } while (cursor.moveToNext());
-        }
-        return value;
-    }
-
     // Insert/update database //
-    public void changeDatabase(String changemachineID, String changemachineDate, String changemachineTime,
-                               String changemachineVx, String changemachineVy, String changemachineVz,
-                               String changemachineVelo, String changemachineTemp, String changemachineTS,
-                               String changemachineHud){
+
+    /**
+     * update machines in database
+     * if it's a new machine, add a new row
+     * else if it already exist in database, update its value
+     * @param machine the machine to be added/updated in database
+     */
+    public void updateDatabase(Machine machine){
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, null);
 
-        //Database is not empty
-        if (cursor.getCount() > 0)
+        ContentValues values = new ContentValues();
+        values.put(MACHINEDATE, machine.getMachineDate());
+        values.put(MACHINETIME, machine.getMachineTime());
+        values.put(MACHINEVX, machine.getMachineVx());
+        values.put(MACHINEVY, machine.getMachineVy());
+        values.put(MACHINEVZ, machine.getMachineVz());
+        values.put(MACHINEVELO, machine.getmachineVelo());
+        values.put(MACHINETEMP, machine.getmachineTemp());
+        values.put(MACHINETS, machine.getMachineTS());
+        values.put(MACHINEHUD, machine.getMachineHud());
+        values.put(MACHINESTATUS, machine.getMachineStatus());
+        // op hours is not updated/added here; only in updateOpHours() function
+
+        if (findMachine(machine.getMachineID()))        // machine exists in database, just update it
         {
-            Log.d(TAG, "Database not empty");
-            //Machine exist in database
-            if (findMachine(changemachineID) == true)
-            {
-                updateMachineDetail(changemachineID,changemachineDate,changemachineTime,changemachineVx,changemachineVy,changemachineVz,
-                        changemachineVelo,changemachineTemp,changemachineTS,changemachineHud);
-            }
-            else
-            {
-                //Machine dont exist in database
-                addmachine(changemachineID,changemachineDate,changemachineTime,changemachineVx,changemachineVy,changemachineVz,
-                        changemachineVelo,changemachineTemp,changemachineTS,changemachineHud);
-            }
+            db.update(TABLE_NAME, values, MACHINEID + "= ?", new String[] {machine.getMachineID()});
         }
-        //Database is empty
-        else
+        else                                            // machine does not exist in database, add new machine
         {
-            Log.d(TAG, "Database empty");
-            addmachine(changemachineID,changemachineDate,changemachineTime,changemachineVx,changemachineVy,changemachineVz,
-                    changemachineVelo,changemachineTemp,changemachineTS,changemachineHud);
+            values.put(MACHINEID, machine.getMachineID());
+            db.insert(TABLE_NAME, null, values);
         }
+
+        db.close();
     }
 
-    // Find machine in a particular state in database //
-    public ArrayList <Machine> returnStringMachineStateString(String machineStatus) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        ArrayList <Machine> machineString = new ArrayList<Machine>();
+    /**
+     * update machine operating hours in database
+     * @param machineID the ID of machine to be updated
+     * @param opHours the operating hours to be updated
+     */
+    public void updateOpHours(String machineID, String opHours)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(MACHINEHOUR, opHours);
+        db.update(TABLE_NAME, values, MACHINEID + "= ?", new String[] {machineID});
+        db.close();
+    }
 
-        Cursor c = db.query(TABLE_NAME, columns,
-                MACHINESTATUS + " = ?",
-                new String[]{machineStatus}, null, null, null);
-        // looping through if exist
-        if (c.moveToFirst()) {
+    /**
+     * updates all machine states in database when warning/critical value is adjusted
+     */
+    public void updateAllMachineStates() {
+        SQLiteDatabase dbWrite = this.getWritableDatabase();
+
+        // Select All Query
+        SQLiteDatabase dbRead = this.getReadableDatabase();
+        Cursor cursor = dbRead.query(TABLE_NAME, columns, null, null, null, null, null);
+
+        // looping through all rows and updating status
+        if (cursor.moveToFirst()) {
             do {
-                Log.d(TAG, c.getString(1) + "" + c.getString(12));
-                Machine machineStringObj  = new Machine(c.getString(1), c.getString(2), c.getString(3),
-                        c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
-                        c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
-                machineString.add(machineStringObj);
-
-            } while (c.moveToNext());
+                Machine machineStringObj = new Machine(mContext, cursor.getString(1),cursor.getString(2),cursor.getString(3),
+                        cursor.getString(4),cursor.getString(5),cursor.getString(6),cursor.getString(7),cursor.getString(8),
+                        cursor.getString(9),cursor.getString(10),cursor.getString(11),cursor.getString(12),cursor.getString(13));
+                ContentValues cv = new ContentValues();
+                cv.put(MACHINESTATUS, machineStringObj.getMachineStatus());
+                dbWrite.update(TABLE_NAME, cv, MACHINEID + "= ?", new String[] {cursor.getString(1)});
+            } while (cursor.moveToNext());
         }
-        return machineString;
 
+        dbRead.close();
+        dbWrite.close();
     }
-
 
     // Find machine that is favourite //
     public ArrayList <Machine> returnFavourite() {
@@ -368,7 +267,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (c.moveToFirst()) {
             do {
                 Log.d("Favourite", c.getString(1) + "" + c.getString(12));
-                 machineStringObj  = new Machine(c.getString(1), c.getString(2), c.getString(3),
+                 machineStringObj  = new Machine(mContext, c.getString(1), c.getString(2), c.getString(3),
                         c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
                         c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
                 machineString.add(machineStringObj);
@@ -390,6 +289,55 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return false;
     }
 
+    /**
+     * check if given machine is in favourite list
+     * @param machineID the ID of machine to be checked
+     * @return true if machine is in fav list
+     */
+    public boolean isInFavourite(String machineID){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_NAME, new String[] {MACHINEFAVOURITESTATUS},
+                MACHINEID + " = ? AND " +MACHINEFAVOURITESTATUS + " = ?",
+                new String[] { machineID, "yes" }, null,null,null);
+        int count = cursor.getCount();
+        db.close();
+
+        if(count > 0)
+            return true;
+
+        return false;
+    }
+
+    /**
+     * add a machine to favourite list by updating favstatus in database to "yes"
+     * @param machineID the ID of machine to be added from fav list
+     */
+    public void addToFavourite(String machineID){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(MACHINEFAVOURITESTATUS, "yes");
+        // op hours is not updated/added here; only in updateOpHours() function
+
+        db.update(TABLE_NAME, values, MACHINEID + "= ?", new String[] {machineID});
+        db.close();
+    }
+
+    /**
+     * remove a machine from favourite list by updating favstatus in database to "no"
+     * @param machineID the ID of machine to be removed from fav list
+     */
+    public void removeFromFavourite(String machineID){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(MACHINEFAVOURITESTATUS, "no");
+        // op hours is not updated/added here; only in updateOpHours() function
+
+        db.update(TABLE_NAME, values, MACHINEID + "= ?", new String[] {machineID});
+        db.close();
+    }
 
     // Find all machine in the database //
     public ArrayList <Machine> returnStringMachineAllString() {
@@ -402,7 +350,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // looping through all rows and adding to mydatabaselist
         if (cursor.moveToFirst()) {
             do {
-                Machine machineStringObj = new Machine(cursor.getString(1),cursor.getString(2),cursor.getString(3),
+                Machine machineStringObj = new Machine(mContext, cursor.getString(1),cursor.getString(2),cursor.getString(3),
                         cursor.getString(4),cursor.getString(5),cursor.getString(6),cursor.getString(7),cursor.getString(8),
                         cursor.getString(9),cursor.getString(10),cursor.getString(11),cursor.getString(12),cursor.getString(13));
                 machineString.add(machineStringObj);
@@ -411,8 +359,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return machineString;
     }
 
-    public int checkNumberOfFavouriteMachineInAlert (){
+    // Find machine in a particular state in database //
+    public ArrayList <Machine> returnStringMachineStateString(String machineStatus) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList <Machine> machineString = new ArrayList<Machine>();
 
+        Cursor c = db.query(TABLE_NAME, columns,
+                MACHINESTATUS + " = ?",
+                new String[]{machineStatus}, null, null, null);
+        // looping through if exist
+        if (c.moveToFirst()) {
+            do {
+                Log.d(TAG, c.getString(1) + "" + c.getString(12));
+                Machine machineStringObj  = new Machine(mContext, c.getString(1), c.getString(2), c.getString(3),
+                        c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
+                        c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
+                machineString.add(machineStringObj);
+
+            } while (c.moveToNext());
+        }
+        return machineString;
+    }
+
+    /**
+     * queries the database to find the number of machines in favourite list
+     * @return number of machine in favourite list
+     */
+    public int checkNumberOfFavouriteMachineInAlert (){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_NAME, columns,
                 MACHINEFAVOURITESTATUS + " = ? AND " + MACHINESTATUS + " != ?",
@@ -423,6 +396,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return totalMachine;
 
+    }
+
+    /**
+     * queries the database to find the number of machines in the given status
+     * @param status either critical, warning or normal
+     * @return the number of machine in the given status
+     */
+    public int getNumOfMachinesByStatus(String status) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, columns,
+                MACHINESTATUS + " = ?",
+                new String[]{status}, null, null, null);
+        return cursor.getCount();
     }
 
     // Get column
