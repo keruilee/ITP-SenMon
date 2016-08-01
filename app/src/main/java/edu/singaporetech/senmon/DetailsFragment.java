@@ -2,9 +2,11 @@ package edu.singaporetech.senmon;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -17,6 +19,7 @@ import android.os.Environment;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,6 +58,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -111,8 +115,19 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     private ArrayList<Entry> veloYVals = new ArrayList<>();
     private ArrayList<BarEntry> stackedYVals = new ArrayList<>();
     private LineDataSet tempSet, veloSet;
+    private SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+    private SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
+    private SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
+    private boolean withDate = false, beforeNoon = false;
+    private String lastDateTime = "";
+
     private static final String TEMP_NAME = "TEMPERATURE", VELO_NAME = "VELOCITY";
     MyMarkerView mv;
+
+    private boolean shareClicked = false;
+
+    IntentFilter inF = new IntentFilter("database_updated");
+
 
     public DetailsFragment() {
         // Required empty public constructor
@@ -316,6 +331,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                 shareIntent.setType("image/*");
                 shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(Intent.createChooser(shareIntent, "Share Via"));
+                shareClicked = true;
                 break;
             case R.id.checkbox_temp:         //share a screenshot of the machine details
                 updateLineChart(cbTemp.getText().toString(), cbTemp.isChecked());
@@ -420,6 +436,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                 progressDialog.setIndeterminate(false);
                 progressDialog.show();
+                lineChart.setNoDataText("Loading graph...");
+                stackedChart.setNoDataText("Loading graph...");
                 try
                 {
                     data = URLEncoder.encode("machine", "UTF-8")
@@ -428,9 +446,9 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                 catch(Exception e)
                 {
                     e.printStackTrace();
+                    graphFailToLoad();
+                    cancel(true);
                 }
-                lineChart.setNoDataText("Loading graph...");
-                stackedChart.setNoDataText("Loading graph...");
             }
 
             @Override
@@ -455,13 +473,10 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                     }
                     responseObj = new JSONObject(result.toString());
 
-                } catch (MalformedURLException e) {
+                } catch (Exception e) {
+                    graphFailToLoad();
                     e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }finally {
+                } finally {
                     urlConnection.disconnect();
                 }
 
@@ -471,10 +486,16 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
             @Override
             protected void onPostExecute(JSONObject result){
                 super.onPostExecute(result);
-                getSQLRecords(result);
+                if(result != null)
+                {
+                    getSQLRecords(result);
+                    setupLineChart();
+                    setupStackedChart();
+                }
+                else {
+                    graphFailToLoad();
+                }
                 progressDialog.dismiss();
-                setupLineChart();
-                setupStackedChart();
             }
         }
         GetCSVDataJSON g = new GetCSVDataJSON();
@@ -494,7 +515,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
             int i = 0, numOfNormal = 0, numOfWarning = 0, numOfCritical = 0, opHours = 0;
             String[] currentRecord;
             int numOfRecords = serverCSVrecords.length();
-            boolean withDate = false, beforeNoon = false;
 
             // at least 1 record exist, go through and format the record to display in graph
             if(serverCSVrecords.length() > 0) {
@@ -506,12 +526,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                 veloValue = currentRecord[6];
                 displayTempAndVelo();
 
-                SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("MM/dd/yyyy HH:mm");
-                SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
-                SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
-
                 Date recordDate, recordTime;
-                String recordDateString, recordTimeString;
+                String recordDateString;
 
                 // load other records for graph
                 while (i < serverCSVrecords.length()) {
@@ -522,7 +538,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                     recordDate = dateFormatter.parse(currentRecord[1]);             // date formatted
                     recordTime = timeFormatter.parse(currentRecord[2]);             // time formatted
                     recordDateString = dateFormatter.format(recordDate);            // date formatted in string
-                    recordTimeString = timeFormatter.format(recordTime);            // time formatted in string
 
                     if (i == 0)
                     {
@@ -531,36 +546,17 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                             beforeNoon = true;
                     }
 
-                    // determine whether to add x-label as date+time or time only
-                    // first label after 12am and 12pm will be the label with full date+time
-                    // the other labels in between will only have time
-                    if(!withDate && beforeNoon && recordTime.before(timeFormatter.parse("12:00")))          // first label after 12am, date+time
-                    {
-                        lineXVals.add(recordDateString +" " +recordTimeString);
-                        beforeNoon = false;
-                        withDate = true;
-                    }
-                    else if(!withDate && !beforeNoon && !recordTime.before(timeFormatter.parse("12:00")))   // first label after 12pm, date+time
-                    {
-                        lineXVals.add(recordDateString +" " +recordTimeString);
-                        beforeNoon = true;
-                        withDate = true;
-                    }
-                    else            // time only
-                    {
-                        lineXVals.add(recordTimeString);
-                        withDate = false;
-                    }
+                    lineXVals.add(addLineXLabel(recordDate, recordTime));
 
-                    float tempValue, velValue;
+                    float tempStackedValue, velStackedValue;
 
                     // for line charts
                     recordDate = dateTimeFormatter.parse(currentRecord[1] + " " + currentRecord[2]);
 
-                    tempValue = Float.parseFloat(currentRecord[7]);
-                    velValue = Float.parseFloat(currentRecord[6]);
-                    tempYVals.add(new Entry(tempValue, i));
-                    veloYVals.add(new Entry(velValue, i));
+                    tempStackedValue = Float.parseFloat(currentRecord[7]);
+                    velStackedValue = Float.parseFloat(currentRecord[6]);
+                    tempYVals.add(new Entry(tempStackedValue, i));
+                    veloYVals.add(new Entry(velStackedValue, i));
 
                     // here onwards: for stacked bar chart
                     recordDateString = dateFormatter.format(recordDate);
@@ -575,14 +571,14 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                     }
 
                     // determine state of machine
-                    if (velValue >= Float.parseFloat(veloCriticalValue) || tempValue >= Float.parseFloat(tempCriticalValue))
+                    if (velStackedValue >= Float.parseFloat(veloCriticalValue) || tempStackedValue >= Float.parseFloat(tempCriticalValue))
                         numOfCritical++;
-                    else if (velValue >= Float.parseFloat(veloWarningValue) || tempValue >= Float.parseFloat(veloWarningValue))
+                    else if (velStackedValue >= Float.parseFloat(veloWarningValue) || tempStackedValue >= Float.parseFloat(veloWarningValue))
                         numOfWarning++;
-                    else if(velValue > 0 || tempValue > 0)
+                    else if(velStackedValue > 0 || tempStackedValue > 0)
                         numOfNormal++;
 
-                    if(velValue == 0)           // machine state is off, reset operating hours
+                    if(velStackedValue == 0)           // machine state is off, reset operating hours
                         opHours = 0;
                     else
                         opHours++;
@@ -596,13 +592,51 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                 lineChart.setNoDataText("No records found");
                 stackedChart.setNoDataText("No records found");
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
+        } catch (Exception e) {
+            graphFailToLoad();
             e.printStackTrace();
         }
     }
 
+    /**
+     * determine the label to add on x-axis, either date+time or time only
+     * @param date
+     * @param time
+     * @return
+     */
+    private String addLineXLabel(Date date, Date time)
+    {
+        try {
+            String recordDateString = dateFormatter.format(date), recordTimeString = timeFormatter.format(time);
+            if(new String(recordDateString +" " +recordTimeString).equals(lastDateTime))
+                return null;
+
+            lastDateTime = recordDateString + " " + recordTimeString;
+
+            // determine whether to add x-label as date+time or time only
+            // first label after 12am and 12pm will be the label with full date+time
+            // the other labels in between will only have time
+            if (!withDate && beforeNoon && time.before(timeFormatter.parse("12:00")))          // first label after 12am, date+time
+            {
+                beforeNoon = false;
+                withDate = true;
+                return recordDateString + " " + recordTimeString;
+            } else if (!withDate && !beforeNoon && !time.before(timeFormatter.parse("12:00")))   // first label after 12pm, date+time
+            {
+                beforeNoon = true;
+                withDate = true;
+                return recordDateString + " " + recordTimeString;
+            } else            // time only
+            {
+                withDate = false;
+                return recordTimeString;
+            }
+        } catch(ParseException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
     /**
      * set up line chart with preferred settings
      * 2 lines will be plotted on the graph to display temperature and velocity data
@@ -701,6 +735,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
 
         lineChart.setOnChartValueSelectedListener(this);
         insertLineData();
+        lineChart.setVisibleXRangeMinimum(3);
     }
 
     /**
@@ -772,7 +807,10 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         stackedChart.setDrawGridBackground(false);
         stackedChart.setDrawBarShadow(false);
         stackedChart.setVisibleXRangeMaximum(7);
+        stackedChart.setVisibleXRangeMinimum(1);
         stackedChart.setDrawValueAboveBar(false);
+        stackedChart.setHighlightPerTapEnabled(false);
+
 
         // change the position of the y-labels
         YAxis leftAxis = stackedChart.getAxisLeft();
@@ -916,8 +954,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
             mv.setUnit(getString(R.string.velo_unit));
 
         // get date+time of selected entry
-        SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("MM/dd/yyyy HH:mm");
-        SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
         int currentIndex = h.getXIndex();
         Date currentDate;
         try {
@@ -958,10 +994,52 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         }
     }
 
+    private BroadcastReceiver dataChangeReceiver= new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("BROADCAST RECEIVED", "YES!");
+            Log.e("BROADCAST DETAILS", "size: " +tempYVals.size());
+
+            addNewEntry();
+        }
+    };
+
+    /**
+     * new entry updated to database, update values and graph on screen
+     */
+    private void addNewEntry() {
+        Machine machine = favDatabasehelper.getMachineDetails(machineID);
+
+        tempValue = machine.getmachineTemp();
+        veloValue = machine.getmachineVelo();
+        displayTempAndVelo();
+
+        try {
+            String xLabelToAdd = addLineXLabel(dateFormatter.parse(machine.getMachineDate()), timeFormatter.parse(machine.getMachineTime()));
+            if(xLabelToAdd == null)
+                return;
+            tempYVals.add(new Entry(Float.parseFloat(machine.getmachineTemp()), tempYVals.size()));
+            veloYVals.add(new Entry(Float.parseFloat(machine.getmachineVelo()), veloYVals.size()));
+            lineXVals.add(xLabelToAdd);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        lineChart.notifyDataSetChanged();
+        lineChart.invalidate();
+    }
+
+    /**
+     * graph cannot be loaded, update text on graph to inform user
+     */
+    private void graphFailToLoad() {
+        lineChart.setNoDataText("Graph cannot be loaded currently. Please try again.");
+        stackedChart.setNoDataText("Graph cannot be loaded currently. Please try again.");
+    }
     /**
      * reset all arrays to store data because they are static
      */
-    public void resetDataArray() {
+    private void resetDataArray() {
         lineXVals.clear();
         tempYVals.clear();
         veloYVals.clear();
@@ -970,8 +1048,22 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+
+        //unregister the receiver
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(dataChangeReceiver);
+    }
+
+    @Override
     public void onResume() {
-        resetDataArray();
+        //register the receiver
+        if(!shareClicked)
+        {
+            resetDataArray();
+            shareClicked = false;
+        }
+        LocalBroadcastManager.getInstance(context).registerReceiver(dataChangeReceiver, inF);
         super.onResume();
     }
 }

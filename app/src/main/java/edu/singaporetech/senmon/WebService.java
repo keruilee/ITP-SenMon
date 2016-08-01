@@ -1,7 +1,12 @@
 package edu.singaporetech.senmon;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -13,9 +18,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 //
@@ -37,6 +46,8 @@ public class WebService extends AsyncTask<Void, Void, JSONObject> {
 
     JSONObject responseObj;
 
+    static AlertDialog networkDialog;
+
     public WebService(Context a, OnAsyncRequestComplete listener) {
         this.mContext = a;
         this.caller = listener;
@@ -44,11 +55,12 @@ public class WebService extends AsyncTask<Void, Void, JSONObject> {
 
     // Interface to be implemented by calling activity
     public interface OnAsyncRequestComplete {
-        public void asyncResponse(JSONObject response);
+        public void asyncResponse();
     }
 
     public JSONObject doInBackground(Void... params) {
         // get url pointing to entry point of API
+        int numOfTimeoutSec = 30;
         try {
             encodedUrl = new URL(url);
             urlConnection = (HttpURLConnection) encodedUrl.openConnection();
@@ -56,6 +68,7 @@ public class WebService extends AsyncTask<Void, Void, JSONObject> {
             urlConnection.setDoOutput(true);
             urlConnection.setUseCaches(false);
             urlConnection.setRequestProperty("Content-Type", "application/json");
+            urlConnection.setConnectTimeout(numOfTimeoutSec * 1000);
             urlConnection.connect();
 
             InputStream input = urlConnection.getInputStream();
@@ -69,27 +82,59 @@ public class WebService extends AsyncTask<Void, Void, JSONObject> {
             Log.d("doInBackground(Resp)", result.toString());
             responseObj = new JSONObject(result.toString());
 
+        } catch (ConnectException e) {
+            e.printStackTrace();
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (JSONException e) {
             e.printStackTrace();
-        } finally {
+        }
+        finally {
             urlConnection.disconnect();
         }
+
         return responseObj;
     }
 
+    /**
+     * check if there is internet connection
+     * if no internet connection, inform user via alertdialog and stop async task
+     * if there's internet connection, continue async task to retrieve data from server
+     */
     public void onPreExecute() {
-        if(progressDialog == null) {
-            progressDialog = new ProgressDialog(mContext);
-            progressDialog.setMessage("Loading Records...");
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressDialog.setIndeterminate(false);
+        if(!isNetworkEnabled())
+        {
+            caller.asyncResponse();
+            cancel(true);               // cancel current async task
+
+            if(networkDialog != null && networkDialog.isShowing()) return;
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+            builder.setTitle("Network Connectivity");
+            builder.setMessage("No network detected! Data will not be updated!");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // You don't have to do anything here if you just want it dismissed when clicked
+                }
+            });
+            networkDialog = builder.create();
+            networkDialog.show();
         }
-        if(!progressDialog.isShowing()) {
-            progressDialog.show();
+        else {
+            if(networkDialog != null && networkDialog.isShowing())
+                networkDialog.dismiss();
+            if(progressDialog == null) {
+                progressDialog = new ProgressDialog(mContext);
+                progressDialog.setMessage("Loading Records...");
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setIndeterminate(false);
+                progressDialog.setCancelable(false);
+            }
+            if(!progressDialog.isShowing()) {
+                progressDialog.show();
+            }
         }
     }
 
@@ -98,29 +143,69 @@ public class WebService extends AsyncTask<Void, Void, JSONObject> {
         // setProgressPercent(progress[0]);
     }
 
+    /**
+     * data retrieved from server, add them to SQLite database
+     * @param result data from server; null if data retrieval is unsuccessful
+     */
     public void onPostExecute(JSONObject result) {
+
+        super.onPostExecute(result);
+        if(result != null)
+            addToDatabase(result);
+
+        caller.asyncResponse();           // return SQL records back to fragment | see asyncResponse function in fragment
+
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
-        super.onPostExecute(result);
-        getSQLRecords(result);
-        //progressDialog.dismiss();             // dismissing dialogs in each fragments instead
-        caller.asyncResponse(result);           // return SQL records back to fragment | see asyncResponse function in fragment
     }
 
     //Get the server CSV records
-    public void getSQLRecords(JSONObject jsonObj) {
+    public void addToDatabase(JSONObject jsonObj) {
         try {
             serverSQLrecords = jsonObj.getJSONArray(TAG_RESULTS);
+            ArrayList<Machine> myMachineList = new ArrayList<>();
 
+            //remove all unwanted symbols and text
+            String cleanupLatestRecords = serverSQLrecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"", "").replace("]", "");;
+
+            //split different csv records, the ending of each csv record list is machineID.csv
+            String[] allSQLRecords = cleanupLatestRecords.split("split,");
+            String[] latestRecords;
+
+            DatabaseHelper mydatabaseHelper = new DatabaseHelper(mContext);
+
+            //loop through each csv and get the latest records and split each field
+            for (String record : allSQLRecords) {
+                latestRecords = record.split(",");
+                //Change database
+                //last 3rd is work hours!!! remember to add in KR
+                Machine machine = new Machine(mContext, latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],latestRecords[5],
+                        latestRecords[6],latestRecords[7],latestRecords[8],latestRecords[9],"0");
+
+                mydatabaseHelper.updateDatabase(machine);
+            }
+
+            // update datetime in shared pref
+            SharedPreferences.Editor editor;
+            SharedPreferences DateTimeSharedPreferences = mContext.getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
+            editor = DateTimeSharedPreferences.edit();
+            editor.putString("DT_PREFS_KEY", DateFormat.getDateTimeInstance().format(new Date()));
+            editor.commit();
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
 
-    public JSONArray getRecords(){
-        return serverSQLrecords;
+    public boolean isNetworkEnabled(){
+        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED){
+            //Network available
+            return true;
+        }
+        else {
+            return false;
+        }
     }
-
 }

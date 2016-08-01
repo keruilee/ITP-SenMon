@@ -3,13 +3,16 @@ package edu.singaporetech.senmon;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -23,7 +26,8 @@ import android.view.SubMenu;
 import android.view.View;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, FragmentManager.OnBackStackChangedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, FragmentManager.OnBackStackChangedListener,
+                    WebService.OnAsyncRequestComplete {
 
     public static final String MyPREFERENCES = "MyPrefs" ;
     public static final String NotificationsEnabled = "ntfnEnabledKey";
@@ -68,7 +72,6 @@ public class MainActivity extends AppCompatActivity
             Log.d("msg", "notification is true");
         };
 
-
         //start nav drawer
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -96,21 +99,25 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction().add(R.id.relativelayoutfor_fragment, new HomeFragment()).commit();
         }
 
-
         Intent alarm = new Intent(this.context, AlarmReceiver.class);
         //check if the alarmservice has already started
         boolean isAlarmRunning = (PendingIntent.getBroadcast(this.context,0,alarm, PendingIntent.FLAG_NO_CREATE) != null);
         //if alarmsservice has not start then start it
-        if(isAlarmRunning == false){
+        if(!isAlarmRunning){
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this.context, 0 , alarm, 0);
             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
             alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), 15000, pendingIntent);
-
         }
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
+
+        IntentFilter inF = new IntentFilter("data_changed");
+        LocalBroadcastManager.getInstance(this.context).registerReceiver(dataChangeReceiver, inF);
+
+        getSQLData();
     }
+
 
     @Override
     public void onBackPressed() {
@@ -364,5 +371,26 @@ public class MainActivity extends AppCompatActivity
                 item.setChecked(false);
             }
         }
+    }
+
+    private BroadcastReceiver dataChangeReceiver= new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // update your listview
+            Log.d("BROADCAST MAIN", "YES!");
+            //get the data again from the csvdata()
+            getSQLData();
+        }
+    };
+
+    public void getSQLData() {
+        WebService webServiceTask = new WebService(this.context, this);
+        webServiceTask.execute();
+    }
+
+    // async task completed
+    @Override
+    public void asyncResponse() {
+        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent("database_updated"));
     }
 }

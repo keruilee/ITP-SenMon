@@ -1,16 +1,12 @@
 package edu.singaporetech.senmon;
 
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -26,15 +22,9 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 
 
 /**
@@ -44,8 +34,8 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
 
     String TAG = "List Fragment";
     Context context;
+
     SharedPreferences DateTimeSharedPreferences;
-    SharedPreferences.Editor editor;
     TextView title ;
 
     public static final String DETAILS_FRAG_TAG = "DETAILS_FRAGMENT";
@@ -54,15 +44,11 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
     ListView listViewListing;
     CustomAdapter adapter;
 
-    public ArrayList<Machine> myMachineList = new ArrayList<>();
+    public ArrayList<Machine> myMachineList = new ArrayList<>(), tempMachineList = new ArrayList<>();
 
     public String status = "";
 
     ProgressDialog progressDialog;
-    JSONArray serverSQLRecords = null;
-
-    public String[] latestRecords;
-    public String[] allSQLRecords;
 
     private int selectedTab = 0;
 
@@ -79,7 +65,7 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
     // for database helper
     public DatabaseHelper mydatabaseHelper;
 
-    IntentFilter inF = new IntentFilter("data_changed");
+    IntentFilter inF = new IntentFilter("database_updated");
 
     public ListFragment() {
     }
@@ -117,30 +103,10 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
         }
 
         ////////////////////////Retrived datatime sharef pref///////////////////////
-
         DateTimeSharedPreferences = context.getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
-        dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
 
         /////////////////// take out the data from databasehelper///////////////////////
         mydatabaseHelper = new DatabaseHelper(getActivity());
-        myMachineList.clear();
-
-        if (status.equalsIgnoreCase("all")) {
-            Log.d("LF All", "all");
-            myMachineList  = mydatabaseHelper.returnStringMachineAllString();
-        } else {
-            Log.d("All", "not all");
-            myMachineList = mydatabaseHelper.returnStringMachineStateString(status);
-        }
-
-        if (myMachineList.isEmpty())
-        {
-            updateDateTime.setText("No machine found in the list!");
-        }
-        else
-        {
-            updateDateTime.setText("Updated on "+dateTime);
-        }
 
         // set up list with listadapter
         listViewListing = (ListView) rootView.findViewById(R.id.ListView);
@@ -152,27 +118,10 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
             @Override
             public void onRefresh() {
                 Log.i("REFRESH", "what bundle?" + status);
-                progressDialog = new ProgressDialog(getActivity());
+                progressDialog = new ProgressDialog(context);
                 //If there is network connection
-                if(isNetworkEnabled()){
-                    getSQLData();
-                }
-                else{
-                    mSwipeRefreshLayout.setRefreshing(false);
-                    // Use the Builder class for convenient dialog construction
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle("Network Connectivity");
-                    builder.setMessage("No network detected! Data will not be updated!");
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // don't have to do anything if there is no network when refreshing list
-                        }
-                    });
-                    builder.setCancelable(false);
+                getSQLData();
 
-                    AlertDialog networkDialog = builder.create();
-                    networkDialog.show();
-                }
                 Log.i("REFRESH", "what bundle? After" + status);
             }
         });
@@ -217,15 +166,20 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
 
             }
         });
+
+        retrieveFromDatabase();
+        updateList();
+
         return rootView;
     }
 
     ///////// To update the tab when the user select///////////////
     public void updateList() {
+        tempMachineList = myMachineList;
         switch (selectedTab) {
             case 0:
                 Log.i("SWITCH", "0 , Sort machine id");
-                Collections.sort(myMachineList, new Comparator<Machine>() {
+                Collections.sort(tempMachineList, new Comparator<Machine>() {
                     public int compare(Machine m1, Machine m2) {
                         return m1.getMachineID().compareTo(m2.getMachineID());
                     }
@@ -234,7 +188,7 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
 
             case 1:
                 Log.i("SWITCH", "1 , Sort temp");
-                Collections.sort(myMachineList, new Comparator<Machine>() {
+                Collections.sort(tempMachineList, new Comparator<Machine>() {
                     public int compare(Machine m1, Machine m2) {
                         Log.i("SWITCH", "1 , Sort temp m1" + m1.getmachineTemp());
                         Log.i("SWITCH", "1 , Sort temp m2" + m2.getmachineTemp());
@@ -246,7 +200,7 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
 
             case 2:
                 Log.i("SWITCH", "2 , Sort velo");
-                Collections.sort(myMachineList, new Comparator<Machine>() {
+                Collections.sort(tempMachineList, new Comparator<Machine>() {
                     public int compare(Machine m1, Machine m2) {
                         return Double.compare(Double.parseDouble(m2.getmachineVelo()), Double.parseDouble(m1.getmachineVelo()));
                     }
@@ -256,7 +210,9 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
             default:
                 break;
         }
-        adapter.notifyDataSetChanged();
+        adapter.clear();
+        adapter.addAll(tempMachineList);
+        myMachineList = tempMachineList;
     }
 
 
@@ -272,77 +228,39 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
 
     // async task completed
     @Override
-    public void asyncResponse(JSONObject response) {
+    public void asyncResponse() {
 
-        getSQLRecords(response);        // updates database with retrieved CSV records
-        computeMachineState();
+        //getSQLRecords(response);        // updates database with retrieved CSV records
+        retrieveFromDatabase();
         updateList();                   // display list with sorted values
-
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
 
         // for swipe refresh to dismiss the loading icon
         mSwipeRefreshLayout.setRefreshing(false);
         // display the date time
     }
 
-    //Get the server CSV records
-    public void getSQLRecords(JSONObject jsonObj) {
-        try {
-            serverSQLRecords = jsonObj.getJSONArray(TAG_RESULTS);
-            myMachineList.clear();
-
-            String cleanupLatestRecords;
-            //remove all unwanted symbols and text
-            cleanupLatestRecords = serverSQLRecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"", "").replace("]", "");
-            //split different csv records, the ending of each csv record list is machineID.csv
-            allSQLRecords = cleanupLatestRecords.split("split,");
-            //loop through each csv and get the latest records and split each field
-            for (String record : allSQLRecords) {
-                latestRecords = record.split(",");
-                //Change database
-                //last 3rd is work hours!!! remember to add in KR
-                Machine machine = new Machine(context, latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],latestRecords[5],
-                        latestRecords[6],latestRecords[7],latestRecords[8],latestRecords[9],"0");
-
-                mydatabaseHelper.updateDatabase(machine);
-                if(machine.getMachineStatus().equals(status) || status.equalsIgnoreCase("all"))           // if is selected status, add to list
-                    myMachineList.add(machine);
-
-            }
-            Log.i("REFRESH", "kr bundle?" + status);
-            Log.d("cleanupLatestRecords: ", cleanupLatestRecords);
-            Log.d("CSVRecords2: ", allSQLRecords[1]);
-            Log.d("LatestRecords: ", latestRecords[0]);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     //Computation of machines in each state
-    private void computeMachineState() {
-        editor = DateTimeSharedPreferences.edit();
-        editor.putString("DT_PREFS_KEY", DateFormat.getDateTimeInstance().format(new Date()));
-
-        editor.commit();
-        dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
-        updateDateTime.setText("Updated on :"+dateTime);
-        Log.d(" computeMachine", "testing");
+    private void setUpdateDateTime() {
+        if (myMachineList.isEmpty())
+        {
+            updateDateTime.setText("No machine found in the list!");
+        }
+        else
+        {
+            dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
+            updateDateTime.setText("Updated on "+dateTime);
+        }
     }
 
-    public boolean isNetworkEnabled(){
-        ConnectivityManager cm = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        if(cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
-                cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED){
-            //Network available
-            return true;
+    private void retrieveFromDatabase() {
+        if (status.equalsIgnoreCase("all")) {
+            Log.d("LF All", "all");
+            myMachineList = mydatabaseHelper.returnStringMachineAllString();
+        } else {
+            Log.d("All", "not all");
+            myMachineList = mydatabaseHelper.returnStringMachineStateString(status);
         }
-        else {
-            return false;
-        }
+        setUpdateDateTime();
     }
 
     @Override
@@ -365,17 +283,15 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
         @Override
         public void onReceive(Context context, Intent intent) {
             // update your listview
-            Log.d("BROADCAST RECEIVED", "YES!");
+            retrieveFromDatabase();
+            updateList();                   // display list with sorted values
+
+            Log.d("BROADCAST LIST", "YES!");
             //get the data again from the csvdata()
-            if (isNetworkEnabled()) {
-                DateTimeSharedPreferences = context.getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
-                editor = DateTimeSharedPreferences.edit();
-                editor.putString("DT_PREFS_KEY", DateFormat.getDateTimeInstance().format(new Date()));
-                Log.d("DATE IN LSIT FRAGMENT", DateFormat.getDateTimeInstance().format(new Date()) + "");
-                editor.commit();
-                dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
-                updateDateTime.setText("Updated on "+dateTime);
-            }
+
+            // for swipe refresh to dismiss the loading icon
+            mSwipeRefreshLayout.setRefreshing(false);
+            // display the date time
         }
     };
 }

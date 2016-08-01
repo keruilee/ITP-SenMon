@@ -1,17 +1,17 @@
 package edu.singaporetech.senmon;
 
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,13 +21,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 
 /**
@@ -40,8 +34,6 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
 
     public Context context;
     SharedPreferences DateTimeSharedPreferences;
-    SharedPreferences.Editor editor;
-    SharedPreferences sharedPreferences;
     String dateTime;
     int numberOfFavInAlert = 0;
 
@@ -53,11 +45,10 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
 
     CustomAdapter adapter;
 
-    ArrayList<Machine> myFavouriteMachineList = new ArrayList<Machine>();
-    ArrayList<Machine> myTempoMachineList = new ArrayList<Machine>();
+    ArrayList<Machine> myFavouriteMachineList = new ArrayList<Machine>(), tempMachineList = new ArrayList<>();
     private static final String TAG_RESULTS="result";
     ProgressDialog progressDialog;
-    JSONArray serverSQLRecords = null;
+
     String tempWarningValue, tempCriticalValue, veloWarningValue, veloCriticalValue;
     SharedPreferences RangeSharedPreferences;
     public static final String MyRangePREFERENCES = "MyRangePrefs";
@@ -65,8 +56,6 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
     public static final String CriticalTemperature = "critTempKey";
     public static final String WarningVelocity = "warnVeloKey";
     public static final String CriticalVelocity = "critVeloKey";
-    public String[] latestRecords;
-    public String[] allSQLRecords;
 
     // for swipe
     public SwipeRefreshLayout mSwipeRefreshLayout = null;
@@ -74,6 +63,7 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
     // for date time
     TextView updateDateTime;
 
+    IntentFilter inF = new IntentFilter("database_updated");
 
     public FavouriteFragment() {
         // Required empty public constructor
@@ -108,19 +98,9 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
 
 
         mydatabaseHelper = new DatabaseHelper(getActivity());
-        myFavouriteMachineList = mydatabaseHelper.returnFavourite();
-
 
         DateTimeSharedPreferences = context.getSharedPreferences("DT_PREFS_NAME", Context.MODE_PRIVATE);
-        dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
-        if (myFavouriteMachineList.isEmpty())
-        {
-            updateDateTime.setText("No results found");
-        }
-        else
-        {
-            updateDateTime.setText("Updated on "+dateTime);
-        }
+
         adapter = new CustomAdapter(getActivity(),R.layout.fragment_favourite,myFavouriteMachineList);
         listViewListing.setAdapter(adapter);
 
@@ -155,36 +135,16 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
                         Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
                         progressDialog = new ProgressDialog(getActivity());
 
-                        if(isNetworkEnabled()){
-                            getSQLData();
-                        }
-                        else{
-                            mSwipeRefreshLayout.setRefreshing(false);
-                            // Use the Builder class for convenient dialog construction
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            builder.setTitle("Network Connectivity");
-                            builder.setMessage("No network detected! Data will not be updated!");
-                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    // You don't have to do anything here if you just want it dismissed when clicked
-                                }
-                            });
-                            AlertDialog networkDialog = builder.create();
-                            networkDialog.show();
-                        }
+                        getSQLData();
+                        mSwipeRefreshLayout.setRefreshing(false);
 
             }
         });
 
+        updateList();
 
         return rootView;
         // / return inflater.inflate(R.layout.fragment_list, container, false);
-    }
-
-    @Override
-    public void onResume() {
-        Log.e("DEBUG", "onResume of FAV");
-        super.onResume();
     }
 
     ////////////////////////update the list///////////////////////////
@@ -198,80 +158,68 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
 
     // async task completed
     @Override
-    public void asyncResponse(JSONObject response) {
+    public void asyncResponse() {
+        updateList();
 
-        getSQLRecords(response);
-        // display list with sorted values
-        progressDialog.dismiss();
-        computeMachineState();
         // for swipe refresh to dismiss the loading icon
         mSwipeRefreshLayout.setRefreshing(false);
         // display the date time
     }
 
-    //Get the server CSV records
-    public void getSQLRecords(JSONObject jsonObj) {
-        try {
-            serverSQLRecords = jsonObj.getJSONArray(TAG_RESULTS);
-            myFavouriteMachineList.clear();
-
-            String cleanupLatestRecords;
-            //remove all unwanted symbols and text
-            cleanupLatestRecords = serverSQLRecords.toString().replaceAll(",false]]", "").replace("[[", "").replace("[", "").replace("]]", "").replace("\"", "").replace("]", "");
-            //split different csv records, the ending of each csv record list is machineID.csv
-            allSQLRecords = cleanupLatestRecords.split("split,");
-            //loop through each csv and get the latest records and split each field
-            for (String record : allSQLRecords) {
-                latestRecords = record.split(",");
-                Log.e("latestRecords", record);
-                Machine machine = new Machine(context, latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],latestRecords[5],
-                        latestRecords[6],latestRecords[7],latestRecords[8],latestRecords[9],"0");
-
-                myTempoMachineList.add(machine);
-                //Change database
-                mydatabaseHelper.updateDatabase(machine);
-                //mydatabaseHelper.updateMachineDateTime(latestRecords[0], DateFormat.getDateTimeInstance().format(new Date()));
-            }
-
-            Log.d("cleanupLatestRecords: ", cleanupLatestRecords);
-            Log.d("CSVRecords2: ", allSQLRecords[1]);
-            Log.d("LatestRecords: ", latestRecords[0]);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
+    // update datetime text
+    private void setUpdateDateTime() {
+        if (myFavouriteMachineList.isEmpty())
+        {
+            updateDateTime.setText("No results found");
         }
+        else
+        {
+            dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
+            updateDateTime.setText("Updated on "+dateTime);
+        }
+    }
 
-        editor = DateTimeSharedPreferences.edit();
-        editor.putString("DT_PREFS_KEY", DateFormat.getDateTimeInstance().format(new Date()));
+    @Override
+    public void onPause() {
+        super.onPause();
 
-        editor.commit();
-        dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
-        updateDateTime.setText("Updated on " + dateTime);
+        //unregister the receiver
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(dataChangeReceiver);
+    }
 
-        myFavouriteMachineList.clear();
+    @Override
+    public void onResume() {
+        super.onResume();
+        //register the receiver
+
+        LocalBroadcastManager.getInstance(context).registerReceiver(dataChangeReceiver, inF);
+    }
+
+    private BroadcastReceiver dataChangeReceiver= new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // update your listview
+            Log.d("BROADCAST FAV", "YES!");
+
+            updateList();
+
+            // for swipe refresh to dismiss the loading icon
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
+    };
+
+    /**
+     * update list displayed on screen with new data
+     */
+    private void updateList() {
+        //get the data from database
         myFavouriteMachineList = mydatabaseHelper.returnFavourite();
-    }
 
-    //Computation of machines in each state
-    private void computeMachineState() {
-        editor = DateTimeSharedPreferences.edit();
-        editor.putString("DT_PREFS_KEY", DateFormat.getDateTimeInstance().format(new Date()));
+        tempMachineList = myFavouriteMachineList;
+        adapter.clear();
+        adapter.addAll(tempMachineList);
+        myFavouriteMachineList = tempMachineList;
 
-        editor.commit();
-        dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
-        updateDateTime.setText("Updated on "+dateTime);
-        Log.d(" computeMachine", "testing");
-    }
-
-    public boolean isNetworkEnabled(){
-        ConnectivityManager cm = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        if(cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
-                cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED){
-            //Network available
-            return true;
-        }
-        else {
-            return false;
-        }
+        setUpdateDateTime();
     }
 }

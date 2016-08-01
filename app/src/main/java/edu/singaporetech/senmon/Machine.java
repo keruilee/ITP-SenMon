@@ -38,7 +38,7 @@ public class Machine {
         this.mContext = context;
 
         this.machineID = machineID;
-        this.machineDate = machineDate;
+        this.machineDate = machineDate.replace("\\", "");
         this.machineTime = machineTime;
         this.machineVx = machineVx;
         this.machineVy = machineVy;
