@@ -202,10 +202,8 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-
-        //unregister the receiver
+    public void onDestroyView() {
+        super.onDestroyView();
         LocalBroadcastManager.getInstance(context).unregisterReceiver(dataChangeReceiver);
     }
 

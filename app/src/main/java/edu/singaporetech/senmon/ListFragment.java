@@ -287,10 +287,8 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-
-        //unregister the receiver
+    public void onDestroyView() {
+        super.onDestroyView();
         LocalBroadcastManager.getInstance(context).unregisterReceiver(dataChangeReceiver);
     }
 

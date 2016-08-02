@@ -1091,11 +1091,15 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        Log.e("DETAILS", "ONPAUSE");
+    public void onDestroyView() {
+        super.onDestroyView();
         //unregister the receiver
         LocalBroadcastManager.getInstance(context).unregisterReceiver(dataChangeReceiver);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
         shareClicked = true;
     }
 

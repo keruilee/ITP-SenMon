@@ -298,6 +298,8 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
             if (myMachineList.isEmpty())
             {
                 tvNormLbl.setVisibility(View.VISIBLE);
+                tvWarnLbl.setVisibility(View.INVISIBLE);
+                tvCritLbl.setVisibility(View.INVISIBLE);
             }
             //show warning alert bar
             else
@@ -305,7 +307,9 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
                 Machine mostCriticalMachine = getMostCriticalMachine(myMachineList);
                 machineID = mostCriticalMachine.getMachineID();
                 tvWarnLbl.setText(mostCriticalMachine.getMachineID() + " " + getString(R.string.warning_lbl));
+                tvNormLbl.setVisibility(View.INVISIBLE);
                 tvWarnLbl.setVisibility(View.VISIBLE);
+                tvCritLbl.setVisibility(View.INVISIBLE);
             }
         }
         //show critical alert bar
@@ -314,6 +318,8 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
             Machine mostCriticalMachine = getMostCriticalMachine(myMachineList);
             machineID = mostCriticalMachine.getMachineID();
             tvCritLbl.setText(mostCriticalMachine.getMachineID() + " " + getString(R.string.critical_lbl));
+            tvNormLbl.setVisibility(View.INVISIBLE);
+            tvWarnLbl.setVisibility(View.INVISIBLE);
             tvCritLbl.setVisibility(View.VISIBLE);
         }
 
@@ -392,10 +398,8 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-
-        //unregister the receiver
+    public void onDestroyView() {
+        super.onDestroyView();
         LocalBroadcastManager.getInstance(context).unregisterReceiver(dataChangeReceiver);
     }
 
