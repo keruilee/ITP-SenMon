@@ -152,6 +152,12 @@
         android:layout_below="@+id/critVeloEditText"
         android:layout_alignParentStart="true" />
 
+    <View android:id="@+id/fakeView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@id/seekbarVelo"
+        android:layout_centerInParent="true"/>
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -159,7 +165,18 @@
         android:id="@+id/saveButton"
         android:layout_marginTop="44dp"
         android:layout_below="@+id/seekbarVelo"
-        android:layout_alignParentEnd="true"
+        android:layout_alignLeft="@id/fakeView"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="RESET TO DEFAULT"
+        android:id="@+id/resetButton"
+        android:layout_alignLeft="@id/saveButton"
+        android:layout_below="@id/seekbarVelo"
+        android:layout_marginTop="44dp"
+        android:layout_alignRight="@id/fakeView"
         android:layout_alignParentStart="true" />
 
 </RelativeLayout>

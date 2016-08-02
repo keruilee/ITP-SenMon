@@ -110,8 +110,11 @@ public class BackgroundService extends Service{
 
                     }
                 }
-            }
 
+                killThread();
+            } else {
+                killThread();
+            }
         }
     };
 
@@ -152,7 +155,8 @@ public class BackgroundService extends Service{
                 isCritNotificActive = true;
 
                 //call the destroy method
-                stopSelf();
+//                stopSelf();
+                killThread();
             }
         //TODO fire of the warning notifications
             if(state == "warning"){
@@ -171,7 +175,8 @@ public class BackgroundService extends Service{
                 isWarnNotificActive = true;
 
                 //call the destroy method
-                stopSelf();
+//                stopSelf();
+                killThread();
             }
 
 
@@ -213,10 +218,17 @@ public class BackgroundService extends Service{
             isFavNotificActive = true;
 
             //call the destroy method
-            stopSelf();
+//            stopSelf();
 
-
+            killThread();
     }
+
+    private void killThread() {
+        this.backgroundThread.interrupt();
+        this.isRunning = false;
+        stopSelf();
+    }
+
     //if is not running then destroy
     @Override
     public void onDestroy(){

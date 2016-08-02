@@ -46,8 +46,6 @@ public class WebService extends AsyncTask<Void, Void, JSONObject> {
 
     JSONObject responseObj;
 
-    static AlertDialog networkDialog;
-
     public WebService(Context a, OnAsyncRequestComplete listener) {
         this.mContext = a;
         this.caller = listener;
@@ -108,23 +106,8 @@ public class WebService extends AsyncTask<Void, Void, JSONObject> {
         {
             caller.asyncResponse();
             cancel(true);               // cancel current async task
-
-            if(networkDialog != null && networkDialog.isShowing()) return;
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-            builder.setTitle("Network Connectivity");
-            builder.setMessage("No network detected! Data will not be updated!");
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    // You don't have to do anything here if you just want it dismissed when clicked
-                }
-            });
-            networkDialog = builder.create();
-            networkDialog.show();
         }
         else {
-            if(networkDialog != null && networkDialog.isShowing())
-                networkDialog.dismiss();
             if(progressDialog == null) {
                 progressDialog = new ProgressDialog(mContext);
                 progressDialog.setMessage("Loading Records...");
@@ -178,6 +161,8 @@ public class WebService extends AsyncTask<Void, Void, JSONObject> {
             //loop through each csv and get the latest records and split each field
             for (String record : allSQLRecords) {
                 latestRecords = record.split(",");
+                if(latestRecords.length < 10)
+                    break;
                 //Change database
                 //last 3rd is work hours!!! remember to add in KR
                 Machine machine = new Machine(mContext, latestRecords[0],latestRecords[1],latestRecords[2],latestRecords[3],latestRecords[4],latestRecords[5],

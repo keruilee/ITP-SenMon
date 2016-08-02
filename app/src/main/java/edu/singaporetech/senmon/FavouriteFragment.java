@@ -1,12 +1,15 @@
 package edu.singaporetech.senmon;
 
 
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -47,7 +50,6 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
 
     ArrayList<Machine> myFavouriteMachineList = new ArrayList<Machine>(), tempMachineList = new ArrayList<>();
     private static final String TAG_RESULTS="result";
-    ProgressDialog progressDialog;
 
     String tempWarningValue, tempCriticalValue, veloWarningValue, veloCriticalValue;
     SharedPreferences RangeSharedPreferences;
@@ -64,6 +66,8 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
     TextView updateDateTime;
 
     IntentFilter inF = new IntentFilter("database_updated");
+
+    AlertDialog networkDialog;
 
     public FavouriteFragment() {
         // Required empty public constructor
@@ -133,10 +137,28 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
                     @Override
                     public void onRefresh() {
                         Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
-                        progressDialog = new ProgressDialog(getActivity());
+                        if(isNetworkEnabled())
+                        {
+                            if(networkDialog != null && networkDialog.isShowing())
+                                networkDialog.dismiss();
 
-                        getSQLData();
-                        mSwipeRefreshLayout.setRefreshing(false);
+                            getSQLData();
+                        }
+                        else {
+                            if(networkDialog != null && networkDialog.isShowing()) return;
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                            builder.setTitle("Network Connectivity");
+                            builder.setMessage("No network detected! Data will not be updated!");
+                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    // You don't have to do anything here if you just want it dismissed when clicked
+                                }
+                            });
+                            networkDialog = builder.create();
+                            networkDialog.show();
+                            mSwipeRefreshLayout.setRefreshing(false);
+                        }
 
             }
         });
@@ -202,9 +224,6 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
             Log.d("BROADCAST FAV", "YES!");
 
             updateList();
-
-            // for swipe refresh to dismiss the loading icon
-            mSwipeRefreshLayout.setRefreshing(false);
         }
     };
 
@@ -221,5 +240,17 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
         myFavouriteMachineList = tempMachineList;
 
         setUpdateDateTime();
+    }
+
+    public boolean isNetworkEnabled(){
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED){
+            //Network available
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

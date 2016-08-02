@@ -1,13 +1,17 @@
 package edu.singaporetech.senmon;
 
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.design.widget.NavigationView;
@@ -42,6 +46,7 @@ public class MainActivity extends AppCompatActivity
     public static final String LIST_FRAG_NORM_TAG = "LIST_FRAGMENT_NORMAL";
     public static final String LIST_FRAG_ALL_TAG = "LIST_FRAGMENT_ALL";
     public static final String SETTINGS_FRAG_TAG = "SETTINGS_FRAGMENT";
+    public static final String RANGE_FRAG_TAG = "RANGE_FRAGMENT";
 
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
@@ -51,6 +56,8 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout drawer;
     private NavigationView navigationView;
     private Menu menu;
+
+    AlertDialog networkDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +122,27 @@ public class MainActivity extends AppCompatActivity
         IntentFilter inF = new IntentFilter("data_changed");
         LocalBroadcastManager.getInstance(this.context).registerReceiver(dataChangeReceiver, inF);
 
-        getSQLData();
+        if(isNetworkEnabled())
+        {
+            if(networkDialog != null && networkDialog.isShowing())
+                networkDialog.dismiss();
+
+            getSQLData();
+        }
+        else {
+            if(networkDialog != null && networkDialog.isShowing()) return;
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle("Network Connectivity");
+            builder.setMessage("No network detected! Data will not be updated!");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // You don't have to do anything here if you just want it dismissed when clicked
+                }
+            });
+            networkDialog = builder.create();
+            networkDialog.show();
+        }
     }
 
 
@@ -343,6 +370,7 @@ public class MainActivity extends AppCompatActivity
                         menu.getItem(5).setChecked(true);
                         break;
                     case SETTINGS_FRAG_TAG:
+                    case RANGE_FRAG_TAG:
                         menu.getItem(6).setChecked(true);
                         break;
                     default:
@@ -392,5 +420,17 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void asyncResponse() {
         LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent("database_updated"));
+    }
+
+    public boolean isNetworkEnabled(){
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED){
+            //Network available
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

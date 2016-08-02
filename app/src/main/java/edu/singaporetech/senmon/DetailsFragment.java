@@ -120,6 +120,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     private SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
     private boolean withDate = false, beforeNoon = false;
     private String lastDateTime = "";
+    private float[] lastStackedYVals = {0, 0, 0};
+    private int opHours = 0;
 
     private static final String TEMP_NAME = "TEMPERATURE", VELO_NAME = "VELOCITY";
     MyMarkerView mv;
@@ -512,7 +514,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     {
         try {
             JSONArray serverCSVrecords = jsonObj.getJSONArray(TAG_RESULTS);
-            int i = 0, numOfNormal = 0, numOfWarning = 0, numOfCritical = 0, opHours = 0;
+            int i = 0, numOfNormal = 0, numOfWarning = 0, numOfCritical = 0;
             String[] currentRecord;
             int numOfRecords = serverCSVrecords.length();
 
@@ -541,10 +543,11 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
 
                     if (i == 0)
                     {
-                        stackedXVals.add(recordDateString);
                         if(recordTime.before(timeFormatter.parse("12:00")))          // time is past 12 noon (12:00 onwards)
                             beforeNoon = true;
                     }
+                    if(!veloValue.equals(0) && stackedXVals.isEmpty())
+                        stackedXVals.add(recordDateString);
 
                     lineXVals.add(addLineXLabel(recordDate, recordTime));
 
@@ -562,8 +565,10 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                     recordDateString = dateFormatter.format(recordDate);
 
                     // new date = new x label; add date to x-axis and reset states variable to zero
-                    if (!recordDateString.equals(stackedXVals.get(stackedXVals.size() - 1))) {
-                        stackedYVals.add(new BarEntry(new float[]{numOfNormal, numOfWarning, numOfCritical}, stackedXVals.size() - 1));
+                    if (!recordDateString.equals(stackedXVals.get(stackedXVals.size() - 1)) &&
+                            (numOfNormal > 0 || numOfWarning > 0 || numOfCritical > 0)) {
+                        lastStackedYVals = new float[]{numOfNormal, numOfWarning, numOfCritical};
+                        stackedYVals.add(new BarEntry(lastStackedYVals, stackedXVals.size() - 1));
                         numOfNormal = 0;
                         numOfWarning = 0;
                         numOfCritical = 0;
@@ -573,7 +578,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                     // determine state of machine
                     if (velStackedValue >= Float.parseFloat(veloCriticalValue) || tempStackedValue >= Float.parseFloat(tempCriticalValue))
                         numOfCritical++;
-                    else if (velStackedValue >= Float.parseFloat(veloWarningValue) || tempStackedValue >= Float.parseFloat(veloWarningValue))
+                    else if (velStackedValue >= Float.parseFloat(veloWarningValue) || tempStackedValue >= Float.parseFloat(tempWarningValue))
                         numOfWarning++;
                     else if(velStackedValue > 0 || tempStackedValue > 0)
                         numOfNormal++;
@@ -584,7 +589,9 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                         opHours++;
                     i++;
                 }
-                stackedYVals.add(new BarEntry(new float[] {numOfNormal, numOfWarning, numOfCritical }, stackedXVals.size()-1));
+
+                lastStackedYVals = new float[]{numOfNormal, numOfWarning, numOfCritical};
+                stackedYVals.add(new BarEntry(lastStackedYVals, stackedXVals.size()-1));
                 favDatabasehelper.updateOpHours(machineID, Integer.toString(opHours));
                 tvDHour.setText(String.format("%d", opHours));
             }
@@ -683,7 +690,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         tempWarningLine.setTextSize(10f);
         tempWarningLine.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
 
-        veloCriticalLine = new LimitLine(Float.parseFloat(veloCriticalValue), getString(R.string.status_warning));
+        veloCriticalLine = new LimitLine(Float.parseFloat(veloCriticalValue), getString(R.string.status_critical));
         veloCriticalLine.setLineWidth(1f);
         veloCriticalLine.enableDashedLine(10f, 15f, 0f);
         veloCriticalLine.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
@@ -1010,23 +1017,59 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     private void addNewEntry() {
         Machine machine = favDatabasehelper.getMachineDetails(machineID);
 
-        tempValue = machine.getmachineTemp();
-        veloValue = machine.getmachineVelo();
-        displayTempAndVelo();
+
 
         try {
+            String recordDate = dateFormatter.format(dateFormatter.parse(machine.getMachineDate()));            // date formatted in string
+            boolean sameDate = dateFormatter.format(dateFormatter.parse(lastDateTime)).equals(recordDate);
+
             String xLabelToAdd = addLineXLabel(dateFormatter.parse(machine.getMachineDate()), timeFormatter.parse(machine.getMachineTime()));
             if(xLabelToAdd == null)
                 return;
+
+            tempValue = machine.getmachineTemp();
+            veloValue = machine.getmachineVelo();
+            displayTempAndVelo();
+            if(Double.parseDouble(veloValue) > 0)
+                opHours++;
+            else
+                opHours = 0;
+            tvDHour.setText(String.format("%d", opHours++));
+
             tempYVals.add(new Entry(Float.parseFloat(machine.getmachineTemp()), tempYVals.size()));
             veloYVals.add(new Entry(Float.parseFloat(machine.getmachineVelo()), veloYVals.size()));
             lineXVals.add(xLabelToAdd);
+
+            if(!veloValue.equals(0)) {
+                if (sameDate) {
+                    if (Float.parseFloat(veloValue) >= Float.parseFloat(veloCriticalValue) || Float.parseFloat(tempValue) >= Float.parseFloat(tempCriticalValue))
+                        lastStackedYVals[2]++;
+                    else if (Float.parseFloat(veloValue) >= Float.parseFloat(veloWarningValue) || Float.parseFloat(tempValue) >= Float.parseFloat(tempWarningValue))
+                        lastStackedYVals[1]++;
+                    else if (Float.parseFloat(veloValue) > 0 || Float.parseFloat(tempValue) > 0)
+                        lastStackedYVals[0]++;
+                    stackedYVals.remove(stackedYVals.size() - 1);
+                    stackedYVals.add(new BarEntry(lastStackedYVals, stackedYVals.size()));
+                } else {
+                    if (Float.parseFloat(veloValue) >= Float.parseFloat(veloCriticalValue) || Float.parseFloat(tempValue) >= Float.parseFloat(tempCriticalValue))
+                        lastStackedYVals = new float[]{0, 0, 1};
+                    else if (Float.parseFloat(veloValue) >= Float.parseFloat(veloWarningValue) || Float.parseFloat(tempValue) >= Float.parseFloat(tempWarningValue))
+                        lastStackedYVals = new float[]{0, 1, 0};
+                    else if (Float.parseFloat(veloValue) > 0 || Float.parseFloat(tempValue) > 0)
+                        lastStackedYVals = new float[]{1, 0, 0};
+
+                    stackedYVals.add(new BarEntry(lastStackedYVals, stackedYVals.size() - 1));
+                    stackedXVals.add(recordDate);
+                }
+            }
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
         lineChart.notifyDataSetChanged();
         lineChart.invalidate();
+        stackedChart.notifyDataSetChanged();
+        stackedChart.invalidate();
     }
 
     /**
@@ -1050,9 +1093,10 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     @Override
     public void onPause() {
         super.onPause();
-
+        Log.e("DETAILS", "ONPAUSE");
         //unregister the receiver
         LocalBroadcastManager.getInstance(context).unregisterReceiver(dataChangeReceiver);
+        shareClicked = true;
     }
 
     @Override

@@ -9,13 +9,13 @@
     <!-- TODO: Remove or change this placeholder text -->
 
     <!--Fix state range-->
-    <string name="temp_warning_value">21.0</string>
-    <string name="temp_critical_value">31.0</string>
-    <string name="velo_warning_value">0.9</string>
-    <string name="velo_critical_value">5.0</string>
+    <string name="temp_warning_value">50.00</string>
+    <string name="temp_critical_value">70.00</string>
+    <string name="velo_warning_value">2.80</string>
+    <string name="velo_critical_value">7.10</string>
 
     <string name="default_temp_min_range">0.0</string>
-    <string name="default_temp_max_range">50.0</string>
+    <string name="default_temp_max_range">100.0</string>
     <string name="default_velo_min_range">0.0</string>
     <string name="default_velo_max_range">10.0</string>
 

@@ -18,6 +18,8 @@ import android.widget.Toast;
 import org.florescu.android.rangeseekbar.TempRangeSeekBar;
 import org.florescu.android.rangeseekbar.VeloRangeSeekBar;
 
+import java.text.DecimalFormat;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,7 +35,7 @@ public class RangeFragment extends Fragment {
     TempRangeSeekBar seekBarTemp;
     VeloRangeSeekBar seekBarVelo;
     EditText warnTempEdit, critTempEdit, warnVeloEdit, critVeloEdit;
-    Button save;
+    Button save, resetBtn;
 
     SharedPreferences RangeSharedPreferences;
     public static final String MyRangePREFERENCES = "MyRangePrefs";
@@ -45,6 +47,8 @@ public class RangeFragment extends Fragment {
     String criticalTemp ;
     String warningVelo ;
     String criticalVelo;
+
+    DecimalFormat twoDP = new DecimalFormat("#0.00");
 
     public RangeFragment() {
         // Required empty public constructor
@@ -68,76 +72,38 @@ public class RangeFragment extends Fragment {
         warnVeloEdit = (EditText) v.findViewById(R.id.warnVeloEditText);
         critVeloEdit = (EditText) v.findViewById(R.id.critVeloEditText);
         save = (Button) v.findViewById(R.id.saveButton);
-
-        //get the shared preferences mode
-        RangeSharedPreferences = getContext().getSharedPreferences(MyRangePREFERENCES, Context.MODE_PRIVATE);
-
-        //reload the value from the shared preferences and display on edittext
-        String displayWarnTemp = RangeSharedPreferences.getString(WarningTemperature, null);
-        String displayCritTemp = RangeSharedPreferences.getString(CriticalTemperature, null);
-        String displayWarnVelo = RangeSharedPreferences.getString(WarningVelocity, null);
-        String displayCritVelo = RangeSharedPreferences.getString(CriticalVelocity, null);
-
-        warnTempEdit.setText(displayWarnTemp);
-        critTempEdit.setText(displayCritTemp);
-        warnVeloEdit.setText(displayWarnVelo);
-        critVeloEdit.setText(displayCritVelo);
-
-        //Set selected range on the temp rangeseekbar
-        if (displayWarnTemp != null) {
-            seekBarTemp.setSelectedWarningValue(Double.valueOf(displayWarnTemp));
-        }
-        if (displayCritTemp != null) {
-            seekBarTemp.setSelectedCriticalValue(Double.valueOf(displayCritTemp));
-        }
-        if (displayWarnTemp == null && displayCritTemp == null) {
-            seekBarTemp.setSelectedWarningValue(Double.parseDouble(getString(R.string.temp_warning_value)));
-            seekBarTemp.setSelectedCriticalValue(Double.parseDouble(getString(R.string.temp_critical_value)));
-            warnTempEdit.setText(seekBarTemp.getSelectedWarningValue().toString());
-            critTempEdit.setText(seekBarTemp.getSelectedCriticalValue().toString());
-            Log.d("tempwarn", seekBarTemp.getSelectedWarningValue().toString());
-            Log.d("tempcrit", seekBarTemp.getSelectedCriticalValue().toString());
-        }
-
-        //Set selected range on the velo rangeseekbar
-        if (displayWarnVelo != null) {
-            seekBarVelo.setSelectedWarningValue(Double.valueOf(displayWarnVelo));
-        }
-        if (displayCritVelo != null) {
-            seekBarVelo.setSelectedCriticalValue(Double.valueOf(displayCritVelo));
-        }
-        if (displayWarnVelo == null && displayCritVelo == null) {
-            seekBarVelo.setSelectedWarningValue(Double.parseDouble(getString(R.string.velo_warning_value)));
-            seekBarVelo.setSelectedCriticalValue(Double.parseDouble(getString(R.string.velo_critical_value)));
-            warnVeloEdit.setText(seekBarVelo.getSelectedWarningValue().toString());
-            critVeloEdit.setText(seekBarVelo.getSelectedCriticalValue().toString());
-            Log.d("velowarn", seekBarVelo.getSelectedWarningValue().toString());
-            Log.d("velocrit", seekBarVelo.getSelectedCriticalValue().toString());
-        }
+        resetBtn = (Button) v.findViewById(R.id.resetButton);
 
         //Set default range for rangeseekbar
         seekBarTemp.setRangeValues(Double.parseDouble(getString(R.string.default_temp_min_range)), Double.parseDouble(getString(R.string.default_temp_max_range)));
         seekBarVelo.setRangeValues(Double.parseDouble(getString(R.string.default_velo_min_range)), Double.parseDouble(getString(R.string.default_velo_max_range)));
 
+        //get the shared preferences mode
+        RangeSharedPreferences = getContext().getSharedPreferences(MyRangePREFERENCES, Context.MODE_PRIVATE);
+
+        //reload the value from the shared preferences and display on edittext
+        warningTemp = RangeSharedPreferences.getString(WarningTemperature, getString(R.string.temp_warning_value));
+        criticalTemp = RangeSharedPreferences.getString(CriticalTemperature, getString(R.string.temp_critical_value));
+        warningVelo = RangeSharedPreferences.getString(WarningVelocity, getString(R.string.velo_warning_value));
+        criticalVelo = RangeSharedPreferences.getString(CriticalVelocity, getString(R.string.velo_critical_value));
+
+        warnTempEdit.setText(twoDP.format(Double.parseDouble(warningTemp)));
+        critTempEdit.setText(twoDP.format(Double.parseDouble(criticalTemp)));
+        warnVeloEdit.setText(twoDP.format(Double.parseDouble(warningVelo)));
+        critVeloEdit.setText(twoDP.format(Double.parseDouble(criticalVelo)));
+
+        seekBarTemp.setSelectedWarningValue(Double.parseDouble(warningTemp));
+        seekBarTemp.setSelectedCriticalValue(Double.parseDouble(criticalTemp));
+        seekBarVelo.setSelectedWarningValue(Double.parseDouble(warningVelo));
+        seekBarVelo.setSelectedCriticalValue(Double.parseDouble(criticalVelo));
 
         //Temp seekbar action
         seekBarTemp.setOnRangeSeekBarChangeListener(new TempRangeSeekBar.OnRangeSeekBarChangeListener<Double>() {
 
             public void onRangeSeekBarValuesChanged(TempRangeSeekBar<?> bar, Double warnValue, Double critValue) {
                 Log.d("tempvalue", warnValue + "  " + critValue);
-                warnTempEdit.setText(seekBarTemp.getSelectedWarningValue().toString());
-                critTempEdit.setText(seekBarTemp.getSelectedCriticalValue().toString());
-            }
-
-        });
-
-        //Temp seekbar action
-        seekBarTemp.setOnRangeSeekBarChangeListener(new TempRangeSeekBar.OnRangeSeekBarChangeListener<Double>() {
-
-            public void onRangeSeekBarValuesChanged(TempRangeSeekBar<?> bar, Double warnValue, Double critValue) {
-                Log.d("tempvalue", warnValue + "  " + critValue);
-                warnTempEdit.setText(seekBarTemp.getSelectedWarningValue().toString());
-                critTempEdit.setText(seekBarTemp.getSelectedCriticalValue().toString());
+                warnTempEdit.setText(twoDP.format(seekBarTemp.getSelectedWarningValue()));
+                critTempEdit.setText(twoDP.format(seekBarTemp.getSelectedCriticalValue()));
             }
         });
 
@@ -146,8 +112,8 @@ public class RangeFragment extends Fragment {
 
             public void onRangeSeekBarValuesChanged(VeloRangeSeekBar<?> bar, Double warnValue, Double critValue) {
                 Log.d("velovalue", warnValue + "  " + critValue);
-                warnVeloEdit.setText(seekBarVelo.getSelectedWarningValue().toString());
-                critVeloEdit.setText(seekBarVelo.getSelectedCriticalValue().toString());
+                warnVeloEdit.setText(twoDP.format(seekBarVelo.getSelectedWarningValue()));
+                critVeloEdit.setText(twoDP.format(seekBarVelo.getSelectedCriticalValue()));
             }
         });
 
@@ -163,7 +129,7 @@ public class RangeFragment extends Fragment {
                     }
                     //dont meet range criteria
                     else {
-                        Toast.makeText(getActivity(), "Invalid input value range. (0-50 only)", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "Invalid input value range. (0-100 only)", Toast.LENGTH_SHORT).show();
                         validateWarnTemp = false;
                     }
                     //null input value
@@ -193,7 +159,7 @@ public class RangeFragment extends Fragment {
                     }
                     //dont meet range criteria
                     else {
-                        Toast.makeText(getActivity(), "Invalid input value range. (0-50 only)", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "Invalid input value range. (0-100 only)", Toast.LENGTH_SHORT).show();
                         validateCritTemp = false;
                     }
                     //null input value
@@ -314,6 +280,18 @@ public class RangeFragment extends Fragment {
                 }
             }
         });
+
+        resetBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                seekBarTemp.setSelectedWarningValue(Double.parseDouble(getString(R.string.temp_warning_value)));
+                seekBarTemp.setSelectedCriticalValue(Double.parseDouble(getString(R.string.temp_critical_value)));
+                seekBarVelo.setSelectedWarningValue(Double.parseDouble(getString(R.string.velo_warning_value)));
+                seekBarVelo.setSelectedCriticalValue(Double.parseDouble(getString(R.string.velo_critical_value)));
+                warnTempEdit.setText(getString(R.string.temp_warning_value));
+                critTempEdit.setText(getString(R.string.temp_critical_value));
+                warnVeloEdit.setText(getString(R.string.velo_warning_value));
+                critVeloEdit.setText(getString(R.string.velo_critical_value));
+            }});
 
         return v;
     }
