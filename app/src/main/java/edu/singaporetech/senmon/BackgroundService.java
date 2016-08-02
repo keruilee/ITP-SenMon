@@ -11,6 +11,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
@@ -70,17 +71,21 @@ public class BackgroundService extends Service{
             //Declare variables
 
             // get number of machines in states from database, number of fav machines from shared pref
-            int noOfCrit = dbHelper.getNumOfMachinesByStatus(getString(R.string.status_critical));
-            int noOfWarn = dbHelper.getNumOfMachinesByStatus(getString(R.string.status_warning));
+
             int noOfFav = sharedPreferences.getInt(NumberOfFavourite, 0);
 
             //if there is any machines in the warning state
 
-            Log.d("NUMBER OF CRITICALS", "" + noOfCrit);
-            Log.d("NUMBER OF WARNINGS", "" + noOfWarn);
             if (sharedPreferences.getBoolean(NotificationsEnabled, true)) {
                 //send a broadcast when the notification activates
                 LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent("data_changed"));
+
+                SystemClock.sleep(5000);
+                //if there are any machine in warning state
+                int noOfCrit = dbHelper.getNumOfMachinesByStatus(getString(R.string.status_critical));
+                int noOfWarn = dbHelper.getNumOfMachinesByStatus(getString(R.string.status_warning));
+                Log.d("NUMBER OF CRITICALS", "" + noOfCrit);
+                Log.d("NUMBER OF WARNINGS", "" + noOfWarn);
                 //if there are any machine in warning state
                 if (noOfWarn > 0) {
                     Log.d("LOL", "SERVICE RECEIVED THE VARIABLE");
