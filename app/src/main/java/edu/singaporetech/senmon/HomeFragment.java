@@ -211,9 +211,9 @@ public class HomeFragment extends Fragment implements WebService.OnAsyncRequestC
                     if(networkDialog != null && networkDialog.isShowing()) return;
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setTitle("Network Connectivity");
-                    builder.setMessage("No network detected! Data will not be updated!");
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    builder.setTitle(getString(R.string.network_dialog_title));
+                    builder.setMessage(getString(R.string.network_dialog_message));
+                    builder.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // You don't have to do anything here if you just want it dismissed when clicked
                         }

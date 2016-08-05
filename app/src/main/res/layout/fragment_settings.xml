@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Settings"
+        android:text="@string/settings_title"
         android:textSize="30dp"
         android:padding="10dp"/>
 
@@ -27,7 +27,7 @@
         android:id="@+id/ntfnEnableSw"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Enable Notifications"
+        android:text="@string/settings_notif_enable"
         android:padding="10dp"
         android:checked="true"
         android:layout_below="@id/line"/>
@@ -35,7 +35,7 @@
         android:id="@+id/ntfnWarningSw"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Alert when machine enters warning state"
+        android:text="@string/settings_notif_warning"
         android:padding="10dp"
         android:checked="true"
         android:layout_below="@id/ntfnEnableSw"/>
@@ -43,7 +43,7 @@
         android:id="@+id/ntfnCriticalSw"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Alert when machine enters critical state"
+        android:text="@string/settings_notif_critical"
         android:padding="10dp"
         android:checked="true"
         android:layout_below="@id/ntfnWarningSw"/>
@@ -51,7 +51,7 @@
         android:id="@+id/ntfnFavSw"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Alert machines in favourite list"
+        android:text="@string/settings_notif_fav"
         android:padding="10dp"
         android:checked="false"
         android:layout_below="@id/ntfnCriticalSw"/>
@@ -59,7 +59,7 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="edit range value"
+        android:text="@string/settings_edit_range"
         android:id="@+id/goRangeButton"
         android:layout_below="@+id/ntfnFavSw"
         android:layout_alignParentStart="true"

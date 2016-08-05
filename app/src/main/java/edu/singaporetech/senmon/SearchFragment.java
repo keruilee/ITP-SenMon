@@ -56,9 +56,9 @@ public class SearchFragment extends Fragment {
         resultsString = db.SearchMachine(query);
 
         if (resultsString == null || resultsString.isEmpty()) {
-            textViewResult.setText("You have entered '" + query + "'. No result match");
+            textViewResult.setText(getString(R.string.you_have_entered) +" '" + query + "'. " +getString(R.string.no_results_found));
         } else {
-            textViewResult.setText("You have entered '" + query + "'");
+            textViewResult.setText(getString(R.string.you_have_entered) +" '" + query + "'");
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
                     android.R.layout.simple_list_item_1, resultsString);
             listView.setAdapter(adapter);

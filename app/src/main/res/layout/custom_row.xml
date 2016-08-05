@@ -8,7 +8,7 @@
         android:layout_width="150dp"
         android:layout_height="65dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Machine ID"
+        android:text="@string/machine_ID"
         android:id="@+id/textViewmachineid"
         android:layout_marginTop="20dp"
         android:layout_marginLeft="10dp"
@@ -42,7 +42,7 @@
                 <TextView
                     android:layout_width="60dp"
                     android:layout_height="wrap_content"
-                    android:text="temp"
+                    android:text=""
                     android:id="@+id/textViewTemp"
                     android:textColor="#000000"/>
 
@@ -65,7 +65,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="velo"
+                    android:text=""
                     android:id="@+id/textViewVelocity"
                     android:layout_below="@+id/textViewTemp"
                     android:textColor="#000000"/>

@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity
     public static final String LIST_FRAG_ALL_TAG = "LIST_FRAGMENT_ALL";
     public static final String SETTINGS_FRAG_TAG = "SETTINGS_FRAGMENT";
     public static final String RANGE_FRAG_TAG = "RANGE_FRAGMENT";
+    public static final String SEARCH_FRAG_TAG = "SEARCH_FRAGMENT";
 
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
@@ -133,9 +134,9 @@ public class MainActivity extends AppCompatActivity
             if(networkDialog != null && networkDialog.isShowing()) return;
 
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle("Network Connectivity");
-            builder.setMessage("No network detected! Data will not be updated!");
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            builder.setTitle(getString(R.string.network_dialog_title));
+            builder.setMessage(getString(R.string.network_dialog_message));
+            builder.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     // You don't have to do anything here if you just want it dismissed when clicked
                 }
@@ -190,8 +191,8 @@ public class MainActivity extends AppCompatActivity
                 searchfragment.setArguments(bundle); //data being send to MachineListFragment
                 FragmentManager manager = getSupportFragmentManager();
                 manager.beginTransaction()
-                        .replace(R.id.relativelayoutfor_fragment, searchfragment, "SEARCH_FRAGMENT")
-                        .addToBackStack("SEARCH_FRAGMENT")
+                        .replace(R.id.relativelayoutfor_fragment, searchfragment, SEARCH_FRAG_TAG)
+                        .addToBackStack(SEARCH_FRAG_TAG)
                         .commit();
                 return false;
             }

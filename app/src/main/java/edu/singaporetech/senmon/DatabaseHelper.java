@@ -117,8 +117,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Machine machineStringObj = new Machine(mContext, c.getString(1), c.getString(2), c.getString(3),
                     c.getString(4), c.getString(5), c.getString(6), c.getString(7), c.getString(8),
                     c.getString(9), c.getString(10), c.getString(11), c.getString(12), c.getString(13));
+            c.close();
             return machineStringObj;
         }
+        c.close();
         return null;
     }
 
@@ -130,10 +132,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 MACHINEID + " = ?",
                 new String[] { findMachineID }, null,null,null);
 
-        if (cursor.getCount() > 0) {
-            return true;
-        }
-        return false;
+        boolean machineExist = cursor.getCount() > 0;
+        cursor.close();
+        return machineExist;
     }
 
     ////////// To search a list of machine //////////////
@@ -155,29 +156,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 Log.i(TAG+"search", machineStringObj.getMachineID());
             } while (c.moveToNext());
         }
+
+        c.close();
         return resultsString;
     }
 
-    // Check current machine state in database //
-    public boolean checkMachineState(String machineID, String machineStatus) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, columns,
-                MACHINEID + " = ? AND " + MACHINESTATUS + " = ?",
-                new String[] { machineID, machineStatus }, null,null,null);
-        // looping through if exist
-        if (cursor.moveToFirst()) {
-            do {
-                return true;
-            } while (cursor.moveToNext());
-        }
-        else
-        {
-            return false;
-        }
-    }
-
     // Insert/update database //
-
     /**
      * update machines in database
      * if it's a new machine, add a new row
@@ -248,7 +232,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 dbWrite.update(TABLE_NAME, cv, MACHINEID + "= ?", new String[] {cursor.getString(1)});
             } while (cursor.moveToNext());
         }
-
+        cursor.close();
         dbRead.close();
         dbWrite.close();
     }
@@ -257,7 +241,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public ArrayList <Machine> returnFavourite() {
         Log.d("TEST FAV", "enter");
         SQLiteDatabase db = this.getReadableDatabase();
-        ArrayList <Machine> machineString = new ArrayList<Machine>();
+        ArrayList <Machine> machineString = new ArrayList<>();
         Machine machineStringObj;
         String selectQuery = "SELECT * FROM " + TABLE_NAME + " WHERE machineFavouriteStatus == 'yes' ";
         Cursor c = db.rawQuery(selectQuery, null);
@@ -274,6 +258,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             } while (c.moveToNext());
         }
+
+        c.close();
         return machineString;
 
     }
@@ -282,8 +268,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         String selectQuery = "SELECT * FROM " + TABLE_NAME + " WHERE machineFavouriteStatus == 'yes' ";
         Cursor c = db.rawQuery(selectQuery, null);
-        Log.d("FAVOURITE EXIST FUNCT", c.getCount()+" FAVOURITE");
-        if (c.getCount() > 0){
+        int count = c.getCount();
+        c.close();
+        if (count > 0){
             return true;
         }else
             return false;
@@ -302,6 +289,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 new String[] { machineID, "yes" }, null,null,null);
         int count = cursor.getCount();
         db.close();
+        cursor.close();
 
         if(count > 0)
             return true;
@@ -341,7 +329,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Find all machine in the database //
     public ArrayList <Machine> returnStringMachineAllString() {
-        ArrayList <Machine> machineString = new ArrayList<Machine>();
+        ArrayList <Machine> machineString = new ArrayList<>();
 
         // Select All Query
         String selectQuery = "SELECT * FROM " + TABLE_NAME;
@@ -356,13 +344,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 machineString.add(machineStringObj);
             } while (cursor.moveToNext());
         }
+
+        cursor.close();
         return machineString;
     }
 
     // Find machine in a particular state in database //
     public ArrayList <Machine> returnStringMachineStateString(String machineStatus) {
         SQLiteDatabase db = this.getReadableDatabase();
-        ArrayList <Machine> machineString = new ArrayList<Machine>();
+        ArrayList <Machine> machineString = new ArrayList<>();
 
         Cursor c = db.query(TABLE_NAME, columns,
                 MACHINESTATUS + " = ?",
@@ -378,6 +368,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             } while (c.moveToNext());
         }
+        c.close();
         return machineString;
     }
 
@@ -393,7 +384,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         Log.d("CHECK FAV FUNCTION", cursor.getCount()+" FAVOURITE");
         int totalMachine = cursor.getCount();
-
+        cursor.close();
         return totalMachine;
 
     }
@@ -408,7 +399,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLE_NAME, columns,
                 MACHINESTATUS + " = ?",
                 new String[]{status}, null, null, null);
-        return cursor.getCount();
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
     }
 
     // Get column

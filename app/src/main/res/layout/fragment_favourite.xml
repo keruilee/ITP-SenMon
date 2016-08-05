@@ -11,7 +11,7 @@
             android:layout_width="319dp"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Favourite List"
+            android:text="@string/fav_list_title"
             android:textSize="30dp"
             android:padding="10dp" />
         <View
@@ -32,7 +32,7 @@
 
 
         <TextView
-            android:text="Updated on: "
+            android:text="@string/updated_on"
             android:textSize="30px"
             android:textStyle="bold"
             android:layout_height="fill_parent"

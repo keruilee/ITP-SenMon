@@ -16,7 +16,7 @@
             android:layout_marginTop="25dp"
             android:background="@color/colorNormal"
             android:gravity="center"
-            android:text="All machines are working perfectly!"
+            android:text="@string/normal_msg"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/colorWhite"
             android:visibility="invisible" />
@@ -30,7 +30,7 @@
             android:background="@color/colorCritical"
             android:drawableEnd="@drawable/ic_arrow_forward"
             android:gravity="center"
-            android:text="Machine 1111 requires immediate action!"
+            android:text=""
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/colorWhite"
             android:visibility="invisible" />
@@ -45,7 +45,7 @@
             android:drawableRight="@drawable/ic_arrow_forward"
             android:drawablePadding="10dp"
             android:gravity="center"
-            android:text="Machine 1112 is in warning state!"
+            android:text=""
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/colorWhite"
             android:visibility="invisible" />

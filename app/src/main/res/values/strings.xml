@@ -1,39 +1,44 @@
 <resources>
     <string name="app_name">SenMon</string>
+    <string name="app_desc">Monitor machines made easier!</string>
+
+    <string name="action_settings">Settings</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
+    <string name="title_activity_detail">Detail</string>
+    <string name="title_activity_search__result">Search Result</string>
+    <string name="title_activity_favourite">Favourite</string>
+    <string name="title_activity_home">Home</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
+    <string name="machines">Machines</string>
+    <string name="machine_ID">Machine ID</string>
+    <string name="temperature">Temperature</string>
+    <string name="velocity">Velocity</string>
+    <string name="temperature_caps">TEMPERATURE</string>
+    <string name="velocity_caps">VELOCITY</string>
+    <string name="temperature_colon">Temperature:</string>
+    <string name="velocity_colon">Velocity:</string>
+    <string name="op_hours_colon">Operating Hours:</string>
 
-    <!--Fix state range-->
-    <string name="temp_warning_value">50.00</string>
-    <string name="temp_critical_value">70.00</string>
-    <string name="velo_warning_value">2.80</string>
-    <string name="velo_critical_value">7.10</string>
-
-    <string name="default_temp_min_range">0.0</string>
-    <string name="default_temp_max_range">100.0</string>
-    <string name="default_velo_min_range">0.0</string>
-    <string name="default_velo_max_range">10.0</string>
+    <!-- for background service -->
+    <string name="fav_notification"> of the machine(s) that you have noted needs attention</string>
+    <string name="status_notification_1">There are</string>
+    <string name="status_notification_2">machine(s) in the</string>
+    <string name="status_notification_3">state!</string>
 
     <!--for home fragment-->
     <string name="machine_name">Machines</string>
     <string name="warning_lbl">is in warning state!</string>
     <string name="critical_lbl">requires immediate action!</string>
+    <string name="normal_msg">All machines are working perfectly!</string>
 
     <!--for favourite fragment-->
-    <string name="hello_blank_fragment">My Favourite</string>
-    <string name="title_activity_detail">Detail</string>
+    <string name="fav_list_title">Favourite List</string>
 
     <!--for details fragment-->
     <string name="datetime_format">MM/dd/yyyy HH:mm:ss</string>
-
-    <!--for settings fragment-->
-    <string name="save_button">Save Changes</string>
-    <string name="title_activity_search__result">Search_Result</string>
 
     <!-- for units -->
     <string name="temp_unit">°C</string>
@@ -45,6 +50,66 @@
     <string name="status_warning">Warning</string>
     <string name="status_critical">Critical</string>
 
+    <!-- graph related -->
     <string name="graph_heading_history">History</string>
     <string name="graph_heading_daily">Daily\nAnalysis</string>
+    <string name="graph_no_connection">Graph cannot be loaded without internet connection.</string>
+    <string name="graph_cannot_load">Graph cannot be loaded currently. Please try again.</string>
+    <string name="graph_loading">Loading graph...</string>
+    <string name="graph_no_records">No records found.</string>
+    <string name="graph_stacked_name">| Machine States Count / Day</string>
+    <string name="graph_no_data_selected">No Data Selected</string>
+    <string name="graph_crit_warn_lines">Show critical/warning lines</string>
+
+    <!-- for range fragment -->
+    <string name="range_title">Edit Range Values</string>
+    <string name="starting_warning_temp">Starting Warning Temperature:"</string>
+    <string name="starting_crit_temp">Starting Critical Temperature:</string>
+    <string name="starting_warning_velo">Starting Warning Velocity:</string>
+    <string name="starting_crit_velo">Starting Critical Velocity:</string>
+    <string name="reset_defauilt">Reset to Default</string>
+    <string name="save_button">Save Changes</string>
+    <string name="range_saved_success">Range Saved Successfully</string>
+    <string name="invalid_range">Invalid input range! </string>
+    <string name="invalid_range_temp">Invalid input range! (0-100 only)</string>
+    <string name="invalid_range_velo">Invalid input range! (0-10 only)</string>
+    <string name="no_blank_value">You cannot leave a blank input value</string>
+    <string name="warning_must_be_higher">warning value must be lower than critical value</string>
+
+    <!--Fix state range-->
+    <string name="temp_warning_value">50.00</string>
+    <string name="temp_critical_value">70.00</string>
+    <string name="velo_warning_value">2.80</string>
+    <string name="velo_critical_value">7.10</string>
+    <string name="default_temp_min_range">0.0</string>
+    <string name="default_temp_max_range">100.0</string>
+    <string name="default_velo_min_range">0.0</string>
+    <string name="default_velo_max_range">10.0</string>
+
+    <!-- dialog related -->
+    <string name="network_dialog_title">No Network Connectivity</string>
+    <string name="network_dialog_message">No network detected! Data will not be updated!</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_loading">Loading Records...</string>
+
+    <!-- fav related -->
+    <string name="removed_from_fav">Removed from Favourite List</string>
+    <string name="added_to_fav">Added into Favourite List</string>
+
+    <!-- list fragment -->
+    <string name="updated_on">Updated on </string>
+    <string name="no_results_found">No results found</string>
+    <string name="no_machines_found">No machine found in the list!</string>
+
+    <!-- search fragment -->
+    <string name="search_title">Search Result</string>
+    <string name="you_have_entered">You have entered </string>
+
+    <!-- settings fragment -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_notif_enable">Enable Notifications</string>
+    <string name="settings_notif_warning">Alert when machine enters warning state</string>
+    <string name="settings_notif_critical">Alert when machine enters critical state</string>
+    <string name="settings_notif_fav">Alert machines in favourite list</string>
+    <string name="settings_edit_range">edit range value</string>
 </resources>

@@ -129,12 +129,12 @@ public class RangeFragment extends Fragment {
                     }
                     //dont meet range criteria
                     else {
-                        Toast.makeText(getActivity(), "Invalid input value range. (0-100 only)", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.invalid_range_temp), Toast.LENGTH_SHORT).show();
                         validateWarnTemp = false;
                     }
                     //null input value
                 } else {
-                    Toast.makeText(getActivity(), "You cannot leave a blank input value", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), getString(R.string.no_blank_value), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -159,12 +159,12 @@ public class RangeFragment extends Fragment {
                     }
                     //dont meet range criteria
                     else {
-                        Toast.makeText(getActivity(), "Invalid input value range. (0-100 only)", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.invalid_range_temp), Toast.LENGTH_SHORT).show();
                         validateCritTemp = false;
                     }
                     //null input value
                 } else {
-                    Toast.makeText(getActivity(), "You cannot leave a blank input value", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), getString(R.string.no_blank_value), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -189,12 +189,12 @@ public class RangeFragment extends Fragment {
                     }
                     //dont meet range criteria
                     else {
-                        Toast.makeText(getActivity(), "Invalid input value range. (0-10 only)", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.invalid_range_velo), Toast.LENGTH_SHORT).show();
                         validateWarnVelo = false;
                     }
                     //null input value
                 } else {
-                    Toast.makeText(getActivity(), "You cannot leave a blank input value", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), getString(R.string.no_blank_value), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -219,12 +219,12 @@ public class RangeFragment extends Fragment {
                     }
                     //dont meet range criteria
                     else {
-                        Toast.makeText(getActivity(), "Invalid input value range. (0-10 only)", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.invalid_range_velo), Toast.LENGTH_SHORT).show();
                         validateCritVelo = false;
                     }
                     //null input value
                 } else {
-                    Toast.makeText(getActivity(), "You cannot leave a blank input value", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), getString(R.string.no_blank_value), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -242,16 +242,16 @@ public class RangeFragment extends Fragment {
             public void onClick(View v) {
 
                 //validate for empty inputs
-                if ((validateEmpty(warnTempEdit) == true) && (validateEmpty(critTempEdit) == true)
-                        && (validateEmpty(warnVeloEdit) == true) && (validateEmpty(critVeloEdit) == true)) {
+                if ((validateEmpty(warnTempEdit)) && (validateEmpty(critTempEdit))
+                        && (validateEmpty(warnVeloEdit)) && (validateEmpty(critVeloEdit))) {
 
                     //Check for invalid range input
-                    if  ((validateWarnTemp == true) && (validateCritTemp == true) &&
-                            (validateWarnVelo == true) && (validateCritVelo == true))
+                    if  ((validateWarnTemp) && (validateCritTemp) &&
+                            (validateWarnVelo) && (validateCritVelo))
                     {
                         //Check for not logical warning/critical input
-                        if ((validateLogical(warnTempEdit,critTempEdit) == true) &&
-                                (validateLogical(warnVeloEdit,critVeloEdit) == true))
+                        if ((validateLogical(warnTempEdit,critTempEdit)) &&
+                                (validateLogical(warnVeloEdit,critVeloEdit)))
                         {
                             //No empty input or invalid input
                             //Call the method and Store the number into a variable
@@ -270,12 +270,12 @@ public class RangeFragment extends Fragment {
                             rangeEditor.commit();
 
                             computeMachine();
-                            Toast.makeText(getActivity(), "Range Saved Successfully", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), getString(R.string.range_saved_success), Toast.LENGTH_SHORT).show();
                         }
 
                     }
                     else {
-                        Toast.makeText(getActivity(), "Invalid input range!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.invalid_range), Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -298,7 +298,7 @@ public class RangeFragment extends Fragment {
 
     public boolean validateEmpty(EditText editText) {
         if (editText.getText().toString().isEmpty()) {
-            Toast.makeText(getActivity(), "You cannot leave a blank input value", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), getString(R.string.no_blank_value), Toast.LENGTH_SHORT).show();
             return false;
 
         } else {
@@ -308,7 +308,7 @@ public class RangeFragment extends Fragment {
 
     public boolean validateLogical(EditText editTextW, EditText editTextC) {
         if (Double.valueOf(editTextW.getText().toString()) >= Double.valueOf(editTextC.getText().toString())) {
-            Toast.makeText(getActivity(), "warning value must be lower than critical value", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), getString(R.string.warning_must_be_higher), Toast.LENGTH_SHORT).show();
             return false;
 
         }

@@ -48,19 +48,15 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.ConnectException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.ParseException;
@@ -94,8 +90,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     public static final String NumberOfFavourite = "numOfFav";
 
     private DatabaseHelper favDatabasehelper;
-
-    View content;
 
     ProgressDialog progressDialog;
     private static final String TAG_RESULTS = "result";
@@ -236,9 +230,9 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         } else {                            // no internet connection, get data from database
             // Use the Builder class for convenient dialog construction
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Network Connectivity");
-            builder.setMessage("No network detected! Data will not be updated!");
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            builder.setTitle(getString(R.string.network_dialog_title));
+            builder.setMessage(getString(R.string.network_dialog_message));
+            builder.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     // You don't have to do anything here if you just want it dismissed when clicked
                 }
@@ -251,8 +245,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
             veloValue = currentMachine.getmachineVelo();
             displayTempAndVelo();
             tvDHour.setText(currentMachine.getMachineHour());
-            lineChart.setNoDataText("Graph cannot be loaded without internet connection.");
-            stackedChart.setNoDataText("Graph cannot be loaded without internet connection.");
+            lineChart.setNoDataText(getString(R.string.graph_no_connection));
+            stackedChart.setNoDataText(getString(R.string.graph_no_connection));
             cbLines.setEnabled(false);
             cbVelo.setEnabled(false);
             cbTemp.setEnabled(false);
@@ -266,22 +260,6 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         Canvas canvas = new Canvas(bitmap);
         view.draw(canvas);
         return bitmap;
-
-//        view.setDrawingCacheEnabled(true);
-//        view.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
-//        view.buildDrawingCache();
-//
-//        if(view.getDrawingCache() == null) return null;
-//
-//        Bitmap snapshot = Bitmap.createBitmap(view.getDrawingCache());
-//        view.setDrawingCacheEnabled(false);
-//        view.destroyDrawingCache();
-//
-//        return snapshot;
-//
-//        View rootView = getView();
-//        rootView.setDrawingCacheEnabled(true);
-//        return rootView.getDrawingCache();
     }
 
     /**
@@ -302,7 +280,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                     editor.putInt(NumberOfFavourite, count);
                     editor.apply();
                     Log.d("FAAVOURITE COUNT", count + "");
-                    Toast.makeText(getActivity(), "Removed from Favourite List", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), getString(R.string.removed_from_fav), Toast.LENGTH_SHORT).show();
                 }
                 else                                // machine id not in fav, add to fav
                 {
@@ -317,7 +295,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                     editor.putInt(NumberOfFavourite, count);
                     editor.apply();
                     Log.d("FAAVOURITE COUNT", count + "");
-                    Toast.makeText(getActivity(), "Added into Favourite List", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), getString(R.string.added_to_fav), Toast.LENGTH_SHORT).show();
 
                 }
                 break;
@@ -434,12 +412,12 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
 
             @Override
             protected void onPreExecute() {
-                progressDialog.setMessage("Loading Records...");
+                progressDialog.setMessage(getString(R.string.dialog_loading));
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                 progressDialog.setIndeterminate(false);
                 progressDialog.show();
-                lineChart.setNoDataText("Loading graph...");
-                stackedChart.setNoDataText("Loading graph...");
+                lineChart.setNoDataText(getString(R.string.graph_loading));
+                stackedChart.setNoDataText(getString(R.string.graph_loading));
                 try
                 {
                     data = URLEncoder.encode("machine", "UTF-8")
@@ -596,8 +574,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
                 tvDHour.setText(String.format("%d", opHours));
             }
             else {      // no records found for machine
-                lineChart.setNoDataText("No records found");
-                stackedChart.setNoDataText("No records found");
+                lineChart.setNoDataText(getString(R.string.graph_no_records));
+                stackedChart.setNoDataText(getString(R.string.graph_no_records));
             }
         } catch (Exception e) {
             graphFailToLoad();
@@ -607,8 +585,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
 
     /**
      * determine the label to add on x-axis, either date+time or time only
-     * @param date
-     * @param time
+     * @param date date of current point
+     * @param time time of current point
      * @return
      */
     private String addLineXLabel(Date date, Date time)
@@ -660,7 +638,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
         lineChart.setDrawBorders(false);
         // no description textelse
         lineChart.setDescription("");
-        lineChart.setNoDataText("Loading graph...");
+        lineChart.setNoDataText(getString(R.string.graph_loading));
 
         // enable touch gestures
         lineChart.setTouchEnabled(true);
@@ -806,7 +784,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
 
         //stackedChart.setOnChartValueSelectedListener(this);
 
-        stackedChart.setNoDataText("Loading graph...");
+        stackedChart.setNoDataText(getString(R.string.graph_loading));
         stackedChart.setDescription("");
         // scaling can now only be done on x- and y-axis separately
         stackedChart.setScaleXEnabled(true);
@@ -841,7 +819,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
     private void insertStackedData() {
         BarDataSet set1;
 
-        set1 = new BarDataSet(stackedYVals, "| Machine States Count / Day");
+        set1 = new BarDataSet(stackedYVals, getString(R.string.graph_stacked_name));
         set1.setColors(getColors());
         set1.setStackLabels(new String[]{getString(R.string.status_normal), getString(R.string.status_warning), getString(R.string.status_critical)});
 
@@ -1076,8 +1054,8 @@ public class DetailsFragment extends Fragment implements View.OnClickListener, O
      * graph cannot be loaded, update text on graph to inform user
      */
     private void graphFailToLoad() {
-        lineChart.setNoDataText("Graph cannot be loaded currently. Please try again.");
-        stackedChart.setNoDataText("Graph cannot be loaded currently. Please try again.");
+        lineChart.setNoDataText(getString(R.string.graph_cannot_load));
+        stackedChart.setNoDataText(getString(R.string.graph_cannot_load));
     }
     /**
      * reset all arrays to store data because they are static

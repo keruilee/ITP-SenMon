@@ -102,7 +102,7 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
             //machineArray.add(String.valueOf(bundle.getString("name")));
             status = String.valueOf(bundle.getString("name"));
             Log.i("TEST", status);
-            title.setText("Machines (" +status +")");
+            title.setText(getString(R.string.machines) +" (" +status +")");
         }
 
         ////////////////////////Retrived datatime sharef pref///////////////////////
@@ -133,9 +133,9 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
                     if(networkDialog != null && networkDialog.isShowing()) return;
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setTitle("Network Connectivity");
-                    builder.setMessage("No network detected! Data will not be updated!");
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    builder.setTitle(getString(R.string.network_dialog_title));
+                    builder.setMessage(getString(R.string.network_dialog_message));
+                    builder.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // You don't have to do anything here if you just want it dismissed when clicked
                         }
@@ -266,12 +266,12 @@ public class ListFragment extends Fragment implements WebService.OnAsyncRequestC
     private void setUpdateDateTime() {
         if (myMachineList.isEmpty())
         {
-            updateDateTime.setText("No machine found in the list!");
+            updateDateTime.setText(getString(R.string.no_machines_found));
         }
         else
         {
             dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
-            updateDateTime.setText("Updated on "+dateTime);
+            updateDateTime.setText(getString(R.string.updated_on) +" " +dateTime);
         }
     }
 

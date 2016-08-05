@@ -38,11 +38,6 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
     public Context context;
     SharedPreferences DateTimeSharedPreferences;
     String dateTime;
-    int numberOfFavInAlert = 0;
-
-    public static final String MyPREFERENCES = "MyPrefs" ;
-
-    public static final String NumberOfFavourite = "numOfFav";
 
     public static final String DETAILS_FRAG_TAG = "DETAILS_FRAGMENT";
 
@@ -75,8 +70,6 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
     }
 
     @Override
@@ -90,7 +83,6 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
         updateDateTime= (TextView) rootView.findViewById(R.id.textViewUpdateDateTime);
         listViewListing = (ListView) rootView.findViewById(R.id.ListView);
 
-
         /////////////////retrieve range values ////////////
         RangeSharedPreferences = context.getSharedPreferences(MyRangePREFERENCES, Context.MODE_PRIVATE);
 
@@ -99,7 +91,6 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
         tempCriticalValue = RangeSharedPreferences.getString(CriticalTemperature, String.valueOf(Double.parseDouble(getString(R.string.temp_critical_value))));
         veloWarningValue = RangeSharedPreferences.getString(WarningVelocity, String.valueOf(Double.parseDouble(getString(R.string.velo_warning_value))));
         veloCriticalValue = RangeSharedPreferences.getString(CriticalVelocity, String.valueOf(Double.parseDouble(getString(R.string.velo_critical_value))));
-
 
         mydatabaseHelper = new DatabaseHelper(getActivity());
 
@@ -132,34 +123,34 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
                 transaction.commit();
             }
         });
+
         //////////////////swipe///////////////
-                mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
-                        if(isNetworkEnabled())
-                        {
-                            if(networkDialog != null && networkDialog.isShowing())
-                                networkDialog.dismiss();
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Log.i("REFRESH", "onRefresh called from SwipeRefreshLayout");
+                if(isNetworkEnabled())
+                {
+                    if(networkDialog != null && networkDialog.isShowing())
+                        networkDialog.dismiss();
 
-                            getSQLData();
+                    getSQLData();
+                }
+                else {
+                    if(networkDialog != null && networkDialog.isShowing()) return;
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle(getString(R.string.network_dialog_title));
+                    builder.setMessage(getString(R.string.network_dialog_message));
+                    builder.setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // You don't have to do anything here if you just want it dismissed when clicked
                         }
-                        else {
-                            if(networkDialog != null && networkDialog.isShowing()) return;
-
-                            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            builder.setTitle("Network Connectivity");
-                            builder.setMessage("No network detected! Data will not be updated!");
-                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    // You don't have to do anything here if you just want it dismissed when clicked
-                                }
-                            });
-                            networkDialog = builder.create();
-                            networkDialog.show();
-                            mSwipeRefreshLayout.setRefreshing(false);
-                        }
-
+                    });
+                    networkDialog = builder.create();
+                    networkDialog.show();
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
             }
         });
 
@@ -192,12 +183,12 @@ public class FavouriteFragment extends Fragment implements WebService.OnAsyncReq
     private void setUpdateDateTime() {
         if (myFavouriteMachineList.isEmpty())
         {
-            updateDateTime.setText("No results found");
+            updateDateTime.setText(getString(R.string.no_results_found));
         }
         else
         {
             dateTime = DateTimeSharedPreferences.getString("DT_PREFS_KEY", null);
-            updateDateTime.setText("Updated on "+dateTime);
+            updateDateTime.setText(getString(R.string.updated_on) +" " +dateTime);
         }
     }
 

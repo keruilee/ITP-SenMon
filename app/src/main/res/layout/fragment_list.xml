@@ -19,7 +19,7 @@
             android:layout_width="307dp"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Listing"
+            android:text=""
             android:textSize="30dp"
             android:padding="10dp" />
 
@@ -52,17 +52,17 @@
         <android.support.design.widget.TabItem
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:text="MACHINE ID"/>
+            android:text="@string/machine_ID"/>
 
         <android.support.design.widget.TabItem
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:text="TEMPERATURE"/>
+            android:text="@string/temperature_caps"/>
 
         <android.support.design.widget.TabItem
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:text="VELOCITY"/>
+            android:text="@string/velocity_caps"/>
 
     </android.support.design.widget.TabLayout>
 
@@ -74,7 +74,7 @@
 
 
         <TextView
-            android:text="Updated on: "
+            android:text="@string/updated_on"
             android:textSize="30px"
             android:textStyle="bold"
             android:layout_height="fill_parent"

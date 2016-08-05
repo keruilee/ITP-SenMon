@@ -127,7 +127,8 @@ public class BackgroundService extends Service{
         //TODO Build notifications from the parameters retreived
         NotificationCompat.Builder NotificBuilder = (NotificationCompat.Builder) new
                 NotificationCompat.Builder(context).setContentTitle(contentTitle)
-                .setContentText("There are " + noOfMachine + " Machine(s) in the " +state+" State!")
+                .setContentText(getString(R.string.status_notification_1) +" " +noOfMachine +" "
+                        +getString(R.string.status_notification_2) +state +" " +getString(R.string.status_notification_3))
                 .setSmallIcon(icon)
                 .setAutoCancel(true);
         Intent openIntent = new Intent(context, MainActivity.class);
@@ -139,60 +140,55 @@ public class BackgroundService extends Service{
         PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(0,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-
-
-            NotificBuilder.setContentIntent(pendingIntent);
+        NotificBuilder.setContentIntent(pendingIntent);
 
         //TODO fire off the critical notification
-            if(state == "critical"){
-                notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                notificationManager.notify(CritNotificID, NotificBuilder.build());
-                Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-                v.vibrate(800);
+        if(state.equals("critical")) {
+            notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(CritNotificID, NotificBuilder.build());
+            Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+            v.vibrate(800);
 
-                try {
-                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                    Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
-                    r.play();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                isCritNotificActive = true;
-
-                //call the destroy method
-//                stopSelf();
-                killThread();
+            try {
+                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
+                r.play();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+            isCritNotificActive = true;
+
+            //call the destroy method
+//                stopSelf();
+            killThread();
+        }
         //TODO fire of the warning notifications
-            if(state == "warning"){
-                notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                notificationManager.notify(WarnNotificID, NotificBuilder.build());
-                Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-                v.vibrate(800);
+        if(state.equals("warning")){
+            notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(WarnNotificID, NotificBuilder.build());
+            Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+            v.vibrate(800);
 
-                try {
-                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                    Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
-                    r.play();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                isWarnNotificActive = true;
-
-                //call the destroy method
-//                stopSelf();
-                killThread();
+            try {
+                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                Ringtone r = RingtoneManager.getRingtone(context.getApplicationContext(), notification);
+                r.play();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+            isWarnNotificActive = true;
 
-
-
+            //call the destroy method
+//                stopSelf();
+            killThread();
+        }
     }
 
     public void callFavNotification(String contentTitle, int noOfMachine, int icon){
         //TODO Build notifications from the parameters retreived
         NotificationCompat.Builder NotificBuilder = (NotificationCompat.Builder) new
                 NotificationCompat.Builder(context).setContentTitle(contentTitle)
-                .setContentText( noOfMachine + " of the Machine(s) that you have noted needs attention")
+                .setContentText(noOfMachine +" " +getString(R.string.fav_notification))
                 .setSmallIcon(icon)
                 .setAutoCancel(true);
         Intent openIntent = new Intent(context, MainActivity.class);

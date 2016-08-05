@@ -110,7 +110,7 @@ public class WebService extends AsyncTask<Void, Void, JSONObject> {
         else {
             if(progressDialog == null) {
                 progressDialog = new ProgressDialog(mContext);
-                progressDialog.setMessage("Loading Records...");
+                progressDialog.setMessage(mContext.getString(R.string.dialog_loading));
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                 progressDialog.setIndeterminate(false);
                 progressDialog.setCancelable(false);
